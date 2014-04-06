@@ -21,4 +21,6 @@ end appIsRunning
 EOF)
 
     echo $RDIO_TRACK '#[nobold]-#[bold]' $RDIO_ARTIST '#[nobold]'
+  else
+    echo '#h'
 fi
