@@ -1,15 +1,15 @@
 #!/bin/sh
-export PATH=$PATH:/usr/local/bin
+#export PATH=$PATH:/usr/local/bin
 
 # abort if we're already inside a TMUX session
 [ "$TMUX" == "" ] || exit 0
 
 # startup a "default" session if none currently exists
-tmux has-session -t default || tmux new-session -s default -d
+/opt/boxen/homebrew/bin/tmux has-session -t default || /opt/boxen/homebrew/bin/tmux new-session -s default -d
 
 # present menu for user to choose which workspace to open
 PS3="Please choose your session: "
-options=($(tmux list-sessions -F "#S") "NEW SESSION")
+options=($(/opt/boxen/homebrew/bin/tmux list-sessions -F "#S") "NEW SESSION")
 echo "Available sessions"
 echo "------------------"
 echo " "
@@ -18,11 +18,11 @@ do
   case $opt in
     "NEW SESSION")
       read -p "Enter new session name: " SESSION_NAME
-      tmux new -s "$SESSION_NAME"
+      /opt/boxen/homebrew/bin/tmux new -s "$SESSION_NAME"
       break
       ;;
     *)
-      tmux attach-session -t $opt
+      /opt/boxen/homebrew/bin/tmux attach-session -t $opt
       break
       ;;
   esac
