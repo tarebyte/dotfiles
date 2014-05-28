@@ -20,6 +20,8 @@ export SHELL=/opt/boxen/homebrew/bin/zsh
 
 alias bx='bundle exec'
 
+alias gitjk="history 10 | tail -r | gitjk_cmd"
+
 alias e='mvim -v'
 
 alias vh="vagrant halt"
