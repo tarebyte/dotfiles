@@ -3,7 +3,7 @@ export ZSH=$HOME/.oh-my-zsh
 
 ZSH_THEME="mark"
 
-plugins=(autojump brew chruby git heroku npm rails ruby sublime tmuxinator vagrant)
+plugins=(autojump brew chruby git heroku npm rails ruby tmuxinator vagrant)
 
 source $ZSH/oh-my-zsh.sh
 
@@ -23,6 +23,8 @@ alias bx='bundle exec'
 alias gitjk="history 10 | tail -r | gitjk_cmd"
 
 alias e='mvim -v'
+
+alias scb='script/cibuild'
 
 alias vh="vagrant halt"
 alias vssh="vagrant ssh"
