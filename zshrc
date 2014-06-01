@@ -15,7 +15,6 @@ source $ZSH/oh-my-zsh.sh
 
 export ARCHFLAGS="-arch x86_64"
 export EDITOR=vim
-export GITHUB_API_TOKEN=51b4d3edf9863e60321a649299c67f7eb4edf2ff
 export SHELL=/opt/boxen/homebrew/bin/zsh
 
 alias bx='bundle exec'
