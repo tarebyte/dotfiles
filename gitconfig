@@ -1,3 +1,4 @@
+# Not Symlinked because Boxen
 [user]
 name = YOUR_NAME
 email = YOUR_EMAIL
@@ -19,14 +20,15 @@ d             = difftool
 dump          = cat-file -p
 hist          = log --pretty=format:\"%h %ad | %s%d [%an]\" --graph --date=short --color
 merge-branch  = !git checkout master && git merge @{-1}
-pm            = push origin master
+po            = push origin
+pom           = push origin master
 phm           = push heroku master
 sc            = commit -S -m
 sci           = commit -S
 st            = status -sb
 today         = log --since=midnight --author='YOUR_NAME' --oneline
 type          = cat-file -t
-rmb           = !sh -c 'git branch -D $1 && git push origin :$1' -
+up            = !sh -c 'git pull --rebase --prune && git log --pretty=format:\"%Cred%ae %Creset- %C(yellow)%s %Creset(%ar)\" HEAD@{1}..'
 who           = shortlog -n -s --no-merges
 
 [color]

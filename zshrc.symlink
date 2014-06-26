@@ -3,19 +3,19 @@ export ZSH=$HOME/.oh-my-zsh
 
 ZSH_THEME="mark"
 
-plugins=(autojump brew chruby git heroku npm rails ruby tmuxinator vagrant)
+plugins=(autojump bundler brew chruby gem git heroku middleman npm rails ruby tmuxinator vagrant)
 
 source $ZSH/oh-my-zsh.sh
-
-# Boxen
-[ -f /opt/boxen/env.sh ] && source /opt/boxen/env.sh
-
-# Autojump
-[[ -s `brew --prefix`/etc/autojump.sh ]] && . `brew --prefix`/etc/autojump.sh
 
 export ARCHFLAGS="-arch x86_64"
 export EDITOR=vim
 export SHELL=/opt/boxen/homebrew/bin/zsh
+
+# Source the secret stuff
+if [[ -a ~/.localrc ]]
+then
+  source ~/.localrc
+fi
 
 alias bx='bundle exec'
 

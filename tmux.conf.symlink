@@ -35,8 +35,8 @@ bind r source-file ~/.tmux.conf \; display "Reloaded Tmux!"
 
 # splitting panes
 # START:panesplit
-bind v split-window -h
-bind s split-window -v
+bind | split-window -h
+bind - split-window -v
 # END:panesplit
 
 # moving between panes
@@ -82,7 +82,8 @@ set -g visual-activity on
 
 # Load tmuxline
 if-shell "test -f ~/.tmux.conf.d/solarized" "source ~/.tmux.conf.d/solarized"
-# if-shell "test -f ~/.tmux.conf.d/base16" "source ~/.tmux.conf.d/base16"
+# if-shell "test -f ~/.tmux.conf.d/tomorrow-night" "source ~/.tmux.conf.d/tomorrow-night"
+# if-shell "test -f ~/.tmux.conf.d/lavalamp" "source ~/.tmux.conf.d/lavalamp"
 
 #START:utf8
 set -g status-utf8 on
@@ -127,3 +128,5 @@ bind-key -t vi-copy y copy-pipe "reattach-to-user-namespace pbcopy"
 # Update default binding of `Enter` to also use copy-pipe
 unbind -t vi-copy Enter
 bind-key -t vi-copy Enter copy-pipe "reattach-to-user-namespace pbcopy"
+
+set-option -g default-command "/bin/bash -c 'which reattach-to-user-namespace >/dev/null && exec reattach-to-user-namespace $SHELL -l || exec $SHELL -l'"
