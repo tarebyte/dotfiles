@@ -103,8 +103,6 @@ link_file () {
 }
 
 install_oh_my_zsh () {
-  info 'installing oh-my-zsh'
-
   if [ ! -d "$HOME/.oh-my-zsh" ]; then
     git clone https://github.com/robbyrussell/oh-my-zsh.git $HOME/.oh-my-zsh
   fi
