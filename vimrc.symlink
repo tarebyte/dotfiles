@@ -24,15 +24,23 @@ NeoBundle 'Shougo/vimproc', { 'build': {
 
 " My Bundles here:
 NeoBundle 'chriskempson/base16-vim'
+
 NeoBundle 'kien/ctrlp.vim'
+
+NeoBundle 'othree/html5.vim'
+
 NeoBundle 'scrooloose/nerdtree'
+
 NeoBundle 'kien/rainbow_parentheses.vim'
+
 NeoBundle 'ervandew/supertab'
 NeoBundle 'scrooloose/syntastic'
+
 NeoBundle 'godlygeek/tabular'
 NeoBundle 'majutsushi/tagbar'
 NeoBundle 'tomtom/tcomment_vim'
 NeoBundle 'edkolev/tmuxline.vim'
+
 NeoBundle 'bling/vim-airline'
 NeoBundle 'kchmck/vim-coffee-script'
 NeoBundle 'altercation/vim-colors-solarized'
@@ -258,6 +266,11 @@ augroup END
 " Plugins
 "
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" vim-airline
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+let g:airline_powerline_fonts = 1
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " ctrlp.vim
