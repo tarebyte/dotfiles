@@ -59,7 +59,6 @@ NeoBundle 'slim-template/vim-slim'
 NeoBundle 'kana/vim-textobj-user'
 NeoBundle 'nelstrom/vim-textobj-rubyblock'
 
-
 call neobundle#end()
 
 " Required:
@@ -241,7 +240,9 @@ set wildmode=list:longest,full
 set tabpagemax=20
 
 " remember last position in file
-au BufReadPost * if line("'\"") > 0 && line("'\"") <= line("$") | exe "normal g'\"" | endif
+if has("autocmd")
+    au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
+endif
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " File types
