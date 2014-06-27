@@ -5,6 +5,7 @@
 
 cd "$(dirname "$0")/.."
 DOTFILES_ROOT=$(pwd)
+BIN_ROOT="$(pwd)/bin"
 
 set -e
 
@@ -114,20 +115,42 @@ install_dotfiles () {
   done
 }
 
+install_bin_files () {
+  info 'installing bin executables'
+
+  if [ ! -d "$HOME/bin" ]; then
+    mkdir -p ~/bin
+  fi
+
+  local overwrite_all=false backup_all=false skip_all=false
+
+  for src in $(find "$BIN_ROOT" -name '*')
+  do
+    dst="$HOME/bin/$(basename "${src}")"
+    link_file "$src" "$dst"
+  done
+
+}
+
 install_oh_my_zsh () {
   if [ ! -d "$HOME/.oh-my-zsh" ]; then
-    git clone https://github.com/robbyrussell/oh-my-zsh.git $HOME/.oh-my-zsh
+    git clone https://github.com/tarebyte/oh-my-zsh.git $HOME/.oh-my-zsh
   fi
 }
 
 install_neo_bundle () {
-  mkdir -p ~/.vim/bundle
-  git clone https://github.com/Shougo/neobundle.vim ~/.vim/bundle/neobundle.vim
+  if [ ! -d "$HOME/.vim/bundle" ]; then
+    mkdir -p ~/.vim/bundle
+    if [ ! -d "$HOME/.vim/bundle/neobundle.vim" ]; then
+      git clone https://github.com/Shougo/neobundle.vim ~/.vim/bundle/neobundle.vim
+    fi
+  fi
 }
 
 install_oh_my_zsh
 install_dotfiles
 install_neo_bundle
+install_bin_files
 
 echo ''
 echo '  All installed!'
