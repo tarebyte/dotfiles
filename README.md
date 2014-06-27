@@ -22,3 +22,6 @@ And that's it! This will symlink any .symlink file into your home directory
 
 I used [Zach Holman's](http://zachholman.com/) awesome [dotfiles](https://github.com/holman/dotfiles)
 as a template to build my own.
+
+I pulled a lot of functionality out of the [Neo vim-config](https://github.com/neo/vim-config)
+and [Jason Long's](http://www.jasonlong.me/) [vimrc](https://github.com/jasonlong/dotfiles/blob/master/vimrc)
