@@ -1,27 +1,40 @@
-# Path to your oh-my-zsh installation.
 export ZSH=$HOME/.oh-my-zsh
 
 ZSH_THEME="mark"
 
-plugins=(autojump bundler brew chruby gem git heroku middleman npm rails ruby tmuxinator vagrant)
+# I really suck at shell scripting
+case `uname` in
+  Darwin)
+    plugins=(autojump bundler brew chruby gem git heroku npm rails ruby tmuxinator vagrant)
+    alias vim='mvim -v'
+
+    if [[ -a ~/src/tarebyte/OSXey/OSXey ]]
+    then
+      function stats() { ~/src/tarebyte/OSXey/OSXey -c }
+    fi
+    ;;
+  Linux)
+    plugins=(bundler gem git heroku npm rails ruby)
+    ;;
+esac
 
 source $ZSH/oh-my-zsh.sh
 
-export ARCHFLAGS="-arch x86_64"
-export EDITOR=vim
-export SHELL=/opt/boxen/homebrew/bin/zsh
-
-# Source the secret stuff
 if [[ -a ~/.localrc ]]
 then
   source ~/.localrc
 fi
 
+export ARCHFLAGS="-arch x86_64"
+export EDITOR=vim
+
 alias bx='bundle exec'
+alias bxrk='bundle exec rake'
+alias bxrc='bundle exec rails console'
+alias bxrs='bundle exec rails server'
 
-alias gitjk="history 10 | tail -r | gitjk_cmd"
-
-alias e='mvim -v'
+alias gg='git g'
+alias gs='git st'
 
 alias scb='script/cibuild'
 
@@ -29,6 +42,3 @@ alias vh="vagrant halt"
 alias vssh="vagrant ssh"
 alias vu="vagrant up"
 
-function stats() {
-  ~/src/tarebyte/OSXey/OSXey -c
-}
