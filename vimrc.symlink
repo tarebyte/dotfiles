@@ -1,14 +1,351 @@
-" bring in the bundles for mac and windows
-set rtp+=~/vimfiles/vundle.git/
-set rtp+=~/.vim/vundle.git/
-call vundle#rc()
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" NeoBundle
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+if has('vim_starting')
+  set nocompatible               " Be iMproved
 
-runtime! common_config/*.vim
-runtime! custom_config/*.vim
+  " Required:
+  set runtimepath+=~/.vim/bundle/neobundle.vim/
+endif
 
-" for git, add spell checking and automatic wrapping at 72 columns
-autocmd Filetype gitcommit setlocal spell textwidth=72
+" Required:
+  call neobundle#begin(expand('~/.vim/bundle'))
 
-colors solarized
+" Let NeoBundle manage NeoBundle
+" Required:
+NeoBundleFetch 'Shougo/neobundle.vim'
+
+NeoBundle 'Shougo/vimproc', { 'build': {
+  \   'windows': 'make -f make_mingw32.mak',
+  \   'cygwin': 'make -f make_cygwin.mak',
+  \   'mac': 'make -f make_mac.mak',
+  \   'unix': 'make -f make_unix.mak',
+  \ } }
+
+" My Bundles here:
+NeoBundle 'chriskempson/base16-vim'
+NeoBundle 'kien/ctrlp.vim'
+NeoBundle 'scrooloose/nerdtree'
+NeoBundle 'kien/rainbow_parentheses.vim'
+NeoBundle 'ervandew/supertab'
+NeoBundle 'scrooloose/syntastic'
+NeoBundle 'godlygeek/tabular'
+NeoBundle 'majutsushi/tagbar'
+NeoBundle 'tomtom/tcomment_vim'
+NeoBundle 'edkolev/tmuxline.vim'
+NeoBundle 'bling/vim-airline'
+NeoBundle 'kchmck/vim-coffee-script'
+NeoBundle 'altercation/vim-colors-solarized'
+NeoBundle 'Lokaltog/vim-easymotion'
+NeoBundle 'tpope/vim-endwise'
+NeoBundle 'tpope/vim-fugitive'
+NeoBundle 'tpope/vim-haml'
+NeoBundle 'nono/vim-handlebars'
+NeoBundle 'pangloss/vim-javascript'
+NeoBundle 'tpope/vim-markdown'
+NeoBundle 'rodjek/vim-puppet'
+NeoBundle 'tpope/vim-rails'
+NeoBundle 'tpope/vim-repeat'
+NeoBundle 'vim-ruby/vim-ruby'
+NeoBundle 'slim-template/vim-slim'
+NeoBundle 'kana/vim-textobj-user'
+NeoBundle 'nelstrom/vim-textobj-rubyblock'
+
+
+call neobundle#end()
+
+" Required:
+filetype plugin indent on
+
+" If there are uninstalled bundles found on startup,
+" this will conveniently prompt you to install them.
+NeoBundleCheck
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Strip Trailing Whitespaces
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+function! <SID>StripTrailingWhitespaces()
+    " Preparation: save last search, and cursor position.
+    let _s=@/
+    let l = line(".")
+    let c = col(".")
+    " Do the business:
+    %s/\s\+$//e
+    " Clean up: restore previous search history, and cursor position
+    let @/=_s
+    call cursor(l, c)
+endfunction
+command! StripTrailingWhitespaces call <SID>StripTrailingWhitespaces()
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Keybindings
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Remap leader to ,
+let mapleader = ","
+let g:mapleader = ","
+
+" easy wrap toggling
+nmap <Leader>w :set wrap!<cr>
+nmap <Leader>W :set nowrap<cr>
+
+" shortcut to save all
+nmap <Leader>ss :wa<cr>
+
+" close all other windows (in the current tab)
+nmap gW :only<cr>
+
+" go to the alternate file (previous buffer) with g-enter
+nmap g 
+
+" shortcuts for frequenly used files
+nmap gs :e db/schema.rb<cr>
+nmap gr :e config/routes.rb<cr>
+nmap gm :e Gemfile<cr>
+
+" Open README of any project
+nmap <Leader>r :e README.md<cr>
+
+" insert blank lines without going into insert mode
+nmap go o<esc>
+nmap gO O<esc>
+
+" mapping the jumping between splits. Hold control while using vim nav.
+nmap <C-J> <C-W>j
+nmap <C-K> <C-W>k
+nmap <C-H> <C-W>h
+nmap <C-L> <C-W>l
+
+" Yank from the cursor to the end of the line, to be consistent with C and D.
+nnoremap Y y$
+
+" clean up trailing whitespace
+map <Leader>c :StripTrailingWhitespaces<cr>
+
+" delete all buffers
+map <Leader>d :bufdo bd<cr>
+
+" map spacebar to clear search highlight
+nnoremap <Leader><space> :noh<cr>
+
+" reindent the entire file
+map <Leader>I gg=G``<cr>
+
+" insert the path of currently edited file into a command
+" Command mode: Ctrl-P
+cmap <C-S-P> <C-R>=expand("%:p:h") . "/" <cr>
+
+" jump to far right or left of line
+map L $
+map H ^
+
+" Open the current file in the Marked App
+:nnoremap <leader>m :silent !open -a Marked.app '%:p'<cr>
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" General
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" required for several plugins
+set nocompatible
+
+" set pwd to current directory
+cd $PWD
+
+" enable syntax highlighting
+syntax on
+
+" default color scheme
+set background=dark
+colorscheme solarized
+
+" don't wrap long lines
+set nowrap
+
+" show commands as we type them
+set showcmd
+
+" highlight matching brackets
+set showmatch
+
+" scroll the window when we get near the edge
+set scrolloff=4 sidescrolloff=10
+
+" use 2 spaces for tabs
+set expandtab tabstop=2 softtabstop=2 shiftwidth=2
+set smarttab
+
+" enable line numbers, and don't make them any wider than necessary
+set number numberwidth=2
+
+" show the first match as search strings are typed
+set incsearch
+
+" highlight the search matches
+set hlsearch
+
+" searching is case insensitive when all lowercase
+set ignorecase smartcase
+
+" assume the /g flag on substitutions to replace all matches in a line
+set gdefault
+
+" set temporary directory (don't litter local dir with swp/tmp files)
+set directory=/tmp/
+
+" pick up external file modifications
+set autoread
+
+" don't abandon buffers when unloading
+set hidden
+
+" match indentation of previous line
+set autoindent
+
+" don't blink the cursor
+set guicursor=a:blinkon0
+
+" show current line info (current/total)
+set ruler rulerformat=%=%l/%L
+
+" show status line
+set laststatus=2
+
+" When lines are cropped at the screen bottom, show as much as possible
+set display=lastline
+
+" flip the default split directions to sane ones
+set splitright
+set splitbelow
+
+" don't beep for errors
+set visualbell
+
+" make backspace work in insert mode
+set backspace=indent,eol,start
+
+" highlight trailing whitespace
+set listchars=tab:>\ ,trail:-,extends:>,precedes:<,nbsp:+
+set list
+
+" use tab-complete to see a list of possiblities when entering commands
+set wildmode=list:longest,full
+
+" allow lots of tabs
+set tabpagemax=20
+
+" remember last position in file
+au BufReadPost * if line("'\"") > 0 && line("'\"") <= line("$") | exe "normal g'\"" | endif
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" File types
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+au BufNewFile,BufRead *.coffee set filetype=coffee
+au BufRead,BufNewFile {Gemfile,Rakefile,Vagrantfile,Thorfile,config.ru} set ft=ruby
+au BufNewFile,BufRead *.hb set ai filetype=handlebars
+au BufNewFile,BufRead *.hbs set ai filetype=handlebars
+au BufNewFile,BufRead *.es6 set filetype=javascript
+au BufNewFile,BufRead *.json set ai filetype=javascript
+au BufNewFile,BufRead *.pp set filetype=puppet
+au BufNewFile,BufRead *.slim set filetype=slim
+
+augroup mkd
+autocmd BufNewFile,BufRead *.mkd      set ai formatoptions=tcroqn2 comments=n:> filetype=markdown
+autocmd BufNewFile,BufRead *.md       set ai formatoptions=tcroqn2 comments=n:> filetype=markdown
+autocmd BufNewFile,BufRead *.markdown set ai formatoptions=tcroqn2 comments=n:> filetype=markdown
+augroup END
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"
+" Plugins
+"
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" ctrlp.vim
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+nnoremap <Leader>b :<C-U>CtrlPBuffer<CR>
+nnoremap <Leader>t :<C-U>CtrlP<CR>
+nnoremap <Leader>T :<C-U>CtrlPTag<CR>
+let g:ctrlp_prompt_mappings = {
+  \ 'PrtSelectMove("j")':   ['<down>'],
+  \ 'PrtSelectMove("k")':   ['<up>'],
+  \ 'AcceptSelection("h")': ['<c-j>'],
+  \ 'AcceptSelection("v")': ['<c-k>', '<RightMouse>'],
+  \ }
+  " respect the .gitignore
+  let g:ctrlp_user_command = ['.git', 'cd %s && git ls-files . --cached --exclude-standard --others']
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" nerdtree
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+let NERDTreeHijackNetrw = 0
+
+nmap gt :NERDTreeToggle<CR>
+nmap g :NERDTree \| NERDTreeToggle \| NERDTreeFind<CR>
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" rainbow_parentheses.vim
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+au VimEnter * RainbowParenthesesToggle
+au Syntax * RainbowParenthesesLoadRound
+au Syntax * RainbowParenthesesLoadSquare
+au Syntax * RainbowParenthesesLoadBraces
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" syntastic
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+let g:syntastic_enable_signs=1
+let g:syntastic_quiet_messages = {'level': 'warning'}
+" syntastic is too slow for haml and sass
+let g:syntastic_mode_map = { 'mode': 'active',
+                           \ 'active_filetypes': [],
+                           \ 'passive_filetypes': ['haml','scss','sass'] }
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" tabular
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+function! CustomTabularPatterns()
+  if exists('g:tabular_loaded')
+    AddTabularPattern! symbols         / :/l0
+    AddTabularPattern! hash            /^[^>]*\zs=>/
+    AddTabularPattern! chunks          / \S\+/l0
+    AddTabularPattern! assignment      / = /l0
+    AddTabularPattern! comma           /^[^,]*,/l1
+    AddTabularPattern! colon           /:\zs /l0
+    AddTabularPattern! options_hashes  /:\w\+ =>/
+  endif
+endfunction
+
+autocmd VimEnter * call CustomTabularPatterns()
+
+" shortcut to align text with Tabular
+map <Leader>a :Tabularize<space>
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" tagbar
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+let g:tagbar_autofocus = 1
+map <Leader>rt :!ctags --extra=+f -R *<CR><CR>
+map <Leader>. :TagbarToggle<CR>
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" vim-airline
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 let g:airline_powerline_fonts=1
-nmap <C-W>! <Plug>Kwbd
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" tagbar
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+let g:tagbar_autofocus = 1
+map <Leader>rt :!ctags --extra=+f -R *<CR><CR>
+map <Leader>. :TagbarToggle<CR>
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" vim-rails
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+map <Leader>oc :Rcontroller<Space>
+map <Leader>ov :Rview<Space>
+map <Leader>om :Rmodel<Space>
+map <Leader>oh :Rhelper<Space>
+map <Leader>oj :Rjavascript<Space>
+map <Leader>os :Rstylesheet<Space>
+map <Leader>oi :Rintegration<Space>

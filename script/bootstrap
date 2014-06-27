@@ -102,12 +102,6 @@ link_file () {
   fi
 }
 
-install_oh_my_zsh () {
-  if [ ! -d "$HOME/.oh-my-zsh" ]; then
-    git clone https://github.com/robbyrussell/oh-my-zsh.git $HOME/.oh-my-zsh
-  fi
-}
-
 install_dotfiles () {
   info 'installing dotfiles'
 
@@ -120,8 +114,20 @@ install_dotfiles () {
   done
 }
 
+install_oh_my_zsh () {
+  if [ ! -d "$HOME/.oh-my-zsh" ]; then
+    git clone https://github.com/robbyrussell/oh-my-zsh.git $HOME/.oh-my-zsh
+  fi
+}
+
+install_neo_bundle () {
+  mkdir -p ~/.vim/bundle
+  git clone https://github.com/Shougo/neobundle.vim ~/.vim/bundle/neobundle.vim
+}
+
 install_oh_my_zsh
 install_dotfiles
+install_neo_bundle
 
 echo ''
 echo '  All installed!'
