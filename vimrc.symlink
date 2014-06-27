@@ -148,6 +148,18 @@ map H ^
 " Open the current file in the Marked App
 :nnoremap <leader>m :silent !open -a Marked.app '%:p'<cr>
 
+" Open .vimrc
+nnoremap <leader>v :e  ~/.vimrc<CR>
+map <silent> <leader>V :source ~/.vimrc<CR>:filetype detect<CR>:exe ":echo 'vimrc reloaded'"<CR>
+
+" Fast saving
+map <Esc><Esc> :w<CR>
+map <leader>w :w<CR>
+inoremap jk <esc>
+
+" Fast access to : commands
+nnoremap <Space> :
+
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " General
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
