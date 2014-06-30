@@ -6,30 +6,30 @@ signingkey = PGP_FOR_THE_WIN
 username = GITHUB_USERNAME
 
 [alias]
-a             = add
-br            = branch
-c             = commit -m
-ci            = commit
-co            = checkout
-cob           = checkout -b
-cleanup       = !git remote prune origin && git gc && git clean -dfx && git stash clear
-create-branch = !sh -c 'git push origin HEAD:refs/heads/$1 && git fetch origin && git branch --track $1 origin/$1 && cd . && git checkout $1' -
-delete-branch = !sh -c 'git push origin :refs/heads/$1 && git remote prune origin && git branch -D $1' -
-pr            = !hub pull-request
-d             = difftool
-dump          = cat-file -p
-hist          = log --pretty=format:\"%h %ad | %s%d [%an]\" --graph --date=short --color
-merge-branch  = !git checkout master && git merge @{-1}
-po            = push origin
-pom           = push origin master
-phm           = push heroku master
-sc            = commit -S -m
-sci           = commit -S
-st            = status -sb
-today         = log --since=midnight --author='YOUR_NAME' --oneline
-type          = cat-file -t
-up            = !sh -c 'git pull --rebase --prune && git log --pretty=format:\"%Cred%ae %Creset- %C(yellow)%s %Creset(%ar)\" HEAD@{1}..'
-who           = shortlog -n -s --no-merges
+a             =  add
+br            =  branch
+c             =  commit -m
+ci            =  commit
+co            =  checkout
+cob           =  checkout -b
+cleanup       =  !git remote prune origin && git gc && git clean -dfx && git stash clear
+create-branch =  !sh -c 'git push origin HEAD:refs/heads/$1 && git fetch origin && git branch --track $1 origin/$1 && cd . && git checkout $1' -
+delete-branch =  !sh -c 'git push origin :refs/heads/$1 && git remote prune origin && git branch -D $1' -
+pr            =  !hub pull-request
+d             =  difftool
+dump          =  cat-file -p
+hist          =  log --pretty=format:\"%h %ad | %s%d [%an]\" --graph --date=short --color
+merge-branch  =  !git checkout master && git merge @{-1}
+po            =  push origin
+pom           =  push origin master
+phm           =  push heroku master
+sc            =  commit -S -m
+sci           =  commit -S
+st            =  status -sb
+today         =  log --since=midnight --author='YOUR_NAME' --oneline
+type          =  cat-file -t
+up            =  !sh -c 'git pull --rebase --prune && git log --pretty=format:\"%Cred%ae %Creset- %C(yellow)%s %Creset(%ar)\" HEAD@{1}..'
+who           =  shortlog -n -s --no-merges
 
 [color]
 branch=auto
