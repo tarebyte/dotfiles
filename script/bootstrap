@@ -135,6 +135,10 @@ install_bin_files () {
 install_oh_my_zsh () {
   if [ ! -d "$HOME/.oh-my-zsh" ]; then
     git clone https://github.com/tarebyte/oh-my-zsh.git $HOME/.oh-my-zsh
+    cd $HOME/.oh-my-zsh
+    git remote rename origin tarebyte
+    git remote add origin git@github.com:robbyrussell/oh-my-zsh.git
+    cd DOTFILES_ROOT
   fi
 }
 
