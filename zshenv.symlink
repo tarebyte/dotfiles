@@ -1,3 +1,7 @@
+_homebrew-installed() {
+  whence brew &> /dev/null
+}
+
 # Load our ~/bin folder into the path
 if [ -d "$HOME/bin" ]; then
   export PATH=$PATH:$HOME/bin
@@ -10,7 +14,9 @@ then
 fi
 
 # Autojump
-if [[ -a `brew --prefix`/etc/autojump.sh ]]
-then
-  [[ -s `brew --prefix`/etc/autojump.sh ]] && . `brew --prefix`/etc/autojump.sh
+if _homebrew-installed ; then
+  if [[ -a `brew --prefix`/etc/autojump.sh ]]
+  then
+    [[ -s `brew --prefix`/etc/autojump.sh ]] && . `brew --prefix`/etc/autojump.sh
+  fi
 fi
