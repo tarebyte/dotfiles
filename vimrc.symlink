@@ -27,7 +27,11 @@ NeoBundle 'chriskempson/base16-vim'
 
 NeoBundle 'kien/ctrlp.vim'
 
+NeoBundle 'junegunn/goyo.vim'
+
 NeoBundle 'othree/html5.vim'
+
+NeoBundle 'junegunn/limelight.vim'
 
 NeoBundle 'scrooloose/nerdtree'
 
@@ -378,3 +382,35 @@ map <Leader>oh :Rhelper<Space>
 map <Leader>oj :Rjavascript<Space>
 map <Leader>os :Rstylesheet<Space>
 map <Leader>oi :Rintegration<Space>
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" goyo.vim
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+nnoremap <Leader>G :Goyo<CR>
+
+function! GoyoBefore()
+  silent !tmux set status off
+  set noshowmode
+  set noshowcmd
+  Limelight
+  " ...
+endfunction
+
+function! GoyoAfter()
+  silent !tmux set status on
+  set showmode
+  set showcmd
+  Limelight!
+  " ...
+endfunction
+
+let g:goyo_callbacks = [function('GoyoBefore'), function('GoyoAfter')]
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" limelight.vim
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+nnoremap <Leader>L :Limelight!!<CR>
+
+" Color name (:help cterm-colors) or ANSI code
+let g:limelight_conceal_ctermfg = 'gray'
+let g:limelight_conceal_ctermfg = 240
