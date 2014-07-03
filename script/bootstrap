@@ -138,7 +138,7 @@ install_oh_my_zsh () {
     cd $HOME/.oh-my-zsh
     git remote rename origin tarebyte
     git remote add origin git@github.com:robbyrussell/oh-my-zsh.git
-    cd DOTFILES_ROOT
+    cd $DOTFILES_ROOT
   fi
 }
 
