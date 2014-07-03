@@ -5,7 +5,7 @@
 
 cd "$(dirname "$0")/.."
 DOTFILES_ROOT=$(pwd)
-BIN_ROOT="$(pwd)/bin"
+BIN_ROOT="$DOTFILES_ROOT/bin"
 
 set -e
 
@@ -124,9 +124,9 @@ install_bin_files () {
 
   local overwrite_all=false backup_all=false skip_all=false
 
-  for src in $(find "$BIN_ROOT" -name '*')
+  for src in $(find "$BIN_ROOT" -maxdepth 2 -name '*.symlink')
   do
-    dst="$HOME/bin/$(basename "${src}")"
+    dst="$HOME/bin/$(basename "${src%.*}")"
     link_file "$src" "$dst"
   done
 
