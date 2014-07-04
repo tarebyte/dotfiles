@@ -4,8 +4,8 @@
 # abort if we're already inside a TMUX session
 [ "$TMUX" == "" ] || exit 0
 
-# startup a "default" session if none currently exists
-/opt/boxen/homebrew/bin/tmux has-session -t default || /opt/boxen/homebrew/bin/tmux new-session -s default -d
+# startup a "Home" session if none currently exists
+/opt/boxen/homebrew/bin/tmux has-session -t Home || /opt/boxen/homebrew/bin/tmux new-session -s Home -d
 
 # present menu for user to choose which workspace to open
 PS3="Please choose your session: "
