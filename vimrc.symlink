@@ -30,6 +30,7 @@ NeoBundle 'kien/ctrlp.vim'
 NeoBundle 'junegunn/goyo.vim'
 
 NeoBundle 'othree/html5.vim'
+NeoBundle 'w0ng/vim-hybrid'
 
 NeoBundle 'junegunn/limelight.vim'
 
@@ -154,7 +155,7 @@ map H ^
 
 " Open .vimrc
 nnoremap <leader>v :e  ~/.vimrc<CR>
-map <silent> <leader>V :source ~/.vimrc<CR>:filetype detect<CR>:exe ":echo 'vimrc reloaded'"<CR>
+map <silent> <leader>V :source ~/.vimrc<CR>:filetype detect<CR>:exe ":echo 'vimrc reloaded!'"<CR>
 
 " Fast saving
 map <Esc><Esc> :w<CR>
@@ -175,6 +176,9 @@ cd $PWD
 
 " enable syntax highlighting
 syntax on
+
+" set colors to 256
+set t_Co=256
 
 " default color scheme
 set background=dark
@@ -259,9 +263,6 @@ set tabpagemax=20
 if has("autocmd")
     au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
 endif
-
-" set colors to 256
-set t_Co=256
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " File types
@@ -387,11 +388,13 @@ map <Leader>oi :Rintegration<Space>
 " goyo.vim
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 nnoremap <Leader>G :Goyo<CR>
+let g:goyo_margin_top = 2
 
 function! GoyoBefore()
   silent !tmux set status off
   set noshowmode
   set noshowcmd
+  AirlineToggle
   Limelight
   " ...
 endfunction

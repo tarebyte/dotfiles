@@ -31,6 +31,7 @@ setw -g pane-base-index 1
 # Reload the file with Prefix r
 # START:reload
 bind r source-file ~/.tmux.conf \; display "Reloaded Tmux!"
+bind z source-file ~/.zshrc \; display "Reloaded ZSH!"
 # END:reload
 
 # splitting panes
@@ -82,8 +83,8 @@ set -g visual-activity on
 
 # Load tmuxline
 if-shell "test -f ~/.tmux.conf.d/solarized" "source ~/.tmux.conf.d/solarized"
-# if-shell "test -f ~/.tmux.conf.d/tomorrow-night" "source ~/.tmux.conf.d/tomorrow-night"
-# if-shell "test -f ~/.tmux.conf.d/lavalamp" "source ~/.tmux.conf.d/lavalamp"
+# if-shell "test -f ~/.tmux.conf.d/base16-default" "source ~/.tmux.conf.d/base16-default"
+# if-shell "test -f ~/.tmux.conf.d/hybrid" "source ~/.tmux.conf.d/hybrid"
 
 #START:utf8
 set -g status-utf8 on
