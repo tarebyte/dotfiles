@@ -27,6 +27,8 @@ NeoBundle 'chriskempson/base16-vim'
 
 NeoBundle 'kien/ctrlp.vim'
 
+NeoBundle 'mattn/emmet-vim'
+
 NeoBundle 'junegunn/goyo.vim'
 
 NeoBundle 'othree/html5.vim'
@@ -54,7 +56,7 @@ NeoBundle 'tpope/vim-endwise'
 NeoBundle 'tpope/vim-fugitive'
 NeoBundle 'tpope/vim-haml'
 NeoBundle 'nono/vim-handlebars'
-NeoBundle 'pangloss/vim-javascript'
+NeoBundle 'jelera/vim-javascript-syntax'
 NeoBundle 'tpope/vim-markdown'
 NeoBundle 'rodjek/vim-puppet'
 NeoBundle 'tpope/vim-rails'
@@ -155,7 +157,7 @@ map H ^
 
 " Open .vimrc
 nnoremap <leader>v :e  ~/.vimrc<CR>
-map <silent> <leader>V :source ~/.vimrc<CR>:filetype detect<CR>:exe ":echo 'vimrc reloaded!'"<CR>
+map <silent> <leader>vs :source ~/.vimrc<CR>:filetype detect<CR>:exe ":echo 'vimrc reloaded!'"<CR>
 
 " Fast saving
 map <Esc><Esc> :w<CR>
@@ -394,6 +396,7 @@ function! GoyoBefore()
   silent !tmux set status off
   set noshowmode
   set noshowcmd
+  set number
   AirlineToggle
   Limelight
   " ...
@@ -412,7 +415,7 @@ let g:goyo_callbacks = [function('GoyoBefore'), function('GoyoAfter')]
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " limelight.vim
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-nnoremap <Leader>L :Limelight!!<CR>
+nnoremap <Leader>l :Limelight!!<CR>
 
 " Color name (:help cterm-colors) or ANSI code
 let g:limelight_conceal_ctermfg = 'gray'
