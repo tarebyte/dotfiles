@@ -6,7 +6,6 @@ ZSH_THEME="mark"
 case `uname` in
   Darwin)
     plugins=(autojump bundler brew chruby gem git heroku npm rails ruby tmuxinator vagrant)
-    alias vim='mvim -v'
 
     if [[ -a ~/src/tarebyte/OSXey/OSXey ]]
     then
