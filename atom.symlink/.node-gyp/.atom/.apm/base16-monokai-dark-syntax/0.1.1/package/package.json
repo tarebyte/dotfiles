@@ -1,0 +1,11 @@
+{
+  "name": "base16-monokai-dark-syntax",
+  "theme": "syntax",
+  "version": "0.1.1",
+  "description": "A port of the Base16 Monokai dark syntax theme from TextMate to Atom",
+  "repository": "https://github.com/brandonweiss/atom-base16-monokai-dark-syntax",
+  "license": "MIT",
+  "engines": {
+    "atom": ">0.50.0"
+  }
+}

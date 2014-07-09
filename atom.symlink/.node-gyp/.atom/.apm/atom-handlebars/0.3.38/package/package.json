@@ -1,0 +1,27 @@
+{
+  "name": "atom-handlebars",
+  "version": "0.3.38",
+  "description": "Handlebars support in Atom",
+  "engines": {
+    "atom": "*",
+    "node": "*"
+  },
+  "homepage": "https://github.com/Sneagan/atom-handlebars",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Sneagan/atom-handlebars.git"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Sneagan/atom-handlebars/issues"
+  },
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "atom",
+    "handlebars"
+  ],
+  "author": "Jackson Egan <jackson@sneagan.com> (http://sneagan.com/)"
+}

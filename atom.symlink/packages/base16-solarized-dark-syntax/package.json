@@ -1,0 +1,26 @@
+{
+  "name": "base16-solarized-dark-syntax",
+  "theme": "syntax",
+  "version": "0.2.0",
+  "description": "A port of the Base16 Solarized dark syntax theme from TextMate to Atom",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/brandonweiss/atom-base16-solarized-dark-syntax"
+  },
+  "license": "MIT",
+  "engines": {
+    "atom": ">0.50.0"
+  },
+  "readme": "# Base16 Solarized dark syntax theme for Atom\n\nA port of the [Base16](https://github.com/chriskempson/base16) Solarized dark syntax theme from TextMate to Atom.\n\n![](https://raw.githubusercontent.com/brandonweiss/atom-base16-solarized-dark-syntax/master/screenshot.png)\n",
+  "readmeFilename": "README.md",
+  "bugs": {
+    "url": "https://github.com/brandonweiss/atom-base16-solarized-dark-syntax/issues"
+  },
+  "homepage": "https://github.com/brandonweiss/atom-base16-solarized-dark-syntax",
+  "_id": "base16-solarized-dark-syntax@0.2.0",
+  "dist": {
+    "shasum": "227241be73f8b751f6b68749f80099c6f5a03951"
+  },
+  "_resolved": "/var/folders/s1/z19lhj3d7js7mxsdvh2fmpc00000gn/T/d-11446-3470-1i84ea1/package.tgz",
+  "_from": "/var/folders/s1/z19lhj3d7js7mxsdvh2fmpc00000gn/T/d-11446-3470-1i84ea1/package.tgz"
+}

@@ -1,0 +1,26 @@
+{
+  "name": "base16-monokai-dark-syntax",
+  "theme": "syntax",
+  "version": "0.1.1",
+  "description": "A port of the Base16 Monokai dark syntax theme from TextMate to Atom",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/brandonweiss/atom-base16-monokai-dark-syntax"
+  },
+  "license": "MIT",
+  "engines": {
+    "atom": ">0.50.0"
+  },
+  "readme": "# Base16 Monokai dark syntax theme for Atom\n\nA port of the [Base16](https://github.com/chriskempson/base16) Monokai dark syntax theme from TextMate to Atom.\n\n![](https://raw.githubusercontent.com/brandonweiss/atom-base16-monokai-dark-syntax/master/screenshot.png)\n",
+  "readmeFilename": "README.md",
+  "bugs": {
+    "url": "https://github.com/brandonweiss/atom-base16-monokai-dark-syntax/issues"
+  },
+  "homepage": "https://github.com/brandonweiss/atom-base16-monokai-dark-syntax",
+  "_id": "base16-monokai-dark-syntax@0.1.1",
+  "dist": {
+    "shasum": "239121facc9d821a148e77b0710f082e6f599d9b"
+  },
+  "_resolved": "/var/folders/s1/z19lhj3d7js7mxsdvh2fmpc00000gn/T/d-114316-13902-1flhz3c/package.tgz",
+  "_from": "/var/folders/s1/z19lhj3d7js7mxsdvh2fmpc00000gn/T/d-114316-13902-1flhz3c/package.tgz"
+}

@@ -1,0 +1,16 @@
+# See https://atom.io/docs/latest/creating-a-package#menus for more details
+'context-menu':
+  '.overlayer':
+      'Enable filetype-color': 'filetype-color:toggle'
+
+'menu': [
+  {
+    'label': 'Packages'
+    'submenu': [
+      'label': 'filetype-color'
+      'submenu': [
+        { 'label': 'Toggle', 'command': 'filetype-color:toggle' }
+      ]
+    ]
+  }
+]

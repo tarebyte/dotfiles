@@ -1,0 +1,28 @@
+{
+  "name": "emmet",
+  "description": "Emmet – the essential tool for web developers",
+  "main": "./lib/emmet",
+  "version": "2.1.1",
+  "dependencies": {
+    "emmet": "^1.1.6"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/emmetio/emmet-atom"
+  },
+  "engines": {
+    "atom": "*"
+  },
+  "readme": "# Emmet plugin Atom editor\n\n[Emmet](http://emmet.io) support for [Atom](http://atom.io).\n\n## Installation\n\nIn Atom, open Preferences > Packages, search for `Emmet` package. Once it found, click `Install` button to install package.\n\n### Manual installation\n\nYou can install the latest Emmet version manually from console:\n\n```bash\ncd ~/.atom/packages\ngit clone https://github.com/emmetio/emmet-atom\ncd emmet-atom\nnpm install\n```\n\nThen restart Atom editor.\n\n## Features:\n\n* Expand abbreviations by <kbd>Tab</kbd> key.\n* Multiple cursor support: most [Emmet actions](http://docs.emmet.io/actions/) like Expand Abbreviation, Wrap with Abbreviation, Update Tag can run in multi-cursor mode.\n* Interactive actions (Interactive Expand Abbreviation, Wrap With Abbreviation, Update Tag) allows you to preview result real-time as you type.\n* Better tabstops in generated content: when abbreviation expanded, hit <kbd>Tab</kbd> key to quickly traverse between important code points.\n* [Emmet v1.1 core](http://emmet.io/blog/beta-v1-1/).\n\nPlease report any problems at [issue tracker](https://github.com/emmetio/emmet-atom/issues).\n\n## Default Keybindings\n\nYou can change these Preferences > Emmet.\n\n* <kbd>⇥</kbd> / <kbd>⌘E</kbd>:  Expand Abbreviation\n* <kbd>⌘⌥⏎</kbd>: Expand Abbreviation (interactive)\n* <kbd>⌃W</kbd>: Wrap with Abbreviation\n* <kbd>⌃D</kbd>:  Balance (outward)\n* <kbd>⌥D</kbd>: Balance (inward)\n* <kbd>⌃⌥J</kbd>: Go to Matching Pair\n* <kbd>⌃→</kbd>: Next Edit Point\n* <kbd>⌃←</kbd>: Previous Edit Point\n* <kbd>⌃⇧→</kbd>: Select Next Item\n* <kbd>⌃⇧←</kbd>: Select Previous Item\n* <kbd>⌘</kbd>/: Toggle Comment\n* <kbd>⌘J</kbd>: Split/Join Tag\n* <kbd>⌘</kbd>': Remove Tag\n* <kbd>⌘Y</kbd>: Evaluate Math Expression\n* <kbd>⌃⌥↑</kbd>: Increment Number by 0.1\n* <kbd>⌃⌥↓</kbd>: Decrement Number by 0.1\n* <kbd>⌃⌥⌘↑</kbd>: Increment Number by 1\n* <kbd>⌃⌥⌘↓</kbd>: Decrement Number by 1\n* <kbd>⌃⌥⌘⇧↑</kbd>: Increment Number by 10\n* <kbd>⌃⌥⌘⇧↓</kbd>: Decrement Number by 10\n* <kbd>⌘R</kbd>: Reflect CSS value\n* <kbd>⌃I</kbd>: Update Image Size\n* <kbd>⌃⇧I</kbd>: Encode/Decode image to data:URL\n* <kbd>⌃U</kbd>: Update Tag\n* <kbd>⌘M</kbd>: Merge Lines\n\nAll actions and their keyboard shortcuts are available under Packages > Emmet menu item.\n\n## Extensions support\n\nYou can easily [extend](http://docs.emmet.io/customization/) Emmet with new actions and filters or customize existing ones. In Preferences > Emmet, set Extensions path to folder with Emmet extensions. By default, it’s `~/emmet`, e.g. `emmet` folder in your system HOME folder.",
+  "readmeFilename": "README.md",
+  "bugs": {
+    "url": "https://github.com/emmetio/emmet-atom/issues"
+  },
+  "homepage": "https://github.com/emmetio/emmet-atom",
+  "_id": "emmet@2.1.1",
+  "dist": {
+    "shasum": "d814d4123bc73ae43ebb905c422204ac64b0370c"
+  },
+  "_resolved": "/var/folders/s1/z19lhj3d7js7mxsdvh2fmpc00000gn/T/d-11454-8394-1aorpzo/package.tgz",
+  "_from": "/var/folders/s1/z19lhj3d7js7mxsdvh2fmpc00000gn/T/d-11454-8394-1aorpzo/package.tgz"
+}

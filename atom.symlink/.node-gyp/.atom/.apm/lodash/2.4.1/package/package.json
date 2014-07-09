@@ -1,0 +1,12 @@
+{
+  "name": "lodash",
+  "version": "2.4.1",
+  "description": "A private version of Lo-dash lib, without template() method to bypass CSP restrictions",
+  "main": "lodash.js",
+  "private": true,
+  "keywords": [
+    "lodash"
+  ],
+  "author": "Lo-Dash authors",
+  "license": "MIT"
+}

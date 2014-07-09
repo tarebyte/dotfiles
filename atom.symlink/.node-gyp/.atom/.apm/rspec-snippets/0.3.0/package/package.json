@@ -1,0 +1,16 @@
+{
+  "name": "rspec-snippets",
+  "version": "0.3.0",
+  "private": true,
+  "description": "Rspec snippets in Atom",
+  "repository": "https://github.com/jonmagic/atom-rspec-snippets",
+  "license": "MIT",
+  "engines": {
+    "atom": "*",
+    "node": "*"
+  },
+  "dependencies": {},
+  "bugs": {
+    "url": "https://github.com/jonmagic/atom-rspec-snippets/issues"
+  }
+}

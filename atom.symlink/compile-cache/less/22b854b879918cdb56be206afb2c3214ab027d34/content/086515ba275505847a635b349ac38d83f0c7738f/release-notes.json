@@ -1,0 +1,1 @@
+{"digest":"b5e4475c2a28f1a7d1d3bad95d61cadcd8dd655a","css":".release-notes-status {\n  color: #0098ff;\n}\n","imports":[{"path":"node_modules/atom-dark-ui/stylesheets/ui-variables.less","digest":"cb44f81ae3c9a67f02553cbee52b63bb3ed6c69b"}],"version":1}

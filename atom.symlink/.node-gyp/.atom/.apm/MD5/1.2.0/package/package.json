@@ -1,0 +1,38 @@
+{
+  "author": "Paul Vorbach <paul@vorb.de> (http://vorb.de)",
+  "contributors": [
+    "salba"
+  ],
+  "name": "MD5",
+  "description": "native js function for hashing messages with MD5",
+  "tags": [
+    "md5",
+    "hash",
+    "encryption",
+    "native",
+    "message digest"
+  ],
+  "version": "1.2.0",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/pvorb/node-md5.git"
+  },
+  "bugs": {
+    "url": "https://github.com/pvorb/node-md5/issues"
+  },
+  "main": "md5.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "engines": {
+    "node": "*"
+  },
+  "dependencies": {
+    "charenc": ">= 0.0.1",
+    "crypt": ">= 0.0.1"
+  },
+  "devDependencies": {
+    "mocha": "~ 1.4.2"
+  },
+  "optionalDependencies": {}
+}

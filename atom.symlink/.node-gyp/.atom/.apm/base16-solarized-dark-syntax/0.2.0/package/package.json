@@ -1,0 +1,11 @@
+{
+  "name": "base16-solarized-dark-syntax",
+  "theme": "syntax",
+  "version": "0.2.0",
+  "description": "A port of the Base16 Solarized dark syntax theme from TextMate to Atom",
+  "repository": "https://github.com/brandonweiss/atom-base16-solarized-dark-syntax",
+  "license": "MIT",
+  "engines": {
+    "atom": ">0.50.0"
+  }
+}

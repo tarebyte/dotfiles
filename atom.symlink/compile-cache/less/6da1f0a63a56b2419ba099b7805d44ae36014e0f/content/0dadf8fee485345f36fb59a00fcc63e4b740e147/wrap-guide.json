@@ -1,0 +1,1 @@
+{"digest":"01703ab852b1cfb2fdabb7b3222c6bde2f4518b2","css":".wrap-guide {\n  height: 100%;\n  width: 1px;\n  z-index: 100;\n  position: absolute;\n  top: 0;\n  background-color: #657b83;\n}\n","imports":[{"path":"/Users/mark/.atom/packages/base16-solarized-dark-syntax/stylesheets/syntax-variables.less","digest":"dc023ac42682961564334ba06b5e90d1081ead63"}],"version":1}
