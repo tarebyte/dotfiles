@@ -25,6 +25,7 @@ NeoBundle 'Shougo/vimproc', { 'build': {
 " My Bundles here:
 NeoBundle 'chriskempson/base16-vim'
 
+NeoBundle "daylerees/colour-schemes", { "rtp": "vim/" }
 NeoBundle 'kien/ctrlp.vim'
 
 NeoBundle 'mattn/emmet-vim'
@@ -117,7 +118,7 @@ nmap gr :e config/routes.rb<cr>
 nmap gm :e Gemfile<cr>
 
 " Open README of any project
-nmap <Leader>r :e README.md<cr>
+nmap <Leader>rm :e README.md<cr>
 
 " insert blank lines without going into insert mode
 nmap go o<esc>
@@ -298,17 +299,21 @@ let g:airline_powerline_fonts = 1
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " ctrlp.vim
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-nnoremap <Leader>b :<C-U>CtrlPBuffer<CR>
-nnoremap <Leader>t :<C-U>CtrlP<CR>
-nnoremap <Leader>T :<C-U>CtrlPTag<CR>
+nmap <Leader>b :<C-U>CtrlPBuffer<CR>
+nmap <leader>r :CtrlPMRU<CR>
+nmap <Leader>t :<C-U>CtrlP<CR>
+nmap <leader>T :CtrlPClearCache<CR>:CtrlP<CR>
+
+let g:ctrlp_working_path_mode = 'r'
+let g:ctrlp_custom_ignore = {
+  \ 'dir':  '\v[\/]\.(git|vendor)$',
+  \ }
 let g:ctrlp_prompt_mappings = {
   \ 'PrtSelectMove("j")':   ['<down>'],
   \ 'PrtSelectMove("k")':   ['<up>'],
   \ 'AcceptSelection("h")': ['<c-j>'],
   \ 'AcceptSelection("v")': ['<c-k>', '<RightMouse>'],
   \ }
-  " respect the .gitignore
-  let g:ctrlp_user_command = ['.git', 'cd %s && git ls-files . --cached --exclude-standard --others']
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " nerdtree

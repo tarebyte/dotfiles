@@ -30,6 +30,7 @@ export EDITOR=vim
 alias bx='bundle exec'
 alias bxrk='bundle exec rake'
 alias bxrc='bundle exec rails console'
+alias bxrr='bundle exec rakes routes'
 alias bxrs='bundle exec rails server'
 
 alias gg='git g'
