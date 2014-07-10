@@ -15,4 +15,4 @@
   set lines=45 columns=120
 
 " set colorscheme
-  colorscheme solarized
+  colorscheme base16-twilight
