@@ -23,6 +23,8 @@ NeoBundle 'Shougo/vimproc', { 'build': {
   \ } }
 
 " My Bundles here:
+NeoBundle 'rking/ag.vim'
+
 NeoBundle 'chriskempson/base16-vim'
 
 NeoBundle "daylerees/colour-schemes", { "rtp": "vim/" }
@@ -425,3 +427,10 @@ nnoremap <Leader>l :Limelight!!<CR>
 " Color name (:help cterm-colors) or ANSI code
 let g:limelight_conceal_ctermfg = 'gray'
 let g:limelight_conceal_ctermfg = 240
+
+nmap <leader>g :Ag<space>
+if hostname() == 'MarkBookPro'
+  let g:agprg="/opt/boxen/homebrew/bin/ag --column --ignore-case --ignore vendor/ --ignore .log"
+else
+  let g:agprg="ag --column --ignore-case --ignore vendor/ --ignore .log"
+endif
