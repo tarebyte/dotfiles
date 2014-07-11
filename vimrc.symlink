@@ -27,7 +27,7 @@ NeoBundle 'rking/ag.vim'
 
 NeoBundle 'chriskempson/base16-vim'
 
-NeoBundle "daylerees/colour-schemes", { "rtp": "vim/" }
+NeoBundle 'daylerees/colour-schemes', { 'rtp': 'vim/' }
 NeoBundle 'kien/ctrlp.vim'
 
 NeoBundle 'mattn/emmet-vim'
@@ -57,6 +57,7 @@ NeoBundle 'altercation/vim-colors-solarized'
 NeoBundle 'Lokaltog/vim-easymotion'
 NeoBundle 'tpope/vim-endwise'
 NeoBundle 'tpope/vim-fugitive'
+NeoBundle 'gerw/vim-HiLinkTrace'
 NeoBundle 'tpope/vim-haml'
 NeoBundle 'nono/vim-handlebars'
 NeoBundle 'jelera/vim-javascript-syntax'
@@ -431,9 +432,17 @@ nnoremap <Leader>l :Limelight!!<CR>
 let g:limelight_conceal_ctermfg = 'gray'
 let g:limelight_conceal_ctermfg = 240
 
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" ag.vim
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 nmap <leader>g :Ag<space>
 if hostname() == 'MarkBookPro'
   let g:agprg="/opt/boxen/homebrew/bin/ag --column --ignore-case --ignore vendor/ --ignore .log"
 else
   let g:agprg="ag --column --ignore-case --ignore vendor/ --ignore .log"
 endif
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" HiLinkTrace
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+nmap <leader>h :HLT<CR>
