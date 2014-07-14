@@ -30,6 +30,7 @@ today         =  log --since=midnight --author='YOUR_NAME' --oneline
 type          =  cat-file -t
 up            =  !sh -c 'git pull --rebase --prune && git log --pretty=format:\"%Cred%ae %Creset- %C(yellow)%s %Creset(%ar)\" HEAD@{1}..'
 who           =  shortlog -n -s --no-merges
+g             = grep --break --heading --line-number
 
 [color]
 branch=auto
