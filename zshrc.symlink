@@ -7,6 +7,8 @@ case `uname` in
   Darwin)
     plugins=(autojump bundler brew chruby gem git heroku npm rails ruby tmuxinator vagrant)
 
+    alias pubkey="more ~/.ssh/id_rsa.pub | pbcopy | echo '=> Public key copied to pasteboard.'"
+
     if [[ -a ~/src/tarebyte/OSXey/OSXey ]]
     then
       function stats() { ~/src/tarebyte/OSXey/OSXey -c }
@@ -35,6 +37,7 @@ alias bxrs='bundle exec rails server'
 
 alias gg='git g'
 alias gs='git st'
+
 
 alias scb='script/cibuild'
 
