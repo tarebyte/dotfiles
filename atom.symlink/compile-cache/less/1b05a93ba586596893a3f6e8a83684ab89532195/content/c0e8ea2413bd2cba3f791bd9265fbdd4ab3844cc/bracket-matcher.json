@@ -1,0 +1,1 @@
+{"digest":"2e8c45058d921122a4222d9b232ede2727d53849","css":".bracket-matcher {\n  border-bottom: 1px dotted lime;\n  position: absolute;\n}\n","imports":[{"path":"static/variables/ui-variables.less","digest":"a62842e88e9f6f18817f0a1662302588958b59ac"},{"path":"static/variables/syntax-variables.less","digest":"dbb8bc25cbfa6ac53763293d81b25b8d718230f9"}],"version":1}
