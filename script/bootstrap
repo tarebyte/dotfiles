@@ -124,7 +124,7 @@ install_bin_files () {
 
   local overwrite_all=false backup_all=false skip_all=false
 
-  for src in $(find "$BIN_ROOT" -maxdepth 2 -name '*.symlink')
+  for src in $(find "$BIN_ROOT" -mindepth 1 -name '*')
   do
     dst="$HOME/bin/$(basename "${src%.*}")"
     link_file "$src" "$dst"
