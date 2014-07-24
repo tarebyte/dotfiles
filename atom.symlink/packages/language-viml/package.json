@@ -4,7 +4,7 @@
     "name": "Evan Hahn"
   },
   "description": "VimL highlighting for Atom, because why not.",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/EvanHahn/atom-vimL.git"
@@ -19,10 +19,10 @@
     "url": "https://github.com/EvanHahn/atom-vimL/issues"
   },
   "homepage": "https://github.com/EvanHahn/atom-vimL",
-  "_id": "language-viml@0.1.0",
+  "_id": "language-viml@0.2.0",
   "dist": {
-    "shasum": "83103949be88eef8899d1c79c96782c5252f9b5d"
+    "shasum": "c47de6222746a6b14670b1d374921c69e5482fac"
   },
-  "_resolved": "/var/folders/s1/z19lhj3d7js7mxsdvh2fmpc00000gn/T/d-114527-61937-ax85yr/package.tgz",
-  "_from": "/var/folders/s1/z19lhj3d7js7mxsdvh2fmpc00000gn/T/d-114527-61937-ax85yr/package.tgz"
+  "_resolved": "/var/folders/s1/z19lhj3d7js7mxsdvh2fmpc00000gn/T/d-114625-1901-148rmnr/package.tgz",
+  "_from": "/var/folders/s1/z19lhj3d7js7mxsdvh2fmpc00000gn/T/d-114625-1901-148rmnr/package.tgz"
 }
