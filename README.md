@@ -1,6 +1,6 @@
 # Dotfiles
 
-These are the files I tweak on almost a dailt basis, it's a bit of an obsession.
+These are the files I tweak on almost a daily basis, it's a serious addiction.
 
 Use these files in tandem with my [Boxen Config](https://github.com/tarebyte/my-boxen)
 
