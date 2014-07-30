@@ -5,7 +5,9 @@ ZSH_THEME="mark"
 # I really suck at shell scripting
 case `uname` in
   Darwin)
-    plugins=(autojump bundler brew chruby gem git heroku npm rails ruby tmuxinator vagrant)
+    eval "$(direnv hook zsh)"
+
+    plugins=(autojump bundler brew gem git heroku npm rails rbenv-completion ruby tmuxinator vagrant)
 
     alias pubkey="more ~/.ssh/id_rsa.pub | pbcopy | echo '=> Public key copied to pasteboard.'"
 
@@ -30,6 +32,7 @@ export ARCHFLAGS="-arch x86_64"
 export EDITOR=vim
 
 alias bx='bundle exec'
+alias bxks='bundle exec knife solo'
 alias bxrk='bundle exec rake'
 alias bxrc='bundle exec rails console'
 alias bxrr='bundle exec rakes routes'
