@@ -35,7 +35,7 @@ alias bx='bundle exec'
 alias bxks='bundle exec knife solo'
 alias bxrk='bundle exec rake'
 alias bxrc='bundle exec rails console'
-alias bxrr='bundle exec rakes routes'
+alias bxrr='bundle exec rake routes'
 alias bxrs='bundle exec rails server'
 
 alias gg='git g'

@@ -1,0 +1,12 @@
+{
+  "name": "ruby-slim",
+  "version": "0.2.0",
+  "private": false,
+  "description": "slim template support",
+  "repository": "https://github.com/skord/atom-ruby-slim",
+  "license": "MIT",
+  "engines": {
+    "atom": ">0.50.0"
+  },
+  "dependencies": {}
+}
