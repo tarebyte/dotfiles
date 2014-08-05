@@ -1,6 +1,6 @@
 # Setting the prefix from C-b to C-a
 # START:prefix
-set -g prefix C-a
+set -g prefix C-f
 # END:prefix
 
 # Free the original Ctrl-b prefix keybinding
@@ -15,7 +15,7 @@ set -s escape-time 1
 
 # Ensure that we can send Ctrl-A to other apps
 # START:bind_prefix
-bind C-a send-prefix
+bind C-f send-prefix
 # END:bind_prefix
 
 # Set the base index for windows to 1 instead of 0
