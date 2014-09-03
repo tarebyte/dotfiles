@@ -52,6 +52,7 @@ NeoBundle 'tomtom/tcomment_vim'
 NeoBundle 'edkolev/tmuxline.vim'
 
 NeoBundle 'bling/vim-airline'
+NeoBundle 'guns/vim-clojure-static'
 NeoBundle 'kchmck/vim-coffee-script'
 NeoBundle 'altercation/vim-colors-solarized'
 NeoBundle 'Lokaltog/vim-distinguished'
