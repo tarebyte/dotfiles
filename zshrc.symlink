@@ -7,7 +7,7 @@ case `uname` in
   Darwin)
     eval "$(direnv hook zsh)"
 
-    plugins=(autojump bundler brew gem git heroku npm rails rbenv-completion ruby tmuxinator vagrant)
+    plugins=(autojump bundler brew gem git heroku npm rails rbenv-completion ruby tmuxinator vagrant zsh-syntax-highlighting)
 
     alias pubkey="more ~/.ssh/id_rsa.pub | pbcopy | echo '=> Public key copied to pasteboard.'"
 
@@ -17,7 +17,7 @@ case `uname` in
     fi
     ;;
   Linux)
-    plugins=(bundler gem git heroku npm rails ruby)
+    plugins=(bundler gem git heroku npm rails ruby zsh-syntax-highlighting)
     ;;
 esac
 
@@ -31,6 +31,7 @@ fi
 export ARCHFLAGS="-arch x86_64"
 export EDITOR=vim
 
+alias :q='exit'
 alias bx='bundle exec'
 alias bxks='bundle exec knife solo'
 alias bxrk='bundle exec rake'

@@ -83,6 +83,7 @@ set -g visual-activity on
 
 # Load tmuxline
 if-shell "test -f ~/.tmux.conf.d/solarized" "source ~/.tmux.conf.d/solarized"
+# if-shell "test -f ~/.tmux.conf.d/solarized-light" "source ~/.tmux.conf.d/solarized-light"
 # if-shell "test -f ~/.tmux.conf.d/base16-default" "source ~/.tmux.conf.d/base16-default"
 # if-shell "test -f ~/.tmux.conf.d/hybrid" "source ~/.tmux.conf.d/hybrid"
 

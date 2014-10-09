@@ -15,12 +15,14 @@ endif
 " Required:
 NeoBundleFetch 'Shougo/neobundle.vim'
 
-NeoBundle 'Shougo/vimproc', { 'build': {
-  \   'windows': 'make -f make_mingw32.mak',
-  \   'cygwin': 'make -f make_cygwin.mak',
-  \   'mac': 'make -f make_mac.mak',
-  \   'unix': 'make -f make_unix.mak',
-  \ } }
+NeoBundle 'Shougo/vimproc.vim', {
+      \ 'build' : {
+      \     'windows' : 'tools\\update-dll-mingw',
+      \     'cygwin' : 'make -f make_cygwin.mak',
+      \     'mac' : 'make -f make_mac.mak',
+      \     'unix' : 'make -f make_unix.mak',
+      \    },
+      \ }
 
 " My Bundles here:
 NeoBundle 'rking/ag.vim'
@@ -40,6 +42,9 @@ NeoBundle 'w0ng/vim-hybrid'
 NeoBundle 'junegunn/limelight.vim'
 
 NeoBundle 'scrooloose/nerdtree'
+NeoBundle  'myusuf3/numbers.vim'
+
+NeoBundle 'vim-scripts/paredit.vim'
 
 NeoBundle 'kien/rainbow_parentheses.vim'
 
@@ -64,6 +69,7 @@ NeoBundle 'tpope/vim-haml'
 NeoBundle 'nono/vim-handlebars'
 NeoBundle 'jelera/vim-javascript-syntax'
 NeoBundle 'tpope/vim-markdown'
+NeoBundle 'vim-perl/vim-perl'
 NeoBundle 'rodjek/vim-puppet'
 NeoBundle 'tpope/vim-rails'
 NeoBundle 'tpope/vim-repeat'
@@ -283,12 +289,21 @@ au BufNewFile,BufRead *.es6 set filetype=javascript
 au BufNewFile,BufRead *.json set ai filetype=javascript
 au BufNewFile,BufRead *.pp set filetype=puppet
 au BufNewFile,BufRead *.slim set filetype=slim
+au BufNewFile,BufRead *.boot set filetype=clojure
 
 augroup mkd
 autocmd BufNewFile,BufRead *.mkd      set ai formatoptions=tcroqn2 comments=n:> filetype=markdown
 autocmd BufNewFile,BufRead *.md       set ai formatoptions=tcroqn2 comments=n:> filetype=markdown
 autocmd BufNewFile,BufRead *.markdown set ai formatoptions=tcroqn2 comments=n:> filetype=markdown
 augroup END
+
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Spell Check
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+autocmd BufRead,BufNewFile *.md setlocal spell
+set complete+=kspell
+set spell spelllang=en_us
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 "
@@ -334,6 +349,17 @@ nmap g :NERDTree \| NERDTreeToggle \| NERDTreeFind<CR>
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " rainbow_parentheses.vim
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+let g:rbpt_colorpairs = [
+  \ [ '13', '#6c71c4'],
+  \ [ '5',  '#d33682'],
+  \ [ '1',  '#dc322f'],
+  \ [ '9',  '#cb4b16'],
+  \ [ '3',  '#b58900'],
+  \ [ '2',  '#859900'],
+  \ [ '6',  '#2aa198'],
+  \ [ '4',  '#268bd2'],
+  \ ]
+
 au VimEnter * RainbowParenthesesToggle
 au Syntax * RainbowParenthesesLoadRound
 au Syntax * RainbowParenthesesLoadSquare
@@ -377,11 +403,6 @@ map <Leader>rt :!ctags --extra=+f -R *<CR><CR>
 map <Leader>. :TagbarToggle<CR>
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" vim-airline
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-let g:airline_powerline_fonts=1
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " tagbar
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 let g:tagbar_autofocus = 1
@@ -411,7 +432,7 @@ function! GoyoBefore()
   set noshowcmd
   set number
   AirlineToggle
-  Limelight
+  " Limelight
   " ...
 endfunction
 
