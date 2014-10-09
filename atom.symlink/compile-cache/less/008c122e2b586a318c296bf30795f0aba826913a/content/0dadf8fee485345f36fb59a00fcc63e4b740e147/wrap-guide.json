@@ -1,1 +1,0 @@
-{"digest":"01703ab852b1cfb2fdabb7b3222c6bde2f4518b2","css":".wrap-guide {\n  height: 100%;\n  width: 1px;\n  z-index: 100;\n  position: absolute;\n  top: 0;\n  background-color: rgba(255, 255, 255, 0.1);\n}\n","imports":[{"path":"/Users/mark/.atom/packages/monokai/stylesheets/syntax-variables.less","digest":"5599c7529d470fcd94e27038812a711e2768c22b"}],"version":1}
