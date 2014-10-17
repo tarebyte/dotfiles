@@ -299,13 +299,6 @@ augroup END
 
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Spell Check
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-autocmd BufRead,BufNewFile *.md setlocal spell
-set complete+=kspell
-set spell spelllang=en_us
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 "
 " Plugins
 "

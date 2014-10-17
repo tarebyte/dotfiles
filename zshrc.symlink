@@ -38,6 +38,7 @@ alias bxrk='bundle exec rake'
 alias bxrc='bundle exec rails console'
 alias bxrr='bundle exec rake routes'
 alias bxrs='bundle exec rails server'
+alias bxrt='bundle exec rake test'
 
 alias gg='git g'
 alias gs='git st'
