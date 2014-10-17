@@ -2,7 +2,6 @@ export ZSH=$HOME/.oh-my-zsh
 
 ZSH_THEME="mark"
 
-# I really suck at shell scripting
 case `uname` in
   Darwin)
     eval "$(direnv hook zsh)"
@@ -15,6 +14,8 @@ case `uname` in
     then
       function stats() { ~/src/tarebyte/OSXey/OSXey -c }
     fi
+
+    export ARCHFLAGS="-arch x86_64"
     ;;
   Linux)
     plugins=(bundler gem git heroku npm rails ruby zsh-syntax-highlighting)
@@ -23,29 +24,15 @@ esac
 
 source $ZSH/oh-my-zsh.sh
 
+export EDITOR=vim
+
+# Source other important files if they are available
 if [[ -a ~/.localrc ]]
 then
   source ~/.localrc
 fi
 
-export ARCHFLAGS="-arch x86_64"
-export EDITOR=vim
-
-alias :q='exit'
-alias bx='bundle exec'
-alias bxks='bundle exec knife solo'
-alias bxrk='bundle exec rake'
-alias bxrc='bundle exec rails console'
-alias bxrr='bundle exec rake routes'
-alias bxrs='bundle exec rails server'
-alias bxrt='bundle exec rake test'
-
-alias gg='git g'
-alias gs='git st'
-
-alias scb='script/cibuild'
-
-alias vh="vagrant halt"
-alias vssh="vagrant ssh"
-alias vu="vagrant up"
-
+if [[ -a ~/.aliases ]]
+then
+  source ~/.aliases
+fi

@@ -1,0 +1,18 @@
+alias :q='exit'
+
+alias bx='bundle exec'
+alias bxks='bundle exec knife solo'
+alias bxrk='bundle exec rake'
+alias bxrc='bundle exec rails console'
+alias bxrr='bundle exec rake routes'
+alias bxrs='bundle exec rails server'
+alias bxrt='bundle exec rake test'
+
+alias gg='git g'
+alias gs='git st'
+
+alias scb='script/cibuild'
+
+alias vh="vagrant halt"
+alias vssh="vagrant ssh"
+alias vu="vagrant up"
