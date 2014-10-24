@@ -42,7 +42,6 @@ NeoBundle 'w0ng/vim-hybrid'
 NeoBundle 'junegunn/limelight.vim'
 
 NeoBundle 'scrooloose/nerdtree'
-NeoBundle  'myusuf3/numbers.vim'
 
 NeoBundle 'vim-scripts/paredit.vim'
 
@@ -70,8 +69,10 @@ NeoBundle 'nono/vim-handlebars'
 NeoBundle 'jelera/vim-javascript-syntax'
 NeoBundle 'tpope/vim-markdown'
 NeoBundle 'vim-perl/vim-perl'
+NeoBundle 'tpope/vim-projectionist'
 NeoBundle 'rodjek/vim-puppet'
 NeoBundle 'tpope/vim-rails'
+NeoBundle 'tpope/vim-rake'
 NeoBundle 'tpope/vim-repeat'
 NeoBundle 'vim-ruby/vim-ruby'
 NeoBundle 'slim-template/vim-slim'
@@ -165,7 +166,7 @@ map L $
 map H ^
 
 " Open the current file in the Marked App
-:nnoremap <leader>m :silent !open -a Marked.app '%:p'<cr>
+:nnoremap <leader>m :silent !open -a /opt/homebrew-cask/Caskroom/marked/latest/Marked.app '%:p'<cr>
 
 " Open .vimrc
 nnoremap <leader>v :e  ~/.vimrc<CR>
