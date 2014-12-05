@@ -1,17 +1,24 @@
 alias :q='exit'
 
 alias bx='bundle exec'
-alias bxks='bundle exec knife solo'
-alias bxrk='bundle exec rake'
-alias bxrc='bundle exec rails console'
-alias bxrr='bundle exec rake routes'
-alias bxrs='bundle exec rails server'
-alias bxrt='bundle exec rake test'
+alias bxks='bx knife solo'
+alias bxrk='bx rake'
+alias bxrc='bx rails console'
+alias bxrr='bx rake routes'
+alias bxrs='bx rails server'
+alias bxrt='bx rake test'
 
 alias gg='git g'
 alias gs='git st'
 
+alias js='jekyll server'
+
+alias vim=mvim
+
+alias pubkey="more ~/.ssh/id_rsa.pub | pbcopy | echo '=> Public key copied to pasteboard.'"
+
 alias scb='script/cibuild'
+alias stats='~/src/tarebyte/OSXey/OSXey -c'
 
 alias vh="vagrant halt"
 alias vssh="vagrant ssh"

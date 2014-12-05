@@ -29,7 +29,6 @@ NeoBundle 'rking/ag.vim'
 
 NeoBundle 'chriskempson/base16-vim'
 
-NeoBundle 'daylerees/colour-schemes', { 'rtp': 'vim/' }
 NeoBundle 'kien/ctrlp.vim'
 
 NeoBundle 'mattn/emmet-vim'
@@ -37,7 +36,6 @@ NeoBundle 'mattn/emmet-vim'
 NeoBundle 'junegunn/goyo.vim'
 
 NeoBundle 'othree/html5.vim'
-NeoBundle 'w0ng/vim-hybrid'
 
 NeoBundle 'junegunn/limelight.vim'
 
@@ -63,9 +61,11 @@ NeoBundle 'Lokaltog/vim-distinguished'
 NeoBundle 'Lokaltog/vim-easymotion'
 NeoBundle 'tpope/vim-endwise'
 NeoBundle 'tpope/vim-fugitive'
-NeoBundle 'gerw/vim-HiLinkTrace'
+NeoBundle 'whatyouhide/vim-gotham'
 NeoBundle 'tpope/vim-haml'
 NeoBundle 'nono/vim-handlebars'
+NeoBundle 'fatih/vim-go'
+NeoBundle 'baroldgene/vim-github-links'
 NeoBundle 'jelera/vim-javascript-syntax'
 NeoBundle 'tpope/vim-markdown'
 NeoBundle 'vim-perl/vim-perl'
@@ -196,8 +196,9 @@ syntax on
 set t_Co=256
 
 " default color scheme
+let base16colorspace=256
 set background=dark
-colorscheme solarized
+colorscheme base16-ocean
 
 " don't wrap long lines
 set nowrap
