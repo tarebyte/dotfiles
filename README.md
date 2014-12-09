@@ -4,7 +4,7 @@ These are the files I tweak on almost a daily basis, it's a serious addiction.
 
 Use these files in tandem with my [Boxen Config](https://github.com/tarebyte/my-boxen)
 
-## install
+## Install
 3ish Easy steps:
 
 ```
@@ -18,7 +18,7 @@ chsh -s /bin/zsh
 
 And that's it! This will symlink any .symlink file into your home directory
 
-## thanks
+## Thanks
 
 I used [Zach Holman's](http://zachholman.com/) awesome [dotfiles](https://github.com/holman/dotfiles)
 as a template to build my own.
