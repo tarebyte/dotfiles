@@ -11,15 +11,19 @@ alias bxrt='bx rake test'
 alias gg='git g'
 alias gs='git st'
 
+<<<<<<< HEAD
 alias js='jekyll server'
 
 alias vim=mvim
 
+=======
+>>>>>>> moved to base16 theme
 alias pubkey="more ~/.ssh/id_rsa.pub | pbcopy | echo '=> Public key copied to pasteboard.'"
 
 alias scb='script/cibuild'
 alias stats='~/src/tarebyte/OSXey/OSXey -c'
 
 alias vh="vagrant halt"
+alias vim=mvim
 alias vssh="vagrant ssh"
 alias vu="vagrant up"

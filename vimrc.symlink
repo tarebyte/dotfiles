@@ -52,6 +52,7 @@ NeoBundle 'godlygeek/tabular'
 NeoBundle 'majutsushi/tagbar'
 NeoBundle 'tomtom/tcomment_vim'
 NeoBundle 'edkolev/tmuxline.vim'
+NeoBundle 'vim-scripts/twilight256.vim'
 
 NeoBundle 'bling/vim-airline'
 NeoBundle 'guns/vim-clojure-static'
