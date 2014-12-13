@@ -19,3 +19,4 @@ if [[ -a ~/.localrc ]]
 then
   source ~/.localrc
 fi
+[[ -s "/Users/mark/.gvm/scripts/gvm" ]] && source "/Users/mark/.gvm/scripts/gvm"
