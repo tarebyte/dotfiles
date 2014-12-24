@@ -11,14 +11,14 @@ alias bxrt='bx rake test'
 alias gg='git g'
 alias gs='git st'
 
-alias js='jekyll server'
-
-alias vim=mvim
+alias js='jekyll server --watch --drafts'
 
 alias pubkey="more ~/.ssh/id_rsa.pub | pbcopy | echo '=> Public key copied to pasteboard.'"
 
 alias scb='script/cibuild'
 alias stats='~/src/tarebyte/OSXey/OSXey -c'
+
+alias tvim='/opt/boxen/homebrew/Cellar/macvim/7.4-73_1/MacVim.app/Contents/MacOS/Vim'
 
 alias vh="vagrant halt"
 alias vim=mvim
