@@ -2,15 +2,7 @@ export ZSH=$HOME/.oh-my-zsh
 
 ZSH_THEME="mark"
 
-eval "$(direnv hook zsh)"
-
-plugins=(autojump bundler brew gem git heroku npm rails rbenv-completion ruby tmuxinator vagrant zsh-syntax-highlighting)
-
-export ARCHFLAGS="-arch x86_64"
-
-source $ZSH/oh-my-zsh.sh
-
-export EDITOR=vim
+plugins=(autojump bundler brew gem git rails tmuxinator)
 
 source ~/.aliases
 source ~/.base16rc
@@ -20,3 +12,19 @@ then
   source ~/.localrc
 fi
 
+# rbenv
+export RBENV_ROOT=/usr/local/var/rbenv
+if which rbenv > /dev/null; then eval "$(rbenv init - zsh)"; fi
+
+source $ZSH/oh-my-zsh.sh
+
+# Hub from GitHub
+eval "$(hub alias -s)"
+
+if which tmux 2>&1 >/dev/null; then
+  if [ $TERM != "screen-256color" ] && [  $TERM != "screen" ]; then
+    tmux attach -t hack || tmux new -s hack; exit
+  fi
+fi
+
+export ANDROID_HOME=/usr/local/opt/android-sdk

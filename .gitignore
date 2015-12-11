@@ -1,2 +1,4 @@
-vim.symlink/bundle
 vim.symlink/.netrwhist
+vim.symlink/bundle
+vim.symlink/spell
+vim.symlink/thesaurus

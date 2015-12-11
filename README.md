@@ -1,27 +1,25 @@
 # Dotfiles
 
+![dotfiles-logo](https://cloud.githubusercontent.com/assets/6104/11513776/06d0197a-9843-11e5-9c3b-d6a369316cdc.png)
+
+Logo by [Joel Glovier](https://github.com/jglovier/dotfiles-logo)
+
 These are the files I tweak on almost a daily basis, it's a serious addiction.
 
-Use these files in tandem with my [Boxen Config](https://github.com/tarebyte/my-boxen)
-
 ## Install
-3ish Easy steps:
+3 Easy steps:
 
 ```
 git clone https://github.com/tarebyte/dotfile ~/.dotfiles
 cd ~/.dotfiles
-script/bootstrap
 
-# If you aren't using My Boxen
-chsh -s /bin/zsh
+script/bootstrap
 ```
 
 And that's it! This will symlink any .symlink file into your home directory
 
 ## Thanks
 
-I used [Zach Holman's](http://zachholman.com/) awesome [dotfiles](https://github.com/holman/dotfiles)
-as a template to build my own.
-
-I pulled a lot of functionality out of the [Neo vim-config](https://github.com/neo/vim-config)
-and [Jason Long's](http://www.jasonlong.me/) [vimrc](https://github.com/jasonlong/dotfiles/blob/master/vimrc)
+* [Zach Holman](https://github.com/holman/dotfiles)
+* [Jason Long](https://github.com/jasonlong/dotfiles)
+* [Wynn Netherland](https://github.com/pengwynn/dotfiles)
