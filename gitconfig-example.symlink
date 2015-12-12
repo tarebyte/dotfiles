@@ -1,0 +1,83 @@
+[user]
+  signingkey = 3BF9D1AE
+  name = Mark Tareshawty
+  email = mark@marktareshawty.com
+  username = tarebyte
+
+[alias]
+  a             =  add
+  br            =  branch
+  c             =  commit -m
+  ci            =  commit
+  co            =  checkout
+  cob           =  checkout -b
+  cleanup       =  !git remote prune origin && git gc && git clean -dfx && git stash clear
+  create-branch =  !sh -c 'git push origin HEAD:refs/heads/$1 && git fetch origin && git branch --track $1 origin/$1 && cd . && git checkout $1' -
+  delete-branch =  !sh -c 'git push origin :refs/heads/$1 && git remote prune origin && git branch -D $1' -
+  pr            =  !hub pull-request
+  d             =  difftool
+  dump          =  cat-file -p
+  hist          =  log --pretty=format:\"%h %ad | %s%d [%an]\" --graph --date=short --color
+  merge-branch  =  !git checkout master && git merge @{-1}
+  po            =  push origin
+  pom           =  push origin master
+  phm           =  push heroku master
+  sc            =  commit -S -m
+  sci           =  commit -S
+  st            =  status -sb
+  today         =  log --since=midnight --author='YOUR_NAME' --oneline
+  type          =  cat-file -t
+  up            =  !sh -c 'git pull --rebase --prune && git log --pretty=format:\"%Cred%ae %Creset- %C(yellow)%s %Creset(%ar)\" HEAD@{1}..'
+  who           =  shortlog -n -s --no-merges
+  g             = grep --break --heading --line-number
+
+[color]
+  branch=auto
+  diff=auto
+  interactive=auto
+  status=auto
+
+[github]
+  user = tarebyte
+
+[hub]
+  protocol = ssh
+
+[credential]
+  whitespace = trailing-space,space-before-tab,indent-with-non-tab
+  editor = vim
+  helper = osxkeychain
+
+[core]
+  editor = vim
+  excludesfile = /Users/mark/.gitignore_global
+  whitespace = trailing-space,space-before-tab,indent-with-non-tab
+
+[push]
+  default = current
+
+[diff]
+  tool = vimdiff
+
+[difftool]
+  prompt = false
+
+[filter "media"]
+  clean = git-media-clean %f
+  smudge = git-media-smudge %f
+
+[filter "hawser"]
+  clean = git hawser clean %f
+  smudge = git hawser smudge %f
+  required = true
+
+[difftool "sourcetree"]
+  cmd = opendiff \"$LOCAL\" \"$REMOTE\"
+  path =
+
+[mergetool "sourcetree"]
+  cmd = /opt/homebrew-cask/Caskroom/sourcetree/2.0.5.2/SourceTree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
+  trustExitCode = true
+
+[gitsh]
+  defaultCommand = status -sb

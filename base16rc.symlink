@@ -1,2 +1,4 @@
+# vim: set filetype=zsh ts=2 sw=2 tw=0 et :
+
 BASE16_SHELL="$HOME/src/chriskempson/base16-shell/base16-ocean.dark.sh"
 [[ -s $BASE16_SHELL ]] && . $BASE16_SHELL

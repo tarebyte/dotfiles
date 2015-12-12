@@ -1,26 +1,5 @@
+# vim: set filetype=zsh ts=2 sw=2 tw=0 et :
+
 alias :q='exit'
 
-alias bx='bundle exec'
-alias bxks='bx knife solo'
-alias bxrk='bx rake'
-alias bxrc='bx rails console'
-alias bxrr='bx rake routes'
-alias bxrs='bx rails server'
-alias bxrt='bx rake test'
-
-alias gg='git g'
-alias gs='git st'
-
-alias js='jekyll server --watch --drafts'
-
-alias pubkey="more ~/.ssh/id_rsa.pub | pbcopy | echo '=> Public key copied to pasteboard.'"
-
-alias scb='script/cibuild'
-alias stats='~/src/tarebyte/OSXey/OSXey -c'
-
-alias tvim='/opt/boxen/homebrew/Cellar/macvim/7.4-73_1/MacVim.app/Contents/MacOS/Vim'
-
-alias vh="vagrant halt"
-alias vim=mvim
-alias vssh="vagrant ssh"
-alias vu="vagrant up"
+alias htop='sudo htop'

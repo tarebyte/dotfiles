@@ -7,12 +7,6 @@ if [ -d "$HOME/bin" ]; then
   export PATH=$PATH:$HOME/bin
 fi
 
-# Boxen
-if [[ -a /opt/boxen/env.sh ]]
-then
-  [ -f /opt/boxen/env.sh ] && source /opt/boxen/env.sh
-fi
-
 # Autojump
 if _homebrew-installed ; then
   if [[ -a `brew --prefix`/etc/autojump.sh ]]
@@ -20,3 +14,13 @@ if _homebrew-installed ; then
     [[ -s `brew --prefix`/etc/autojump.sh ]] && . `brew --prefix`/etc/autojump.sh
   fi
 fi
+
+export REDISTOGO_URL=redis://127.0.0.1:16379/
+export RUBY_BUILD_DEFINITIONS=/Users/mark/src/boxen/puppet-ruby/files/definitions/
+
+export PATH=$PATH:/Users/mark/src/ConradIrwin/git-aliae/bin
+export PATH=$PATH:/Users/mark/src/ConradIrwin/git-aliae/wip
+
+export PATH=$PATH:/usr/local/opt/go/libexec/bin
+export GOPATH=$HOME/bin/go/
+export PATH="$HOME/.nodenv/bin:$PATH"
