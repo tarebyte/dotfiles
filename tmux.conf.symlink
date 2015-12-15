@@ -142,7 +142,7 @@ set -g status-justify left
 
 # show session, window, pane in left status bar
 set -g status-left-length 40
-set -g status-left '#[fg=green]#S#[fg=blue] #I:#P#[default]'
+set -g status-left '#[fg=green]#S#[fg=blue] #I:#P #[default]'
 
 # show battery, date and time in right status bar
 # requires https://github.com/Goles/Battery
