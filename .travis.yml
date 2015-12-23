@@ -10,6 +10,8 @@ matrix:
     - env: OSX=10.9
       osx_image: beta-xcode6.2
 
-# Install Strap and then test installing packages works.
+notifications:
+  email: false
+
 script:
   - ./script/cibuild
