@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Get a single GitHub organization
+# Get a single GitHub user
 #
 # user - [Integer, String] GitHub user login or id.
 #
