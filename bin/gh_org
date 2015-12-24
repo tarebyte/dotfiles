@@ -1,0 +1,26 @@
+#!/bin/sh
+
+# Get a single GitHub organization
+#
+# org - [Integer, String] Organization GitHub login or id
+#
+# Examples
+#
+#  # Get an organization by login
+#  gh_org github
+#
+#  # Get an organization by id
+#  gh_org 9919
+
+set -e
+
+request_api_url="https://api.github.com"
+
+if [[ $1 =~ ^-?[0-9]+$ ]]
+then
+  request_api_url="$request_api_url/organizations/$1"
+else
+  request_api_url="$request_api_url/orgs/$1"
+fi
+
+curl -H "Authorization: token $GH_TOKEN" "$request_api_url?$2"
