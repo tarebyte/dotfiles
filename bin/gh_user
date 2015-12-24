@@ -1,0 +1,26 @@
+#!/bin/sh
+
+# Get a single GitHub user
+#
+# user - [Integer, String] GitHub user login or id.
+#
+# Examples
+#
+#  # Get an user by login
+#  gh_user tarebyte
+#
+#  # Get an user by id
+#  gh_user 564113
+
+set -e
+
+request_api_url="https://api.github.com"
+
+if [[ $1 =~ ^-?[0-9]+$ ]]
+then
+  request_api_url="$request_api_url/user/$1"
+else
+  request_api_url="$request_api_url/users/$1"
+fi
+
+curl -H "Authorization: token $GH_TOKEN" "$request_api_url?$2"
