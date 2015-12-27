@@ -6,6 +6,10 @@ Logo by [Joel Glovier](https://github.com/jglovier/dotfiles-logo)
 
 These are the files I tweak on almost a daily basis, it's a serious addiction.
 
+## Before you install
+I recommend using [Strap](https://github.com/mikemcquaid/strap) by [@mikemcquaid](https://github.com/mikemcquaid) to setup your
+development environment if you just cracked open your brand new laptop and don't have anything setup yet.
+
 ## Install
 3 Easy steps:
 
