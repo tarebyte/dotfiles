@@ -134,6 +134,9 @@ install_bin_files () {
 
 install_oh_my_zsh () {
   if [ ! -d "$HOME/.oh-my-zsh" ]; then
+    # Set shell to zsh
+    chsh -s /bin/zsh
+
     git clone https://github.com/tarebyte/oh-my-zsh.git $HOME/.oh-my-zsh
     cd $HOME/.oh-my-zsh
     git remote rename origin tarebyte

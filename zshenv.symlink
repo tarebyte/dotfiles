@@ -1,26 +1,4 @@
-_homebrew-installed() {
-  whence brew &> /dev/null
-}
-
 # Load our ~/bin folder into the path
 if [ -d "$HOME/bin" ]; then
   export PATH=$PATH:$HOME/bin
 fi
-
-# Autojump
-if _homebrew-installed ; then
-  if [[ -a `brew --prefix`/etc/autojump.sh ]]
-  then
-    [[ -s `brew --prefix`/etc/autojump.sh ]] && . `brew --prefix`/etc/autojump.sh
-  fi
-fi
-
-export REDISTOGO_URL=redis://127.0.0.1:16379/
-export RUBY_BUILD_DEFINITIONS=/Users/mark/src/boxen/puppet-ruby/files/definitions/
-
-export PATH=$PATH:/Users/mark/src/ConradIrwin/git-aliae/bin
-export PATH=$PATH:/Users/mark/src/ConradIrwin/git-aliae/wip
-
-export PATH=$PATH:/usr/local/opt/go/libexec/bin
-export GOPATH=$HOME/bin/go/
-export PATH="$HOME/.nodenv/bin:$PATH"
