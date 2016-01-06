@@ -23,8 +23,6 @@ then
   source ~/.localrc
 fi
 
-rbenv global 2.3.0
-
 # Base16 shell
 BASE16_SHELL="$DOTFILES/colors/base16-shell/base16-ocean.dark.sh"
 [[ -s $BASE16_SHELL ]] && . $BASE16_SHELL
