@@ -1,0 +1,44 @@
+export DOTFILES=$HOME/.dotfiles
+export ZSH=$DOTFILES/zsh/oh-my-zsh
+
+ZSH_THEME="mark"
+
+plugins=(
+  autojump
+  brew
+  brew-cask
+  bundler
+  gem
+  git
+  heroku
+  rails
+  rbenv
+  ruby
+  tmuxinator
+  scripts-to-rule-them-all
+)
+
+if [[ -a ~/.localrc ]]
+then
+  source ~/.localrc
+fi
+
+rbenv global 2.3.0
+
+# Base16 shell
+BASE16_SHELL="$DOTFILES/colors/base16-shell/base16-ocean.dark.sh"
+[[ -s $BASE16_SHELL ]] && . $BASE16_SHELL
+
+# Load our ~/.dotfiles/bin folder into the path
+export PATH=$PATH:$DOTFILES/bin
+
+source $ZSH/oh-my-zsh.sh
+
+# Hub from GitHub
+eval "$(hub alias -s)"
+
+if which tmux 2>&1 >/dev/null; then
+  if [ $TERM != "screen-256color" ] && [  $TERM != "screen" ]; then
+    tmux attach -t hack || tmux new -s hack; exit
+  fi
+fi

@@ -1,4 +1,0 @@
-# Load our ~/bin folder into the path
-if [ -d "$HOME/bin" ]; then
-  export PATH=$PATH:$HOME/bin
-fi

@@ -1,5 +1,0 @@
-# vim: set filetype=zsh ts=2 sw=2 tw=0 et :
-
-alias :q='exit'
-
-alias htop='sudo htop'
