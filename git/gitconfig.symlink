@@ -2,7 +2,7 @@
 
 [user]
   name = Mark Tareshawty
-  email = mark@marktareshawty.com
+  email = tarebyte@github.com
   username = tarebyte
   signingkey = 3BF9D1AE
 
@@ -13,6 +13,7 @@
   ci            =  commit
   co            =  checkout
   cob           =  checkout -b
+  cp            =  cherry-pick
   cleanup       =  !git remote prune origin && git gc && git clean -dfx && git stash clear
   create-branch =  !sh -c 'git push origin HEAD:refs/heads/$1 && git fetch origin && git branch --track $1 origin/$1 && cd . && git checkout $1' -
   delete-branch =  !sh -c 'git push origin :refs/heads/$1 && git remote prune origin && git branch -D $1' -
@@ -20,7 +21,7 @@
   d             =  difftool
   dump          =  cat-file -p
   merge-branch  =  !git checkout master && git merge @{-1}
-  l             =  "!source ~/.githelpers && pretty_git_log"
+  l             =  !git log --graph --oneline --decorate
   la            =  !git l --all
   po            =  push origin
   pom           =  push origin master
@@ -44,7 +45,7 @@
   status=auto
 
 [github]
-  user = tarebyte
+	user = tarebyte
 
 [hub]
   protocol = https
@@ -56,8 +57,9 @@
 
 [core]
   editor = vim
-  excludesfile = /Users/mark/.gitignore_global
+	excludesfile = /Users/tarebyte/.gitignore_global
   whitespace = trailing-space,space-before-tab,indent-with-non-tab
+  pager = diff-so-fancy | less --tabs=1,5 -R
 
 [push]
   default = current
@@ -76,3 +78,5 @@
   clean = git lfs clean %f
   smudge = git lfs smudge %f
   required = true
+[commit]
+	gpgsign = true

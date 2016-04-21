@@ -23,4 +23,4 @@ else
   request_api_url="$request_api_url/orgs/$1"
 fi
 
-curl -H "Authorization: token $GH_TOKEN" "$request_api_url?$2"
+curl -H "Authorization: token $GITHUB_TOKEN" "$request_api_url?$2"

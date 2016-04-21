@@ -61,13 +61,9 @@ bind -r K resize-pane -U 5
 bind -r L resize-pane -R 5
 # END:paneresize
 
-# mouse support - set to on if you want to use the mouse
 # START:mouse
-# setw -g mode-mouse off
+setw -g mouse
 # END:mouse
-# set -g mouse-select-pane off
-# set -g mouse-resize-pane off
-# set -g mouse-select-window off
 
 # Set the default terminal mode to 256color mode
 # START:termcolor

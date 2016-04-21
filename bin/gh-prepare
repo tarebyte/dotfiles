@@ -1,0 +1,18 @@
+#!/bin/bash
+
+set -e
+
+echo ":construction:  cd $PROJECTS/github/github"
+cd $PROJECTS/github/github
+
+echo ":construction: git up"
+git up
+
+echo ":construction:  ./script/bootstrap"
+./script/bootstrap
+
+echo ":construction:  bin/rake db:migrate db:test:prepare"
+bin/rake db:migrate db:test:prepare
+
+echo ":construction: git checkout db/structure.sql"
+git checkout db/structure.sql
