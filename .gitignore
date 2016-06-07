@@ -1,4 +1,5 @@
 bin/curl-github-lab
+bin/delete_all_repos_for
 bin/gh-prepare
 bin/merge_and_deploy
 
