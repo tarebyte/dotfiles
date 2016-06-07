@@ -41,6 +41,11 @@ export PATH=$PATH:$DOTFILES/bin
 export PATH="bin:$PATH"
 export PATH="$PATH:$HOME/.cabal/bin:$HOME/.local/bin"
 
+# Go
+export GOPATH=$HOME/src/go
+export GOSRC=$GOPATH/src/github.com
+export PATH=$PATH:$GOROOT/bin:$GOPATH/bin
+
 source $ZSH/oh-my-zsh.sh
 
 # Hub from GitHub

@@ -1,2 +1,5 @@
 vim/vim.symlink/bundle
 vim/vim.symlink/.netrwhist
+bin/curl-github-lab
+bin/gh-prepare
+bin/merge_and_deploy
