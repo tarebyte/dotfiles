@@ -1,13 +1,6 @@
 #!/bin/sh
 
-set -e
+curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
+        https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 
-echo "Installing neobundle"
-
-if [ ! -d "$HOME/.vim/bundle" ]; then
-  mkdir -p ~/.vim/bundle
-fi
-
-if [ ! -d "$HOME/.vim/bundle/neobundle.vim" ]; then
-  git clone https://github.com/Shougo/neobundle.vim ~/.vim/bundle/neobundle.vim
-fi
+vim +PlugInstall +qa

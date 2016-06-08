@@ -10,7 +10,9 @@ plugins=(
   bundler
   gem
   git
+  go
   heroku
+  mix
   rails
   rbenv
   ruby
@@ -23,20 +25,38 @@ then
   source ~/.localrc
 fi
 
+# autojump
+[[ -s $(brew --prefix)/etc/profile.d/autojump.sh ]] && . $(brew --prefix)/etc/profile.d/autojump.sh
+
+# Set vim
+export EDITOR=vim
+
 # Base16 shell
 BASE16_SHELL="$DOTFILES/colors/base16-shell/base16-ocean.dark.sh"
 [[ -s $BASE16_SHELL ]] && . $BASE16_SHELL
 
 # Load our ~/.dotfiles/bin folder into the path
 export PATH=$PATH:$DOTFILES/bin
+# Add local bin folders to our path
+export PATH="bin:$PATH"
+export PATH="$PATH:$HOME/.cabal/bin:$HOME/.local/bin"
+
+# Go
+export GOPATH=$HOME/src/go
+export GOSRC=$GOPATH/src/github.com
+export PATH=$PATH:$GOROOT/bin:$GOPATH/bin
 
 source $ZSH/oh-my-zsh.sh
 
 # Hub from GitHub
 eval "$(hub alias -s)"
 
+# Node
+eval "$(nodenv init -)"
+
 if which tmux 2>&1 >/dev/null; then
   if [ $TERM != "screen-256color" ] && [  $TERM != "screen" ]; then
     tmux attach -t hack || tmux new -s hack; exit
   fi
 fi
+export PATH="/usr/local/sbin:$PATH"

@@ -22,28 +22,29 @@ end
 require_rb_files_from(File.join(ENV['HOME'], '.pryrc.d'))
 
 # Style
-Pry.config.editor = "vim"
-Pry.config.prompt = [ proc { ">> " },
-                      proc { "|  " }]
+Pry.config.editor = 'vim'
+Pry.config.prompt = [
+  proc { '>> ' },
+  proc { '|  ' }
+]
 
 # Grab the clipboard
 def pbcopy(str)
-  IO.popen('pbcopy', 'r+') {|io| io.puts str }
-  output.puts "-- Copy to clipboard --\n#{str}"
+  IO.popen('pbcopy', 'r+') { |io| io.puts str }
+  output.puts '-- Copy to clipboard --\n#{str}'
 end
 
-Pry.config.commands.command "hiscopy", "History copy to clipboard" do |n|
+Pry.config.commands.command 'hiscopy', 'History copy to clipboard' do |n|
   pbcopy _pry_.input_array[n ? n.to_i : -1]
 end
 
-Pry.config.commands.command "copy", "Copy to clipboard" do |str|
+Pry.config.commands.command 'copy', 'Copy to clipboard' do |str|
   unless str
     str = "#{_pry_.input_array[-1]}#=> #{_pry_.last_result}\n"
   end
   pbcopy str
 end
 
-Pry.config.commands.command "lastcopy", "Last result copy to clipboard" do
+Pry.config.commands.command 'lastcopy', 'Last result copy to clipboard' do
   pbcopy _pry_.last_result.chomp
 end
-

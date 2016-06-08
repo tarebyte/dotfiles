@@ -8,10 +8,10 @@
 # Examples
 #
 #  # Get an issue by :owner/:repo
-#  gh_issue tarebyte/dotfiles 1
+#  gh-issue tarebyte/dotfiles 1
 #
 #  # Get an issue by repo ID
-#  gh_issue 18347036 1
+#  gh-issue 18347036 1
 
 set -e
 
@@ -24,4 +24,4 @@ else
   request_api_url="$request_api_url/repos/$1/issues/$2"
 fi
 
-curl -H "Authorization: token $GH_TOKEN" "$request_api_url?$3"
+curl -H "Authorization: token $GITHUB_TOKEN" "$request_api_url?$3"
