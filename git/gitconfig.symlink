@@ -57,7 +57,7 @@
 
 [core]
   editor = vim
-	excludesfile = /Users/tarebyte/.gitignore_global
+  excludesfile = /Users/tarebyte/.gitignore_global
   whitespace = trailing-space,space-before-tab,indent-with-non-tab
   pager = diff-so-fancy | less --tabs=1,5 -R
 
@@ -66,6 +66,7 @@
 
 [diff]
   tool = vimdiff
+  compactionHeuristic = true
 
 [difftool]
   prompt = false

@@ -2,4 +2,9 @@
 set -e
 cd "$(dirname "$0")/.."
 
+# Otherwise this will really ruin someone's day
+if [ -z "$TRAVIS" ]; then
+  test -e ~/.zshrc && rm ~/.zshrc
+fi
+
 script/bootstrap

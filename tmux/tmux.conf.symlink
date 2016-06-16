@@ -76,10 +76,6 @@ setw -g monitor-activity on
 set -g visual-activity on
 #END:activity
 
-#START:utf8
-set -g status-utf8 on
-#END:utf8
-
 # Update the status bar every sixty seconds
 # START:updateinterval
 set -g status-interval 60
@@ -127,8 +123,8 @@ bind-key -t vi-copy Enter copy-pipe "reattach-to-user-namespace pbcopy"
 # https://github.com/chrishunt/dot-files/blob/b0922577e32d5575793ee2bd128a96b580d9e17d/.tmux.conf
 ###########################
 
-# enable UTF-8 support in status bar
-set -g status-utf8 on
+# To the top!
+# set -g status-position top
 
 # set refresh interval for status bar
 set -g status-interval 30
