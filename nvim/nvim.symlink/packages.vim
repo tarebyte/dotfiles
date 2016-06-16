@@ -16,6 +16,11 @@ Plug 'FelikZ/ctrlp-py-matcher'
 
 Plug 'editorconfig/editorconfig-vim'
 
+function! DoRemote(arg)
+  UpdateRemotePlugins
+endfunction
+Plug 'Shougo/deoplete.nvim', { 'do': function('DoRemote') }
+
 Plug 'junegunn/goyo.vim'
 
 Plug 'othree/html5.vim'
