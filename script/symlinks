@@ -34,13 +34,19 @@ link_files () {
 install_dotfiles () {
   info 'installing dotfiles'
 
+  # Make config folder for nvim
+  [ -d "$HOME/.config" ] || mkdir "$HOME/.config"
+
   overwrite_all=false
   backup_all=false
   skip_all=false
 
   for source in `find $DOTFILES_ROOT -maxdepth 2 -name \*.symlink`
   do
-    dest="$HOME/.`basename \"${source%.*}\"`"
+    case "${source%.*}" in
+      *"nvim"*) dest="$HOME/.config/.`basename \"${source%.*}\"`" ;;
+      *) dest="$HOME/.`basename \"${source%.*}\"`" ;;
+    esac
 
     if [ -f $dest ] || [ -d $dest ]
     then

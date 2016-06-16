@@ -3,7 +3,7 @@ bin/delete_all_repos_for
 bin/gh-prepare
 bin/merge_and_deploy
 
-vim/vim.symlink/bundle
-vim/vim.symlink/.netrwhist
-vim/vim.symlink/autoload
-vim/vim.symlink/spell
+nvim/nvim.symlink/bundle
+nvim/nvim.symlink/.netrwhist
+nvim/nvim.symlink/autoload
+nvim/nvim.symlink/spell
