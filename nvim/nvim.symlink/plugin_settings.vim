@@ -3,16 +3,17 @@
 " Plugin settings
 "
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" vim-better-whitespace
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-highlight ExtraWhitespace ctermbg=bg
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " vim-airline
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 let g:airline_powerline_fonts = 1
 let g:airline_theme = "base16"
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" vim-better-whitespace
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+highlight ExtraWhitespace ctermbg=bg
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " ctrlp.vim
@@ -29,7 +30,17 @@ vnoremap <c-]> :CtrlPtjumpVisual<cr>
 
 let g:ctrlp_match_func = { 'match': 'pymatcher#PyMatch' }
 let g:ctrlp_working_path_mode = 'r'
-let g:ctrlp_user_command = 'ag %s -i --nocolor --nogroup --hidden -g ""'
+
+if executable('ag')
+  " Use The Silver Searcher https://github.com/ggreer/the_silver_searcher
+  set grepprg=ag\ --nogroup\ --nocolor
+  " Use ag in CtrlP for listing files. Lightning fast, respects .gitignore
+  " and .agignore. Ignores hidden files by default.
+  let g:ctrlp_user_command = 'ag %s -l --nocolor -f -g ""'
+else
+  "ctrl+p ignore files in .gitignore
+  let g:ctrlp_user_command = ['.git', 'cd %s && git ls-files . -co --exclude-standard', 'find %s -type f']
+endif
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " rainbow_parentheses.vim
@@ -54,6 +65,9 @@ au Syntax * RainbowParenthesesLoadBraces
 " Neomake
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 autocmd! BufWritePost * Neomake
+
+" Only use stylelint:
+let g:neomake_css_enabled_makers = ['stylelint']
 let g:neomake_error_sign = { 'text': 'E>', 'texthl': 'ErrorMsg' }
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -84,10 +98,11 @@ map <Leader>rt :!ctags --extra=+f -R *<CR><CR>
 map <Leader>. :TagbarToggle<CR>
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" ag.vim
+" ack.vim
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-nmap <leader>ag :Ag<space>
-let g:ackprg = 'ag --vimgrep'
+if executable('ag')
+  let g:ackprg = 'ag --vimgrep'
+endif
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " deoplete.nvim
@@ -137,3 +152,8 @@ nmap <c-k> :call TmuxWinCmd('k')<cr>
 nmap <c-h> :call TmuxWinCmd('h')<cr>
 nmap <c-l> :call TmuxWinCmd('l')<cr>
 nmap <c-\> :call TmuxWinCmd('p')<cr>
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" vim-polyglot
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+let g:polyglot_disabled = ['go', 'javascript', 'ruby']
