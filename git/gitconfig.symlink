@@ -1,10 +1,9 @@
 # vim:ft=gitconfig set ts=2 sw=2 tw=0 et
 
 [user]
-  name = Mark Tareshawty
-  email = tarebyte@github.com
-  username = tarebyte
-  signingkey = 3BF9D1AE
+  name = Patrick Donovan
+  email = patrick.donovan@jadedpixel.com
+  username = patrickdonovan
 
 [alias]
   a             =  add
@@ -45,10 +44,7 @@
   status=auto
 
 [github]
-	user = tarebyte
-
-[hub]
-  protocol = https
+	user = patrickdonovan
 
 [credential]
   whitespace = trailing-space,space-before-tab,indent-with-non-tab
@@ -57,7 +53,7 @@
 
 [core]
   editor = vim
-  excludesfile = /Users/tarebyte/.gitignore_global
+  excludesfile = /Users/Patrick/.gitignore_global
   whitespace = trailing-space,space-before-tab,indent-with-non-tab
   pager = diff-so-fancy | less --tabs=1,5 -R
 
@@ -79,5 +75,5 @@
   clean = git lfs clean %f
   smudge = git lfs smudge %f
   required = true
-[commit]
-	gpgsign = true
+# [commit]
+#  gpgsign = true

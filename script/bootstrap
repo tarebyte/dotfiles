@@ -7,7 +7,7 @@ set -e
 echo "Bootstrapping"
 
 echo "Updating submodules"
-git submodule init && git submodule update
+# git submodule init && git submodule update
 
 script/platform
 script/symlinks

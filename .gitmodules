@@ -1,6 +1,7 @@
 [submodule "colors/base16-shell"]
 	path = colors/base16-shell
 	url = https://github.com/chriskempson/base16-shell.git
+
 [submodule "zsh/oh-my-zsh"]
 	path = zsh/oh-my-zsh
-	url = https://github.com/tarebyte/oh-my-zsh.git
+	url = https://github.com/robbyrussell/oh-my-zsh.git
