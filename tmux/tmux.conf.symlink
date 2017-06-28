@@ -62,7 +62,7 @@ bind -r L resize-pane -R 5
 # END:paneresize
 
 # START:mouse
-setw -g mouse
+setw -g mouse off
 # END:mouse
 
 # Set the default terminal mode to 256color mode
@@ -105,9 +105,12 @@ bind Down last-window \; swap-pane -s tmp.1 \; kill-window -t tmp
 # re-number windows when one is closed
 set -g renumber-windows on
 
+bind-key -n C-S-Left swap-window -t -1
+bind-key -n C-S-Right swap-window -t +1
+
 # enable pbcopy and pbpaste
 # https://github.com/ChrisJohnsen/tmux-MacOSX-pasteboard/blob/master/README.md
-set-option -g default-command "reattach-to-user-namespace -l zsh"
+set-option -g default-command "zsh"
 
 # Setup 'v' to begin selection as in Vim
 bind-key -t vi-copy v begin-selection
@@ -157,3 +160,6 @@ set -g pane-border-fg colour235
 set -g pane-border-bg black
 set -g pane-active-border-fg green
 set -g pane-active-border-bg black
+
+# something dev made me do
+set -g default-command "reattach-to-user-namespace -l zsh"

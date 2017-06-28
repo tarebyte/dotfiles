@@ -29,7 +29,7 @@ vnoremap <c-]> :CtrlPtjumpVisual<cr>
 
 let g:ctrlp_match_func = { 'match': 'pymatcher#PyMatch' }
 let g:ctrlp_working_path_mode = 'r'
-let g:ctrlp_user_command = 'ag %s -i --nocolor --nogroup --hidden -g ""'
+let g:ctrlp_user_command = 'ag %s -i --nocolor --nogroup -g ""'
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " rainbow_parentheses.vim

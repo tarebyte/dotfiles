@@ -1,4 +1,4 @@
-export DOTFILES=$HOME/.dotfiles
+export DOTFILES=$HOME/code/dotfiles
 export ZSH=$DOTFILES/zsh/oh-my-zsh
 
 ZSH_THEME="mark"
@@ -49,17 +49,7 @@ export PATH=$PATH:$GOROOT/bin:$GOPATH/bin
 
 source $ZSH/oh-my-zsh.sh
 
-# Hub from GitHub
-eval "$(hub alias -s)"
-
-# Node
-eval "$(nodenv init -)"
-
-# Always attach to tmux
-if which tmux 2>&1 >/dev/null; then
-  if [ $TERM != "screen-256color" ] && [  $TERM != "screen" ]; then
-    tmux attach -t hack || tmux new -s hack; exit
-  fi
-fi
-
+export TDD=0
+export PRY=1
 test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
+source /opt/dev/dev.sh
