@@ -44,13 +44,14 @@ install_dotfiles () {
   for source in `find $DOTFILES_ROOT -maxdepth 2 -name \*.symlink`
   do
     case "${source%.*}" in
-      *"nvim"*) dest="$HOME/.config/.`basename \"${source%.*}\"`" ;;
-      *) dest="$HOME/.`basename \"${source%.*}\"`" ;;
+      *"nvim"* )
+        dest="$HOME/.config/.`basename \"${source%.*}\"`" ;;
+      * )
+        dest="$HOME/.`basename \"${source%.*}\"`" ;;
     esac
 
     if [ -f $dest ] || [ -d $dest ]
     then
-
       overwrite=false
       backup=false
       skip=false

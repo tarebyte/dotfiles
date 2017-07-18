@@ -53,7 +53,7 @@ map L $
 map H ^
 
 " Open .vimrc
-nnoremap <leader>v :e  ~/.vimrc<CR>
+nnoremap <leader>v :e  ~/.config/nvim/init.vim<CR>
 map <silent> <leader>vs :source ~/.vimrc<CR>:filetype detect<CR>:exe ":echo 'vimrc reloaded!'"<CR>
 
 " Fast saving
