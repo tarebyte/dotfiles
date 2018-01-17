@@ -37,11 +37,27 @@
   g             =  grep --break --heading --line-number
   unadd         =  reset
 
+#  branch=auto
+#  diff=auto
+#  interactive=auto
+#  status=auto
+
 [color]
-  branch=auto
-  diff=auto
-  interactive=auto
-  status=auto
+  ui=true
+
+[color.diff-highlight]
+  oldNormal     = "red bold"
+  oldHighlight  = "red bold 52"
+  newNormal     = "green bold"
+  newHighlight  = "green bold 22"
+  meta          = "yellow"
+
+[color.diff]
+  frag       = "magenta bold"
+  commit     = "yellow bold"
+  old        = "red bold"
+  new        = "green bold"
+  whitespace = "red reverse"
 
 [github]
 	user = patrickdonovan
