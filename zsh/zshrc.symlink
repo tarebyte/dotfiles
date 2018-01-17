@@ -1,7 +1,9 @@
 export DOTFILES=$HOME/code/dotfiles
 export ZSH=$DOTFILES/zsh/oh-my-zsh
 
-ZSH_THEME="mark"
+# zsh keeps its themes at oh-my-zsh-root-path/themes.
+# We keep our override file at oh-my-zsh-root/../themes/
+ZSH_THEME="../../themes/patrick"
 
 plugins=(
   vi-mode
@@ -51,7 +53,6 @@ export PATH=$PATH:$GOROOT/bin:$GOPATH/bin
 export PATH=$PATH:~/Library/Python/3.6/bin
 
 source $ZSH/oh-my-zsh.sh
-
 
 #configure vi-mode
 MODE_INDICATOR=" "
