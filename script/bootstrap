@@ -12,3 +12,8 @@ echo "Updating submodules"
 script/platform
 script/symlinks
 script/generic
+
+echo "Reloading zshrc"
+
+# shellcheck source=/dev/null
+source "$HOME/.zshrc"

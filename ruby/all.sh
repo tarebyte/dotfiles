@@ -1,7 +1,7 @@
 #!/bin/bash
 
-brew install chruby # assuming OSX here.
 # sets $RUBY_ROOT and adds rubies to path.
+brew install chruby
 chruby 2.5.0
 
 set -e
