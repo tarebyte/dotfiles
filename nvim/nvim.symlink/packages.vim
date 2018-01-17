@@ -19,6 +19,7 @@ Plug 'editorconfig/editorconfig-vim'
 function! DoRemote(arg)
   UpdateRemotePlugins
 endfunction
+
 Plug 'Shougo/deoplete.nvim', { 'do': function('DoRemote') }
 
 Plug 'junegunn/goyo.vim'
@@ -75,6 +76,7 @@ Plug 'tpope/vim-surround'
 Plug 'kana/vim-textobj-user'
 Plug 'nelstrom/vim-textobj-rubyblock'
 Plug 'christoomey/vim-tmux-navigator'
+Plug 'leafgarland/typescript-vim'
 
 call plug#end()
 

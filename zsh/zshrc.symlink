@@ -4,19 +4,21 @@ export ZSH=$DOTFILES/zsh/oh-my-zsh
 ZSH_THEME="mark"
 
 plugins=(
+  vi-mode
   autojump
   brew
   brew-cask
   bundler
   gem
+  npm
   git
   go
   heroku
   mix
   rails
-  rbenv
   ruby
   tmuxinator
+  history-substring-search
   scripts-to-rule-them-all
   vagrant
 )
@@ -46,10 +48,37 @@ export PATH="/usr/local/sbin:$PATH"
 export GOPATH=$HOME/src/go
 export GOSRC=$GOPATH/src/github.com
 export PATH=$PATH:$GOROOT/bin:$GOPATH/bin
+export PATH=$PATH:~/Library/Python/3.6/bin
 
 source $ZSH/oh-my-zsh.sh
+
+
+#configure vi-mode
+MODE_INDICATOR=" "
+#removes delay between switching between modes
+KEYTIMEOUT=5
+# make the prompt arrow turn blue in vi mode.
+function zle-line-init zle-keymap-select {
+  case $KEYMAP in
+    vicmd) MODE="blue";;
+    viins|main) MODE="green";;
+  esac
+
+  #overriding a bunch of shit from the theme here
+  local ret_status="%(?:%{$fg_bold[$MODE]%}➜ :%{$fg_bold[red]%}➜ )"
+  PROMPT='${ret_status} %{$fg[cyan]%}%c%{$reset_color%} $(git_prompt_info)'
+  zle reset-prompt
+}
+
+zle -N zle-line-init
+zle -N zle-keymap-select
+
+bindkey -v
+bindkey "^[[A" history-beginning-search-backward
+bindkey "^[[B" history-beginning-search-forward
 
 export TDD=0
 export PRY=1
 test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
 source /opt/dev/dev.sh
+alias rebuild_spotlight="sudo mdutil -E /"
