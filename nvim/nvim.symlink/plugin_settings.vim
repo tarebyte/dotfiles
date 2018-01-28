@@ -30,8 +30,19 @@ vnoremap <c-]> :CtrlPtjumpVisual<cr>
 " https://github.com/kien/ctrlp.vim/blob/master/doc/ctrlp.txt
 let g:ctrlp_match_func = { 'match': 'pymatcher#PyMatch' }
 let g:ctrlp_working_path_mode = 'r'
+" vv this is super slow
 " let g:ctrlp_user_command = 'ag %s -i --nocolor --nogroup -g ""'
+
+" for fast file matching - dont know how this will work with tags.
 let g:ctrlp_user_command = 'cd %s && git ls-files . -co --exclude-standard'
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" EditorConfig.vim
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+let g:EditorConfig_exclude_patterns = ['fugitive://.*']
+let g:EditorConfig_trim_trailing_whitespace = 1
+let g:EditorConfig_indent_style = 'space'
+let g:EditorConfig_indent_size = 2
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " rainbow_parentheses.vim
