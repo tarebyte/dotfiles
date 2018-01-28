@@ -54,7 +54,7 @@ export PATH=$PATH:~/Library/Python/3.6/bin
 
 source $ZSH/oh-my-zsh.sh
 
-#configure vi-mode
+#configure vi-mode and prompt. Matches patrick.theme's reticle declaration
 MODE_INDICATOR=" "
 #removes delay between switching between modes
 KEYTIMEOUT=5
@@ -77,6 +77,12 @@ zle -N zle-keymap-select
 bindkey -v
 bindkey "^[[A" history-beginning-search-backward
 bindkey "^[[B" history-beginning-search-forward
+
+# set default ruby version and ruby management
+export DEFAULT_RUBY="2.5.0"
+source '/usr/local/opt/chruby/share/chruby/chruby.sh'
+source '/usr/local/opt/chruby/share/chruby/auto.sh'
+chruby $DEFAULT_RUBY
 
 export TDD=0
 export PRY=1
