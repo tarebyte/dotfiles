@@ -6,14 +6,13 @@ set -e
 
 echo "Bootstrapping"
 
-echo "Updating submodules"
+# echo "Updating github submodules"
+# TODO: why is this commented?
 # git submodule init && git submodule update
 
 script/platform
 script/symlinks
 script/generic
-
-echo "Reloading zshrc"
 
 # shellcheck source=/dev/null
 source "$HOME/.zshrc"

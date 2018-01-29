@@ -32,11 +32,11 @@ BASE16_SHELL="$DOTFILES/colors/base16-shell/base16-ocean.dark.sh"
 # Load local configurations ie API keys etc
 test -e "${HOME}/.localrc" && source "${HOME}/.localrc"
 
-# Because I'm too set in my ways
 alias vim=nvim
 export EDITOR=nvim
 
-# autojump
+# autojump - used by ohmyzsh.
+# TODO: osx specific
 [[ -s $(brew --prefix)/etc/profile.d/autojump.sh ]] && . $(brew --prefix)/etc/profile.d/autojump.sh
 
 # Load our ~/.dotfiles/bin folder into the path
@@ -84,8 +84,14 @@ source '/usr/local/opt/chruby/share/chruby/chruby.sh'
 source '/usr/local/opt/chruby/share/chruby/auto.sh'
 chruby $DEFAULT_RUBY
 
+#shopify specific
 export TDD=0
 export PRY=1
-test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
 source /opt/dev/dev.sh
+
+#osx specific
 alias rebuild_spotlight="sudo mdutil -E /"
+alias pg-start="launchctl load ~/Library/LaunchAgents/homebrew.mxcl.postgresql.plist"
+alias pg-stop="launchctl unload ~/Library/LaunchAgents/homebrew.mxcl.postgresql.plist"
+
+test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"

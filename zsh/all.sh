@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 set -e
 
@@ -7,5 +7,6 @@ if [[ $ZSH_NAME != "zsh" ]]; then
   chsh -s /bin/zsh
 fi
 
-echo "Setting shell color scheme"
-sh $HOME/.dotfiles/colors/base16-shell/base16-ocean.dark.sh
+# TODO: this path is wrong. I think this has been broken
+# for a while. does anything use colors?
+# sh $HOME/.dotfiles/colors/base16-shell/base16-ocean.dark.sh

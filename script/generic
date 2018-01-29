@@ -1,8 +1,36 @@
-#!/bin/sh
-
-set -e
+#!/bin/bash
 
 # TODO: there are some dependencies and this alphabetical approach leads to errors
 # find generic installers and run them interactively
-echo "Running generic installers"
-find . -name all.sh | while read installer ; do sh -c "${installer}" > /dev/null ; done
+platform="unknown"
+if [[ "$(uname)" == "Darwin" ]]; then
+   platform="osx"
+elif [[ "$(expr substr $(uname -s) 1 5)" == "Linux" ]]; then
+   platform="linux"
+elif [[ "$(expr substr $(uname -s) 1 10)" == "MINGW32_NT" ]]; then
+   platform="windows"
+fi
+
+echo "Running generic installers for $platform"
+installers=$(find . -name all.sh)
+echo "$installers"
+
+result=0
+for script in $installers
+do
+  if test "$result" == "0"; then
+    echo "running $script"
+    if [ -f "$script" ]; then
+      env PLATFORM=$platform PATH=$PATH bash -c "${script}";
+      result=$?
+
+      if test "$result" -ne "0" ; then
+        echo "aberrant result in $script: $result"
+      fi
+    fi
+  else
+    echo "Not run due to error in previous installation script: $script"
+  fi
+done
+
+exit $result
