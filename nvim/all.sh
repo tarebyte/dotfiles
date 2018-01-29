@@ -1,5 +1,6 @@
 #!/bin/sh
 
+#TODO make this not apple dependent
 brew install neovim
 
 curl -fLo ~/.config/nvim/autoload/plug.vim --create-dirs \

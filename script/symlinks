@@ -45,7 +45,7 @@ install_dotfiles () {
   do
     case "${source%.*}" in
       *"nvim"* )
-        dest="$HOME/.config/.`basename \"${source%.*}\"`" ;;
+        dest="$HOME/.config/`basename \"${source%.*}\"`" ;;
       * )
         dest="$HOME/.`basename \"${source%.*}\"`" ;;
     esac

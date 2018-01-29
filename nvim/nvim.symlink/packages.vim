@@ -72,11 +72,10 @@ Plug 'elzr/vim-json'
 Plug 'vim-ruby/vim-ruby'
 Plug 'tpope/vim-markdown'
 Plug 'sunaku/vim-ruby-minitest'
-Plug 'leafgarland/typescript-vim' " TODO is this working?
+Plug 'leafgarland/typescript-vim'
 " as suggested by dan:
 Plug 'cakebaker/scss-syntax.vim'
 Plug 'mxw/vim-jsx'
-Plug 'JulesWang/css.vim'
 Plug 'jparise/vim-graphql'
 
 " frameworks
