@@ -4,4 +4,4 @@
 
 set -e
 
-curl -H "Authorization: token $GH_TOKEN" "https://api.github.com/octocat"
+curl -H "Authorization: token $GITHUB_TOKEN" "https://api.github.com/octocat"

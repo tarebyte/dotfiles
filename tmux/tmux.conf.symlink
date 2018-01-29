@@ -1,130 +1,40 @@
-# Setting the prefix from C-b to C-a
-# START:prefix
+# Default terminal stuff...
+# set -g default-terminal "tmux"
+# set -g default-terminal "tmux-256color"
+# set -ga terminal-overrides 'tmux-256color:Tc,xterm*:sitm=\E[3m'
+# set -as terminal-overrides ',xterm*:sitm=\E[3m'
+
+# Setting the prefix from C-b to C-f
 set -g prefix C-f
-# END:prefix
 
 # Free the original Ctrl-b prefix keybinding
-# START:unbind
 unbind C-b
-# END:unbind
 
 #setting the delay between prefix and command
-# START:delay
 set -s escape-time 1
-# END:delay
 
 # Ensure that we can send Ctrl-A to other apps
-# START:bind_prefix
 bind C-f send-prefix
-# END:bind_prefix
 
 # Set the base index for windows to 1 instead of 0
-# START:index
 set -g base-index 1
-# END:index
 
 # Set the base index for panes to 1 instead of 0
-# START:panes_index
 setw -g pane-base-index 1
-# END:panes_index
+
+# Mouse support
+set-option -g mouse on
+
+# Copy and paste
+# setw -g mode-keys vi          # Vim keybindings in copy mode
+# set-option -g default-command "reattach-to-user-namespace -l zsh"
 
 # Reload the file with Prefix r
-# START:reload
 bind r source-file ~/.tmux.conf \; display "Reloaded Tmux!"
-# END:reload
-
-# splitting panes
-# START:panesplit
-bind | split-window -h
-bind - split-window -v
-# END:panesplit
-
-# moving between panes
-# START:paneselect
-bind h select-pane -L
-bind j select-pane -D
-bind k select-pane -U
-bind l select-pane -R
-# END:paneselect
-
-# Quick pane selection
-# START:panetoggle
-bind -r C-h select-window -t :-
-bind -r C-l select-window -t :+
-# END:panetoggle
-
-# Pane resizing
-# START:paneresize
-bind -r H resize-pane -L 5
-bind -r J resize-pane -D 5
-bind -r K resize-pane -U 5
-bind -r L resize-pane -R 5
-# END:paneresize
-
-# START:mouse
-setw -g mouse
-# END:mouse
-
-# Set the default terminal mode to 256color mode
-# START:termcolor
-set -g default-terminal "screen-256color"
-# END:termcolor
-
-# enable activity alerts
-#START:activity
-setw -g monitor-activity on
-set -g visual-activity on
-#END:activity
-
-# Update the status bar every sixty seconds
-# START:updateinterval
-set -g status-interval 60
-# END:updateinterval
-
-# enable vi keys.
-# START:vikeys
-setw -g mode-keys vi
-# END:vikeys
-
-# shortcut for synchronize-panes toggle
-# START:sync
-bind C-s set-window-option synchronize-panes
-# END:sync
-
-# Maximize and restore a pane. Only needed for 1.7 and lower.
-# START:max
-unbind Up
-bind Up new-window -d -n tmp \; swap-pane -s tmp.1 \; select-window -t tmp
-# END:max
-
-# START:restore
-unbind Down
-bind Down last-window \; swap-pane -s tmp.1 \; kill-window -t tmp
-# END:restore
-
-# re-number windows when one is closed
-set -g renumber-windows on
-
-# enable pbcopy and pbpaste
-# https://github.com/ChrisJohnsen/tmux-MacOSX-pasteboard/blob/master/README.md
-set-option -g default-command "reattach-to-user-namespace -l zsh"
-
-# Setup 'v' to begin selection as in Vim
-bind-key -t vi-copy v begin-selection
-bind-key -t vi-copy y copy-pipe "reattach-to-user-namespace pbcopy"
-
-# Update default binding of `Enter` to also use copy-pipe
-unbind -t vi-copy Enter
-bind-key -t vi-copy Enter copy-pipe "reattach-to-user-namespace pbcopy"
 
 ###########################
-# Status Bar
-# Based off of:
-# https://github.com/chrishunt/dot-files/blob/b0922577e32d5575793ee2bd128a96b580d9e17d/.tmux.conf
+# Status bar
 ###########################
-
-# To the top!
-# set -g status-position top
 
 # set refresh interval for status bar
 set -g status-interval 30
@@ -132,28 +42,36 @@ set -g status-interval 30
 # center the status bar
 set -g status-justify left
 
-# show session, window, pane in left status bar
+# show session in left status bar
 set -g status-left-length 40
-set -g status-left '#[fg=green]#S#[fg=blue] #I:#P #[default]'
+set -g status-left '#[fg=green,bold]#S#[fg=blue,nobold] #[fg=colour07,bold]| #[default]'
 
-# show battery, date and time in right status bar
-# requires https://github.com/Goles/Battery
-set-option -g status-right '#(battery -t)  |#[fg=green] %m/%d/%y %I:%M'
-
-###########################
-# Colors
-###########################
+# show date and time in right status bar
+set -g status-right '#[fg=colour04,bold] %a %b %d #[fg=colour21,bold]%H:%M'
 
 # color status bar
 set -g status-bg colour18
 set -g status-fg white
 
-# highlight current window
-set-window-option -g window-status-current-fg colour18
-set-window-option -g window-status-current-bg colour4
+# Courtesy of @bswinnerton
+# https://github.com/bswinnerton/dotfiles/blob/a8d268f861811a6168afaaaf03d2ef8b5cdb34e8/tmux/tmux.conf.symlink#L58-L66
 
-# set color of active pane
-set -g pane-border-fg colour235
-set -g pane-border-bg black
-set -g pane-active-border-fg green
-set -g pane-active-border-bg black
+setw -g window-status-current-fg colour220    # Foreground of active window
+setw -g window-status-current-bg colour08     # Background of active window
+setw -g window-status-current-attr bold       # Font styling of active window
+setw -g window-status-current-format ' #I#[fg=colour250] #[fg=colour252]#W '
+
+setw -g window-status-fg colour11             # Foreground of inactive windows
+setw -g window-status-bg colour18             # Background of inactive windows
+setw -g window-status-attr none               # Font styling of inactive windows
+setw -g window-status-format ' #I#[fg=colour237] #[fg=colour250]#W '
+
+# List of plugins
+set -g @plugin 'tmux-plugins/tpm'
+set -g @plugin 'tmux-plugins/tmux-pain-control'
+set -g @plugin 'tmux-plugins/tmux-sensible'
+set -g @plugin 'tmux-plugins/tmux-yank'
+set -g @plugin 'tmux-plugins/tmux-sidebar'
+
+# Initialize TMUX plugin manager (keep this line at the very bottom of tmux.conf)
+run '~/.tmux/plugins/tpm/tpm'

@@ -5,6 +5,12 @@
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" ale
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Set this. Airline will handle the rest.
+let g:airline#extensions#ale#enabled = 1
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " vim-airline
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 let g:airline_powerline_fonts = 1
@@ -16,31 +22,22 @@ let g:airline_theme = "base16"
 highlight ExtraWhitespace ctermbg=bg
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" ctrlp.vim
+" fzf.vim
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-nmap <leader>t :CtrlP<CR>
-nmap <leader>b :CtrlPBuffer<CR>
-nmap <leader>r :CtrlPMRU<CR>
-nmap <leader>T :CtrlPClearCache<CR>:CtrlP<CR>
-nnoremap <leader>. :CtrlPTag<cr>
+nnoremap <C-p> :FZF<CR>
+nmap <leader>t :FZF<CR>
+nmap <leader>b :Buffers<CR>
 
-let g:ctrlp_tjump_only_silent = 1 " jump immediately if only one tag
-nnoremap <c-]> :CtrlPtjump<cr>
-vnoremap <c-]> :CtrlPtjumpVisual<cr>
+" Make jump to tag open up FZF
+nnoremap <c-]> :Tags <c-r><c-w><cr>
 
-let g:ctrlp_match_func = { 'match': 'pymatcher#PyMatch' }
-let g:ctrlp_working_path_mode = 'r'
-
-if executable('ag')
-  " Use The Silver Searcher https://github.com/ggreer/the_silver_searcher
-  set grepprg=ag\ --nogroup\ --nocolor
-  " Use ag in CtrlP for listing files. Lightning fast, respects .gitignore
-  " and .agignore. Ignores hidden files by default.
-  let g:ctrlp_user_command = 'ag %s -l --nocolor -f -g ""'
-else
-  "ctrl+p ignore files in .gitignore
-  let g:ctrlp_user_command = ['.git', 'cd %s && git ls-files . -co --exclude-standard', 'find %s -type f']
-endif
+" Create a search command that uses Ripgrep and offers previews
+command! -bang -complete=file -nargs=* Search
+  \ call fzf#vim#grep(
+  \   'rg --column --line-number --no-heading --color=always '.<q-args>, 1,
+  \   <bang>0 ? fzf#vim#with_preview('up:60%')
+  \           : fzf#vim#with_preview('right:50%:hidden', '?'),
+  \   <bang>0)
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " rainbow_parentheses.vim
@@ -60,15 +57,6 @@ au VimEnter * RainbowParenthesesToggle
 au Syntax * RainbowParenthesesLoadRound
 au Syntax * RainbowParenthesesLoadSquare
 au Syntax * RainbowParenthesesLoadBraces
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Neomake
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-autocmd! BufWritePost * Neomake
-
-" Only use stylelint:
-let g:neomake_css_enabled_makers = ['stylelint']
-let g:neomake_error_sign = { 'text': 'E>', 'texthl': 'ErrorMsg' }
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " tabular
@@ -98,16 +86,21 @@ map <Leader>rt :!ctags --extra=+f -R *<CR><CR>
 map <Leader>. :TagbarToggle<CR>
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" ack.vim
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-if executable('ag')
-  let g:ackprg = 'ag --vimgrep'
-endif
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " deoplete.nvim
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" https://github.com/zchee/deoplete-go#sample-initvim
+set completeopt+=noselect
+
+" Path to python interpreter for neovim
+let g:python3_host_prog  = '/usr/local/bin/python3'
+" Skip the check of neovim module
+let g:python3_host_skip_check = 1
+
+" Run deoplete.nvim automatically
 let g:deoplete#enable_at_startup = 1
+" deoplete-go settings
+let g:deoplete#sources#go#gocode_binary = $GOPATH.'/bin/gocode'
+let g:deoplete#sources#go#sort_class = ['package', 'func', 'type', 'var', 'const']
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Lexical
@@ -154,6 +147,16 @@ nmap <c-l> :call TmuxWinCmd('l')<cr>
 nmap <c-\> :call TmuxWinCmd('p')<cr>
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" vim-polyglot
+" vim-dirvish
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-let g:polyglot_disabled = ['go', 'javascript', 'ruby']
+autocmd FileType dirvish call fugitive#detect(@%)
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" vim-jsx
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+let g:jsx_ext_required = 0
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" vim-minitest
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+set completefunc=syntaxcomplete#Complete

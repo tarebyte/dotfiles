@@ -13,10 +13,18 @@ syntax on
 " set colors to 256
 set t_Co=256
 
+" True colors
+let $NVIM_TUI_ENABLE_TRUE_COLOR=1
+
 " default color scheme
-let base16colorspace=256
+let base16colorspace=256  " Access colors present in 256 colorspace
 set background=dark
 colorscheme base16-ocean
+
+" Extra fun stuff
+highlight Comment cterm=italic
+highlight Function cterm=bold
+" highlight String cterm=italic
 
 " don't wrap long lines
 set nowrap
@@ -104,3 +112,6 @@ autocmd Filetype gitcommit setlocal spell textwidth=72
 " When the type of shell script is /bin/sh, assume a POSIX-compatible
 " shell for syntax highlighting purposes.
 let g:is_posix = 1
+
+" Turn it up
+hi Number ctermfg=16

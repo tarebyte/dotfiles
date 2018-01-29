@@ -1,0 +1,6 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+pem = File.read("#{ARGV[0]}")
+pem_string = pem.gsub(/\n/, '\n').strip # format as one line String for use as Env var
+IO.popen("pbcopy", "w") { |pipe| pipe.puts pem_string }

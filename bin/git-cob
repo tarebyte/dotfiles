@@ -1,0 +1,5 @@
+#!/bin/bash
+#
+# Checkout your branch and fuzzy find it using fzf
+
+git checkout --track "$(git branch -r | fzf)"

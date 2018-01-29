@@ -6,28 +6,32 @@ call plug#begin('~/.config/nvim/bundle')
 
 Plug 'Shougo/vimproc.vim', { 'do': 'make -f make_mac.mak' }
 
-Plug 'mileszs/ack.vim'
+Plug 'slashmili/alchemist.vim'
+
+Plug 'w0rp/ale'
 
 Plug 'chriskempson/base16-vim'
 
-Plug 'ctrlpvim/ctrlp.vim'
-Plug 'ivalkeen/vim-ctrlp-tjump'
-Plug 'FelikZ/ctrlp-py-matcher'
-
 Plug 'editorconfig/editorconfig-vim'
 
-function! DoRemote(arg)
-  UpdateRemotePlugins
-endfunction
-Plug 'Shougo/deoplete.nvim', { 'do': function('DoRemote') }
+if has('nvim')
+  Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
+else
+  Plug 'Shougo/deoplete.nvim'
+  Plug 'roxma/nvim-yarp'
+  Plug 'roxma/vim-hug-neovim-rpc'
+endif
 
-Plug 'junegunn/goyo.vim'
+Plug 'zchee/deoplete-go', { 'do': 'make'}
 
-Plug 'neomake/neomake'
+Plug '/usr/local/opt/fzf' | Plug 'junegunn/fzf.vim'
+
+Plug 'jparise/vim-graphql'
 
 Plug 'kien/rainbow_parentheses.vim'
 Plug 'danro/rename.vim'
 
+Plug 'cakebaker/scss-syntax.vim'
 Plug 'ervandew/supertab'
 
 Plug 'godlygeek/tabular'
@@ -39,29 +43,28 @@ Plug 'vim-airline/vim-airline-themes'
 
 Plug 'ntpeters/vim-better-whitespace'
 
-Plug 'reedes/vim-colors-pencil'
-
 Plug 'justinmk/vim-dirvish'
 
+Plug 'dag/vim-fish'
 Plug 'Lokaltog/vim-easymotion'
 Plug 'tpope/vim-endwise'
 
 Plug 'tpope/vim-fugitive'
 
 Plug 'airblade/vim-gitgutter'
-Plug 'fatih/vim-go'
+Plug 'fatih/vim-go', { 'do': ':GoInstallBinaries' }
 
-Plug 'jelera/vim-javascript-syntax'
-
-Plug 'itspriddle/vim-marked'
+Plug 'pangloss/vim-javascript'
 
 Plug 'reedes/vim-lexical'
 
 Plug 'tpope/vim-projectionist'
-Plug 'sheerun/vim-polyglot'
 
 Plug 'tpope/vim-rails'
 Plug 'tpope/vim-rake'
+Plug 'tpope/vim-rbenv'
+Plug 'rust-lang/rust.vim'
+Plug 'tpope/vim-bundler'
 Plug 'tpope/vim-repeat'
 Plug 'vim-ruby/vim-ruby'
 Plug 'sunaku/vim-ruby-minitest'

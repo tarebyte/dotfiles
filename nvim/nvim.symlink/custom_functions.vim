@@ -1,34 +1,4 @@
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Writing
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-function! s:goyo_enter()
-  set background=light
-
-  colorscheme pencil
-
-  let g:goyo_width=85
-  set guifont=Cousine:h15
-  set wrap
-  set linespace=8
-
-  setlocal spell spelllang=en_us
-endfunction
-
-function! s:goyo_leave()
-  set background=dark
-  colorscheme base16-ocean
-
-  set guifont=Hack\ Regular:h13
-  set nowrap
-  set linespace=1
-
-  set nospell
-endfunction
-
-autocmd User GoyoEnter nested call <SID>goyo_enter()
-autocmd User GoyoLeave nested call <SID>goyo_leave()
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Vim Modeline
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Append modeline after last line in buffer.
@@ -41,3 +11,24 @@ function! AppendModeline()
   call append(line("$"), l:modeline)
 endfunction
 nnoremap <silent> <Leader>ml :call AppendModeline()<CR>
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Highlight words to avoid in tech writing
+" =======================================
+"
+"   obviously, basically, simply, of course, clearly,
+"   just, everyone knows, However, So, easy
+
+"   http://css-tricks.com/words-avoid-educational-writing/
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+highlight TechWordsToAvoid ctermbg=red ctermfg=white
+function! MatchTechWordsToAvoid()
+  match TechWordsToAvoid /\c\<\(obviously\|basically\|simply\|of\scourse\|clearly\|just\|everyone\sknows\|however\|so,\|easy\)\>/
+endfunction
+
+autocmd FileType markdown call MatchTechWordsToAvoid()
+autocmd BufWinEnter *.md call MatchTechWordsToAvoid()
+autocmd InsertEnter *.md call MatchTechWordsToAvoid()
+autocmd InsertLeave *.md call MatchTechWordsToAvoid()
+autocmd BufWinLeave *.md call clearmatches()
