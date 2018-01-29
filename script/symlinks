@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 #
 # Links *.symlink to $HOME/*.foo
+#   except nvim which is a special case:
+#     nvim.symlink to $HOME/.config/nvim
 
 DOTFILES_ROOT="`pwd`"
 

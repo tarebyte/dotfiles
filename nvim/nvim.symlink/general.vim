@@ -16,6 +16,10 @@ set t_Co=256
 " default color scheme
 let base16colorspace=256
 set background=dark
+
+" TODO: this cant be found apparently - it is referred to in zsh/all.sh
+" probably due to a dependency and the install order.
+" On the second try it doesnt complain
 colorscheme base16-ocean
 
 " don't wrap long lines
