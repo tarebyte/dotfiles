@@ -1,8 +1,8 @@
 # vim:ft=gitconfig set ts=2 sw=2 tw=0 et
 
 [user]
-	name = Mark Tareshawty
-	email = tarebyte@github.com
+  name = Mark Tareshawty
+  email = tarebyte@github.com
   username = tarebyte
   signingkey = 3BF9D1AE
 
@@ -72,7 +72,6 @@
   excludesfile = /Users/tarebyte/.gitignore_global
   whitespace = trailing-space,space-before-tab,indent-with-non-tab
   pager = diff-so-fancy | less --tabs=4 -RFX
-  # autocrlf = input
 
 [credential]
   whitespace = trailing-space,space-before-tab,indent-with-non-tab
@@ -107,5 +106,6 @@
 
 [push]
   default = current
+
 [gui]
 	recentrepo = /Users/tarebyte/src/github/github

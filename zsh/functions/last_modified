@@ -1,2 +1,0 @@
-# vim: set ft=sh:
-ls -t $* 2> /dev/null | head -n 1
