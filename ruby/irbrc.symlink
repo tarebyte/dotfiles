@@ -1,9 +1,11 @@
-# vim:ft=ruby ts=2 sw=2 sts=2
+# frozen_string_literal: true
+
+# vim: syntax=ruby
 
 begin
-  require 'pry'
+  require "pry"
   Pry.start
   exit
-rescue LoadError => e
+rescue LoadError
   warn "=> Unable to load pry"
 end

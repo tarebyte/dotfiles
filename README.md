@@ -20,6 +20,7 @@ And that's it! This will symlink any .symlink file into your home directory
 
 ## Thanks
 
+* [Brooks Swinnerton](https://github.com/bswinnerton/dotfiles)
 * [Zach Holman](https://github.com/holman/dotfiles)
 * [Jason Long](https://github.com/jasonlong/dotfiles)
 * [Wynn Netherland](https://github.com/pengwynn/dotfiles)

@@ -3,7 +3,11 @@ bin/delete_all_repos_for
 bin/gh-prepare
 bin/merge_and_deploy
 
+fish/fishd.*
+
 nvim/nvim.symlink/bundle
 nvim/nvim.symlink/.netrwhist
 nvim/nvim.symlink/autoload
 nvim/nvim.symlink/spell
+
+private-env.auto.fish

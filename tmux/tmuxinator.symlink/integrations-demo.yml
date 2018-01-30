@@ -1,0 +1,10 @@
+# ~/.tmuxinator/hookshot.yml
+
+name: integrations-demo
+root: ~/src/github/integrations-demo
+
+windows:
+  - editor: vim
+  - shell: # empty
+  - console: ./script/console
+  - server: ./script/server
