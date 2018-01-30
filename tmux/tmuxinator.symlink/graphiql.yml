@@ -1,0 +1,10 @@
+# ~/.tmuxinator/graphiql.yml
+
+name: graphiql
+root: ~/src/skevy/graphiql-app
+
+windows:
+  - editor: nvim
+  - shell: # empty
+  - hot-dev-server: yarn run hot-dev-server
+  - start-hot: yarn run start-hot

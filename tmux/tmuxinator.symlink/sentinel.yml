@@ -1,0 +1,9 @@
+# ~/.tmuxinator/hookshot.yml
+
+name: sentinel
+root: ~/src/github/sentinel
+
+windows:
+  - editor: vim
+  - shell: # empty
+  - server: ./script/server
