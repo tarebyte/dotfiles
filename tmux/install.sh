@@ -1,3 +1,5 @@
 #!/bin/sh
 
-~/.tmux/plugins/tpm/bin/install_plugins
+set -e
+
+$HOME/.tmux/plugins/tpm/bin/install_plugins
