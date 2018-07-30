@@ -8,7 +8,8 @@ set dotfiles_path "$HOME/.dotfiles"
 
 # Set the colors before anything else
 if status --is-interactive
-  eval sh $dotfiles_path/colors/base16-shell/scripts/base16-ocean.sh
+    set BASE16_SHELL "$dotfiles_path/colors/base16-shell/"
+    source "$BASE16_SHELL/profile_helper.fish"
 end
 
 # Autoload any files that update the $PATH first
