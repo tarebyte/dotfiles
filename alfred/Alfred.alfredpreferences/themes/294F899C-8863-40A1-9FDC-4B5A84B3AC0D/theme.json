@@ -1,0 +1,61 @@
+{
+  "alfredtheme" : {
+    "result" : {
+      "textSpacing" : 4,
+      "subtext" : {
+        "size" : 14,
+        "colorSelected" : "#FEFDFFFF",
+        "font" : "Helvetica Neue",
+        "color" : "#848484FF"
+      },
+      "shortcut" : {
+        "size" : 20,
+        "colorSelected" : "#757575CE",
+        "font" : "Helvetica Neue",
+        "color" : "#A4A4A49B"
+      },
+      "backgroundSelected" : "#0060E1FF",
+      "text" : {
+        "size" : 24,
+        "colorSelected" : "#FFFFFFFF",
+        "font" : "Helvetica",
+        "color" : "#FFFFFFA3"
+      },
+      "iconPaddingHorizontal" : 5,
+      "paddingVertical" : 4,
+      "iconSize" : 40
+    },
+    "search" : {
+      "paddingVertical" : 2,
+      "background" : "#171E21BF",
+      "spacing" : 10,
+      "text" : {
+        "size" : 36,
+        "colorSelected" : "#000000FF",
+        "font" : "Helvetica Neue",
+        "color" : "#EAEAEAED"
+      },
+      "backgroundSelected" : "#B2D7FFFF"
+    },
+    "window" : {
+      "color" : "#171E21BF",
+      "paddingHorizontal" : 10,
+      "width" : 680,
+      "borderPadding" : 10,
+      "borderColor" : "#00000000",
+      "blur" : 0,
+      "roundness" : 3,
+      "paddingVertical" : 10
+    },
+    "credit" : "pirafrank",
+    "separator" : {
+      "color" : "#FFFFFF00",
+      "thickness" : 1
+    },
+    "scrollbar" : {
+      "color" : "#0000000F",
+      "thickness" : 2
+    },
+    "name" : "Yosemite Big Dark Blue High (v2)"
+  }
+}

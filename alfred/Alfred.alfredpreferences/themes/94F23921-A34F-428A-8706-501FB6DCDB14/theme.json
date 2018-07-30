@@ -1,0 +1,61 @@
+{
+  "alfredtheme" : {
+    "result" : {
+      "textSpacing" : 8,
+      "subtext" : {
+        "size" : 11,
+        "colorSelected" : "#B0BEC6FF",
+        "font" : "System Light",
+        "color" : "#ECEFF235"
+      },
+      "shortcut" : {
+        "size" : 16,
+        "colorSelected" : "#757575CE",
+        "font" : "System Light",
+        "color" : "#A4A4A49B"
+      },
+      "backgroundSelected" : "#ECEFF200",
+      "text" : {
+        "size" : 16,
+        "colorSelected" : "#ECEFF2FF",
+        "font" : "System Light",
+        "color" : "#ECEFF266"
+      },
+      "iconPaddingHorizontal" : 5,
+      "paddingVertical" : 8,
+      "iconSize" : 40
+    },
+    "search" : {
+      "paddingVertical" : 2,
+      "background" : "#26323900",
+      "spacing" : 10,
+      "text" : {
+        "size" : 36,
+        "colorSelected" : "#000000FF",
+        "font" : "System Light",
+        "color" : "#ECEFF2FF"
+      },
+      "backgroundSelected" : "#B2D7FFFF"
+    },
+    "window" : {
+      "color" : "#263239BF",
+      "paddingHorizontal" : 10,
+      "width" : 560,
+      "borderPadding" : 10,
+      "borderColor" : "#26323900",
+      "blur" : 0,
+      "roundness" : 3,
+      "paddingVertical" : 10
+    },
+    "credit" : "David Maciejewski",
+    "separator" : {
+      "color" : "#FFFFFF00",
+      "thickness" : 1
+    },
+    "scrollbar" : {
+      "color" : "#ECEFF226",
+      "thickness" : 2
+    },
+    "name" : "mapure (v2)"
+  }
+}

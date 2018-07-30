@@ -1,0 +1,8 @@
+{
+  "alfredsnippet" : {
+    "snippet" : "curl -v -H \"Authorization: token $GITHUB_TOKEN\" https:\/\/api.github.com\/",
+    "uid" : "B8A7CD38-26A5-448C-88BA-A43C698C177D",
+    "name" : "Curl GitHub Production",
+    "keyword" : "cgp"
+  }
+}
