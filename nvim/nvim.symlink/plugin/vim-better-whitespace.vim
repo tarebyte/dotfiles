@@ -1,0 +1,1 @@
+highlight ExtraWhitespace ctermbg=bg

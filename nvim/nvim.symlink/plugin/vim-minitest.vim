@@ -1,0 +1,1 @@
+set completefunc=syntaxcomplete#Complete
