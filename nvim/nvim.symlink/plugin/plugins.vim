@@ -44,6 +44,7 @@ Plug 'vim-airline/vim-airline-themes'
 Plug 'ntpeters/vim-better-whitespace'
 
 Plug 'justinmk/vim-dirvish'
+Plug 'kristijanhusak/vim-dirvish-git'
 
 Plug 'dag/vim-fish'
 Plug 'Lokaltog/vim-easymotion'
@@ -74,6 +75,11 @@ Plug 'tpope/vim-surround'
 Plug 'kana/vim-textobj-user'
 Plug 'nelstrom/vim-textobj-rubyblock'
 Plug 'christoomey/vim-tmux-navigator'
+
+Plug 'terryma/vim-multiple-cursors'
+
+Plug 'ludovicchabant/vim-gutentags'
+Plug 'tpope/vim-rhubarb'
 
 call plug#end()
 

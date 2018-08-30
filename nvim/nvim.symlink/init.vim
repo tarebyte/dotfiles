@@ -1,4 +1,4 @@
-source ~/.config/nvim/plugins.vim
+source ~/.config/nvim/plugin/plugins.vim
 source ~/.config/nvim/general.vim
 source ~/.config/nvim/keybindings.vim
 source ~/.config/nvim/custom_functions.vim
