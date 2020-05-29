@@ -1,0 +1,116 @@
+# vim:ft=gitconfig ts=2 sw=2 tw=0 et
+
+[user]
+  name = Mark Tareshawty
+  email = mark@marktareshawty.com
+  username = tarebyte
+  signingkey = 3BF9D1AE
+
+[alias]
+  a             =  add
+  br            =  branch
+  c             =  commit -m
+  ci            =  commit
+  co            =  checkout
+  cor           =  "!git for-each-ref --sort=-committerdate --format='%(refname:short) (%(committerdate:relative))' refs/heads | fzf --reverse --nth=1 --preview 'git log --patch --color {1}...{1}~5' | awk '{print $1}' | xargs git checkout"
+  cob           =  checkout -b
+  cp            =  cherry-pick
+  cleanup       =  !git remote prune origin && git gc && git clean -dfx && git stash clear
+  create-branch =  !sh -c 'git push origin HEAD:refs/heads/$1 && git fetch origin && git branch --track $1 origin/$1 && cd . && git checkout $1' -
+  delete-branch =  !sh -c 'git push origin :refs/heads/$1 && git remote prune origin && git branch -D $1' -
+  pr            =  !hub pull-request
+  d             =  difftool
+  dump          =  cat-file -p
+  merge-branch  =  !git checkout master && git merge @{-1}
+  l             =  !git log --graph --oneline --decorate
+  la            =  !git l --all
+  po            =  push origin
+  pom           =  push origin master
+  r             =  !git l -30
+  ra            =  !git r --all
+  sc            =  commit -S -m
+  sci           =  commit -S
+  st            =  status -sb
+  today         =  log --since=midnight --author='Mark Tareshawty' --oneline
+  type          =  cat-file -t
+  up            =  !sh -c 'git pull --rebase --prune && git log --pretty=format:\"%Cred%ae %Creset- %C(yellow)%s %Creset(%ar)\" HEAD@{1}..'
+  who           =  shortlog -n -s --no-merges
+  g             =  grep --break --heading --line-number
+  unadd         =  reset
+  gh-lint       =  !sh -c 'git status -s | cut -d\" \" -f3 | xargs ./bin/rubocop -a'
+
+[commit]
+  gpgsign = true
+  verbose = true
+
+##################################################
+# Color is order dependent don't fuck with this. #
+##################################################
+[color "diff-highlight"]
+  oldNormal = red bold
+  oldHighlight = 01 italic bold 19
+  newNormal = green bold
+  newHighlight = 02 italic bold 19
+
+[color "diff"]
+  meta = yellow
+  frag = magenta bold
+  commit = yellow bold
+  old = red bold
+  new = green bold
+  whitespace = red reverse
+  ratelimit = 1000
+
+[color]
+  branch=auto
+  diff=auto
+  interactive=auto
+  status=auto
+  ui = true
+
+[core]
+  editor = nvim
+  excludesfile = ~/.gitignore
+  whitespace = trailing-space,space-before-tab,indent-with-non-tab
+  # pager = "delta --dark" --theme="base16"
+  pager = diff-so-fancy | less --tabs=4 -RFX
+
+[credential]
+  whitespace = trailing-space,space-before-tab,indent-with-non-tab
+  editor = vim
+  helper = osxkeychain
+
+[diff]
+  tool = vimdiff
+  compactionHeuristic = true
+
+[difftool]
+  prompt = false
+
+[filter "media"]
+  clean = git-media-clean %f
+  smudge = git-media-smudge %f
+
+[filter "lfs"]
+  clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+  required = true
+
+[gc]
+  auto = 0
+
+[github]
+  user = tarebyte
+
+[hub]
+  protocol = https
+
+[push]
+  default = current
+
+[protocol]
+  version = 2
+
+[gpg]
+  program = /usr/local/MacGPG2/bin/gpg

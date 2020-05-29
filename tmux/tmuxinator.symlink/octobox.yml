@@ -1,9 +1,0 @@
-# ~/.tmuxinator/octobox.yml
-
-name: octobox
-root: ~/src/octobox/octobox
-
-windows:
-  - editor: vim
-  - shell: # empty
-  - server: rails server -p 8675

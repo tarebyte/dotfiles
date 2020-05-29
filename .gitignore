@@ -5,9 +5,9 @@ bin/merge_and_deploy
 
 fish/fishd.*
 
-nvim/nvim.symlink/bundle
-nvim/nvim.symlink/.netrwhist
-nvim/nvim.symlink/autoload
-nvim/nvim.symlink/spell
+config/Alfred.alfredpreferences/workflows/user.workflow.*
+config/Alfred.alfredpreferences/preferences/local/*
 
-private-env.auto.fish
+config/nvim/autoload
+config/nvim/bundle
+config/nvim/ftplugin

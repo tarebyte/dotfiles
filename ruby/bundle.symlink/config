@@ -1,6 +1,0 @@
-# vim: syntax=yaml
----
-BUNDLE_CONSOLE: "pry"
-BUNDLE_GEM__TEST: "minitest"
-BUNDLE_GEM__COC: "true"
-BUNDLE_GEM__MIT: "true"

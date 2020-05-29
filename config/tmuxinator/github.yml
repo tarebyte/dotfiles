@@ -1,0 +1,11 @@
+# /Users/tarebyte/.config/tmuxinator/github.yml
+
+name: github
+root: ~/src/github/github
+
+windows:
+  - editor: nvim
+  - shell:
+  - console: ./bin/console --pry
+  - server: env GH_SSL=1 ./bin/server --debug
+  - hookshot: cd $PROJECTS/github/hookshot; ./script/server
