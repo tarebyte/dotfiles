@@ -5,8 +5,8 @@ bin/merge_and_deploy
 
 fish/fishd.*
 
-config/Alfred.alfredpreferences/workflows/user.workflow.*
-config/Alfred.alfredpreferences/preferences/local/*
+config/alfred/Alfred.alfredpreferences/workflows/user.workflow.*
+config/alfred/Alfred.alfredpreferences/preferences/local/*
 
 config/nvim/autoload
 config/nvim/bundle
