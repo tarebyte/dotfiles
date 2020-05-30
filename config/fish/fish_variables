@@ -60,7 +60,7 @@ SETUVAR fish_pager_color_completion:normal
 SETUVAR fish_pager_color_description:yellow\x1e\x2d\x2ddim
 SETUVAR fish_pager_color_prefix:white\x1e\x2d\x2dbold
 SETUVAR fish_pager_color_progress:brwhite\x1e\x2d\x2dbackground\x3dcyan
-SETUVAR tide_cmd_duration_color:87875F
+SETUVAR tide_cmd_duration_color:cyan
 SETUVAR tide_cmd_duration_decimals:0
 SETUVAR tide_cmd_duration_threshold:3000
 SETUVAR tide_context_root_color:D7AF00
