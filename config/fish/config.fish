@@ -25,7 +25,9 @@ set -g -x OBJC_DISABLE_INITIALIZE_FORK_SAFETY YES
 
 alias brewup "brew update; brew doctor; brew outdated; brew upgrade; brew cleanup"
 
-# alias ls "exa -GF --sort Name"
+alias gp "git push"
+
+alias ls "ls -GpF"
 
 alias mux "tmuxinator"
 
