@@ -16,10 +16,14 @@ end
 
 # Style
 Pry.config.editor = 'nvim'
-Pry.config.prompt = [
-  proc { '>> ' },
-  proc { '|  ' }
-]
+Pry.config.prompt = Pry::Prompt.new(
+  'custom',
+  'my custom prompt',
+  [
+    proc { |_, _, _| '>> ' },
+    proc { |_, _, _| '|  ' }
+  ]
+)
 
 # Grab the clipboard
 def pbcopy(str)
