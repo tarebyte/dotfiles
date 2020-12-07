@@ -1,4 +1,4 @@
-export DOTFILES=$HOME/code/dotfiles
+export DOTFILES=$HOME/Code/dotfiles
 export ZSH=$DOTFILES/zsh/oh-my-zsh
 
 # zsh keeps its themes at oh-my-zsh-root-path/themes.
@@ -9,19 +9,17 @@ plugins=(
   vi-mode
   autojump
   brew
-  brew-cask
   bundler
   gem
   npm
   git
-  go
+  golang
   heroku
   mix
   rails
   ruby
   tmuxinator
   history-substring-search
-  scripts-to-rule-them-all
   vagrant
 )
 
@@ -54,6 +52,8 @@ export PATH=$PATH:~/Library/Python/3.6/bin
 
 source $ZSH/oh-my-zsh.sh
 
+alias python=/usr/local/bin/python3
+
 #configure vi-mode and prompt. Matches patrick.theme's reticle declaration
 MODE_INDICATOR=" "
 #removes delay between switching between modes
@@ -79,10 +79,10 @@ bindkey "^[[A" history-beginning-search-backward
 bindkey "^[[B" history-beginning-search-forward
 
 # set default ruby version and ruby management
-export DEFAULT_RUBY="2.5.0"
-source '/usr/local/opt/chruby/share/chruby/chruby.sh'
-source '/usr/local/opt/chruby/share/chruby/auto.sh'
-chruby $DEFAULT_RUBY
+# export DEFAULT_RUBY="2.5.0"
+# source '/usr/local/opt/chruby/share/chruby/chruby.sh'
+# source '/usr/local/opt/chruby/share/chruby/auto.sh'
+# chruby $DEFAULT_RUBY
 
 #shopify specific
 export TDD=0

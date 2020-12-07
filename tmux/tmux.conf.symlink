@@ -152,14 +152,11 @@ set -g status-bg colour18
 set -g status-fg white
 
 # highlight current window
-set-window-option -g window-status-current-fg colour18
-set-window-option -g window-status-current-bg colour4
+set-window-option -g window-status-current-style bg=colour4,fg=colour18
 
 # set color of active pane
-set -g pane-border-fg colour235
-set -g pane-border-bg black
-set -g pane-active-border-fg green
-set -g pane-active-border-bg black
+set -g pane-border-style bg=black,fg=colour235
+set -g pane-active-border-style bg=black,fg=green
 
 # something dev made me do
 set -g default-command "reattach-to-user-namespace -l zsh"
