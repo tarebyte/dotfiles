@@ -96,3 +96,4 @@ alias pg-start="launchctl load ~/Library/LaunchAgents/homebrew.mxcl.postgresql.p
 alias pg-stop="launchctl unload ~/Library/LaunchAgents/homebrew.mxcl.postgresql.plist"
 
 test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
+if [ -e /Users/patrick/.nix-profile/etc/profile.d/nix.sh ]; then . /Users/patrick/.nix-profile/etc/profile.d/nix.sh; fi # added by Nix installer

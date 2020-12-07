@@ -65,7 +65,7 @@
 [credential]
   whitespace = trailing-space,space-before-tab,indent-with-non-tab
   editor = vim
-  helper = store --file /opt/dev/var/private/git_credential_store
+	helper = store --file /opt/dev/var/private/git_credential_store
 
 [core]
   editor = vim
@@ -88,10 +88,6 @@
   version = 2
 [gc]
   writeCommitGraph = true
-[url "https://github.com/Shopify/"]
-  insteadOf = git@github.com:Shopify/
-  insteadOf = ssh://git@github.com/Shopify/
-
 [filter "media"]
   clean = git-media-clean %f
   smudge = git-media-smudge %f
@@ -102,3 +98,6 @@
   required = true
 # [commit]
 #  gpgsign = true
+[url "https://github.com/Shopify/"]
+	insteadOf = git@github.com:Shopify/
+	insteadOf = ssh://git@github.com/Shopify/
