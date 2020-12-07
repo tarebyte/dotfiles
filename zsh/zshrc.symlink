@@ -45,7 +45,7 @@ export PATH="bin:$PATH"
 export PATH="/usr/local/sbin:$PATH"
 
 # Set Go Paths
-export GOPATH=$HOME/src/go
+export GOPATH=$HOME
 export GOSRC=$GOPATH/src/github.com
 export PATH=$PATH:$GOROOT/bin:$GOPATH/bin
 export PATH=$PATH:~/Library/Python/3.6/bin
@@ -77,6 +77,7 @@ zle -N zle-keymap-select
 bindkey -v
 bindkey "^[[A" history-beginning-search-backward
 bindkey "^[[B" history-beginning-search-forward
+bindkey "\e[3~" delete-char
 
 # set default ruby version and ruby management
 # export DEFAULT_RUBY="2.5.0"

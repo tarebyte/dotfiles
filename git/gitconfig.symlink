@@ -65,13 +65,14 @@
 [credential]
   whitespace = trailing-space,space-before-tab,indent-with-non-tab
   editor = vim
-  helper = osxkeychain
+  helper = store --file /opt/dev/var/private/git_credential_store
 
 [core]
   editor = vim
   excludesfile = /Users/Patrick/.gitignore_global
   whitespace = trailing-space,space-before-tab,indent-with-non-tab
   pager = diff-so-fancy | less --tabs=1,5 -R
+  commitGraph = true
 
 [push]
   default = current
@@ -79,9 +80,17 @@
 [diff]
   tool = vimdiff
   compactionHeuristic = true
+  algorithm = patience
 
 [difftool]
   prompt = false
+[protocol]
+  version = 2
+[gc]
+  writeCommitGraph = true
+[url "https://github.com/Shopify/"]
+  insteadOf = git@github.com:Shopify/
+  insteadOf = ssh://git@github.com/Shopify/
 
 [filter "media"]
   clean = git-media-clean %f
