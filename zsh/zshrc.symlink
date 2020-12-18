@@ -1,4 +1,4 @@
-export DOTFILES=$HOME/Code/dotfiles
+export DOTFILES=$HOME/src/github.com/patrickdonovan/dotfiles
 export ZSH=$DOTFILES/zsh/oh-my-zsh
 
 # zsh keeps its themes at oh-my-zsh-root-path/themes.
