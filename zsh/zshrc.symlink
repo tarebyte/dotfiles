@@ -86,9 +86,9 @@ bindkey "\e[3~" delete-char
 # chruby $DEFAULT_RUBY
 
 #shopify specific
-export TDD=0
-export PRY=1
-source /opt/dev/dev.sh
+# export TDD=0
+# export PRY=1
+# source /opt/dev/dev.sh
 
 #osx specific
 alias rebuild_spotlight="sudo mdutil -E /"
