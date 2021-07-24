@@ -109,7 +109,6 @@ end
 
 [ -f $BREW_PREFIX/share/autojump/autojump.fish ]; and source $BREW_PREFIX/share/autojump/autojump.fish
 
-
 # Always attach to tmux
 # See functions/hack.fish for deets
 # hack
