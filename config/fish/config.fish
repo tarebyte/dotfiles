@@ -35,6 +35,7 @@ alias vi "nvim"
 alias vim "nvim"
 
 alias whereami "pwd"
+alias +x "chmod +x"
 
 #########
 # PATHS #

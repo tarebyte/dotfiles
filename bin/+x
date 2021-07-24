@@ -1,3 +1,0 @@
-#!/usr/local/bin/fish
-
-exec chmod +x "$argv"
