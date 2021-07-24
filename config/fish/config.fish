@@ -76,6 +76,8 @@ end
 # Additional Paths #
 ####################
 
+fish_add_path $DOTFILES/bin
+
 if set -q MACOS
 	fish_add_path $GOPATH/bin
 	fish_add_path $BREW_PREFIX/sbin
