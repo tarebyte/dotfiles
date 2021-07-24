@@ -14,6 +14,7 @@ config/fish/completions/fisher.fish
 config/fish/conf.d/__async_prompt.fish
 config/fish/conf.d/_pure_init.fish
 config/fish/conf.d/fzf.fish
+config/fish/conf.d/halostatue_fish_rust.fish
 config/fish/conf.d/pure.fish
 
 config/fish/fish_variables
