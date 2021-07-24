@@ -26,6 +26,7 @@ set -g -x OBJC_DISABLE_INITIALIZE_FORK_SAFETY YES
 alias brewup "brew update; brew doctor; brew outdated; brew upgrade; brew cleanup"
 
 alias gp "git push"
+alias gh-prepare "gh_prepare"
 
 alias ls "ls -GpF"
 
