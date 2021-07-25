@@ -1,0 +1,16 @@
+# vim: ft=ruby
+
+tap "universal-ctags/universal-ctags"
+
+brew "autojump"
+brew "diff-so-fancy"
+brew "fish"
+brew "fzf"
+brew "git"
+brew "htop"
+brew "jq"
+brew "luajit", args: ["HEAD"]
+brew "neovim", args: ["HEAD"]
+brew "ripgrep"
+brew "tmux"
+brew "universal-ctags/universal-ctags/universal-ctags", args: ["HEAD"]
