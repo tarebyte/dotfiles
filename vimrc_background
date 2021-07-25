@@ -1,4 +1,0 @@
-" vim: ft=vim
-if !exists('g:colors_name') || g:colors_name != 'base16-ocean'
-  colorscheme base16-ocean
-endif
