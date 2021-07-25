@@ -8,6 +8,7 @@ config/apptokit.yml
 config/configstore
 config/gatsby
 config/gh
+config/git/personal
 config/htop
 
 config/fish/completions/fisher.fish
