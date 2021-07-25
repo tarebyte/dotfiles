@@ -4,10 +4,10 @@ tap "universal-ctags/universal-ctags"
 
 brew "autojump"
 brew "bat"
-brew "diff-so-fancy"
 brew "fish"
 brew "fzf"
 brew "git"
+brew "git-delta"
 brew "htop"
 brew "jq"
 brew "luajit", args: ["HEAD"]
