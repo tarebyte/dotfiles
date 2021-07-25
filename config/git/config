@@ -59,6 +59,9 @@
 [includeIf "gitdir:/Users"]
   path = ~/.config/git/config-macos
 
+# [includeIf "gitdir:/home"]
+#     path = ~/.gitconfig-linux
+
 [interactive]
   diffFilter = delta --color-only
 
