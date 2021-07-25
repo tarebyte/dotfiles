@@ -8,7 +8,12 @@ require('plugins')
 --- COLORS ---
 vim.o.termguicolors = true
 vim.opt.background = 'dark'
-vim.cmd('colorscheme base16-ocean')
+
+-- This technically works even if we're not using the their vim plugin.
+-- https://github.com/chriskempson/base16-shell/tree/ce8e1e540367ea83cc3e01eec7b2a11783b3f9e1#base16-vim-users
+if vim.fn.filereadable(vim.fn.expand('~/.vimrc_background')) then
+	vim.api.nvim_exec([[ source ~/.vimrc_background ]], true)
+end
 
 --- SETTINGS ---
 
