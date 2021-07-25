@@ -16,9 +16,6 @@
   excludesfile = ~/.config/git/ignore
   whitespace = trailing-space,space-before-tab,indent-with-non-tab
 
-[credential]
-  editor = nvim
-
 [delta]
   features = side-by-side line-numbers decorations
   syntax-theme = "base16-256"
