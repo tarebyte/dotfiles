@@ -1,0 +1,41 @@
+#!/bin/bash
+
+set -e
+
+SCRIPT_SETUP="$0"
+SETUP_DIRECTORY=$(dirname $SCRIPT_SETUP)
+
+cd $SETUP_DIRECTORY/..
+DOTFILES_PATH=$(pwd -P)
+
+# If this ever gets to be more maybe I'll get clever and not just
+# list them out.
+FILES_TO_SYMLINK=(config gemrc pryrc tmux tmux.conf)
+
+for FILE in "${FILES_TO_SYMLINK[@]}"; do
+	ln -sf "${DOTFILES_PATH}/${FILE}" "${HOME}/.${FILE}"
+done
+
+[ $(uname -s) = "Linux" ] && export LINUX=1
+
+if [ $LINUX ]; then
+	apt-get update && apt-get install build-essential procps curl file git
+fi
+
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+if [ $LINUX ]; then
+	cat 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> ~/.profile
+	eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+fi
+
+brew bundle --file ./homebrew/Brewfile
+
+if [ $LINUX ]; then
+	brew bundle --file homebrew/Brewfile.linux
+else
+	brew bundle --file homebrew/Brewfile.darwin
+fi
+
+sudo chsh -s $(which fish)
+fish -c "./post-setup"

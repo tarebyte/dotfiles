@@ -1,0 +1,12 @@
+#!/usr/bin/env fish
+
+# Set the terminal and Neovim theme
+base16-ocean
+
+# Install fisher https://github.com/jorgebucaran/fisher
+curl -sL https://git.io/fisher | source && fisher install jorgebucaran/fisher
+
+# Install fisher packages from ~/.config/fish/fish_plugins
+fisher update
+
+source ~/.config/fish/config.fish
