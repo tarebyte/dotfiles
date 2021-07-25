@@ -10,3 +10,9 @@ curl -sL https://git.io/fisher | source && fisher install jorgebucaran/fisher
 fisher update
 
 source ~/.config/fish/config.fish
+
+# Codespaces has a .gitconfig already setup, so just include
+# all of our files instead of messing around.
+if set -q CODESPACES
+	git config --global include.path ~/.config/git/config
+end
