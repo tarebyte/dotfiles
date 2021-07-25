@@ -8,9 +8,18 @@ SETUP_DIRECTORY=$(dirname $SCRIPT_SETUP)
 cd $SETUP_DIRECTORY/..
 DOTFILES_PATH=$(pwd -P)
 
-# If this ever gets to be more maybe I'll get clever and not just
-# list them out.
 FILES_TO_SYMLINK=(config gemrc pryrc tmux tmux.conf)
+
+# If the config directory already exists, then just symlink all of
+# the contents instead.
+if [ -d "${HOME}/.config" ]; then
+	for CONFIG_FILE in $DOTFILES_PATH/config/*; do
+		ln -sfv $CONFIG_FILE $HOME/.config/$(basename $CONFIG_FILE)
+	done
+
+	# Remove config from list since we've symlinked the contents.
+	unset FILES_TO_SYMLINK[0]
+fi
 
 for FILE in "${FILES_TO_SYMLINK[@]}"; do
 	ln -sf "${DOTFILES_PATH}/${FILE}" "${HOME}/.${FILE}"
