@@ -4,7 +4,7 @@ on:
     branches: main
   pull_request: []
 jobs:
-  tests:
+  syntax:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -15,11 +15,8 @@ jobs:
     - name: Set up Git repository
       uses: actions/checkout@master
 
+    - name: fish-actions/install-fish
+      uses: fish-actions/install-fish@v1.1.0
+
     - name: Validate syntax
       run: fish -n config/fish/**/*.fish
-
-    - name: Test script/setup
-      run: bash script/setup
-
-    - name: Test config.fish
-      run: fish -c "source ~/.config/fish/config.fish"
