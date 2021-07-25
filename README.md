@@ -3,7 +3,7 @@
 ## To install
 
 ```
-git clone https://github.com/tarebyte/dotfile ~/src/$(whoami)/dotfiles
+git clone https://github.com/tarebyte/dotfiles ~/src/$(whoami)/dotfiles
 ```
 
 ```
