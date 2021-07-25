@@ -3,6 +3,7 @@
 tap "universal-ctags/universal-ctags"
 
 brew "autojump"
+brew "bat"
 brew "diff-so-fancy"
 brew "fish"
 brew "fzf"

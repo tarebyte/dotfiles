@@ -1,5 +1,6 @@
 # vim: ft=ruby
 
 brew "curl"
-brew "openssl"
+brew "gcc"
 brew "git", args: ["with-brewed-openssl", "with-brewed-curl"]
+brew "openssl"
