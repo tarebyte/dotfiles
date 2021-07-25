@@ -28,7 +28,7 @@ done
 [ $(uname -s) = "Linux" ] && export LINUX=1
 
 if [ $LINUX ]; then
-	apt-get update && apt-get install build-essential procps curl file git
+	apt-get update -y && apt-get install -y build-essential procps curl file git
 fi
 
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
