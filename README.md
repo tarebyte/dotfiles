@@ -2,15 +2,15 @@
 
 ## To install
 
-```
+```sh
 git clone https://github.com/tarebyte/dotfiles ~/src/$(whoami)/dotfiles
 ```
 
-```
+```sh
 cd ~/src/$(whoami)/dotfiles
 ```
 
-```
+```sh
 ./script/setup
 ```
 
