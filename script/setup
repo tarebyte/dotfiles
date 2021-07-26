@@ -46,5 +46,13 @@ else
 	brew bundle --file homebrew/Brewfile.darwin
 fi
 
+# Bring in all of our submodule dependencies
+git submodule init && git submodule update
+
+# Codespaces has a .gitconfig already setup, so just include
+# all of our files instead of messing around.
+if [ $CODESPACES ]; then
+	git config --global include.path ~/.config/git/config
+fi
+
 sudo chsh -s $(which fish)
-fish $SETUP_DIRECTORY/post-setup
