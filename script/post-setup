@@ -18,7 +18,7 @@ set -gx BASE16_THEME (string split -m 1 '-' $THEME)[2]
 echo -e "if !exists('g:colors_name') || g:colors_name != '$THEME'\n  colorscheme $THEME\nendif" >  ~/.vimrc_background
 
 # Install packages from fish_plugins
-fisher update
+# fisher update
 
 # Codespaces has a .gitconfig already setup, so just include
 # all of our files instead of messing around.
