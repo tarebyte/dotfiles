@@ -8,7 +8,7 @@ SETUP_DIRECTORY=$(dirname $SCRIPT_SETUP)
 cd $SETUP_DIRECTORY/..
 DOTFILES_PATH=$(pwd -P)
 
-FILES_TO_SYMLINK=(config gemrc pryrc tmux tmux.conf)
+FILES_TO_SYMLINK=(config gemrc pryrc tmux tmux-macos.conf tmux.conf)
 
 # If the config directory already exists, then just symlink all of
 # the contents instead.
