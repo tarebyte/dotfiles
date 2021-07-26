@@ -1,5 +1,6 @@
 # vim: ft=ruby
 
+brew "htop"
 brew "rbenv"
 brew "reattach-to-user-namespace"
 brew "ruby-build"
