@@ -3,7 +3,7 @@
 ## To install
 
 ```sh
-git clone https://github.com/tarebyte/dotfiles ~/src/$(whoami)/dotfiles
+git clone --recursive https://github.com/tarebyte/dotfiles ~/src/$(whoami)/dotfiles
 ```
 
 ```sh
