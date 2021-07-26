@@ -7,7 +7,7 @@ config/alfred/Alfred.alfredpreferences/preferences/local/*
 config/apptokit.yml
 config/configstore
 config/gatsby
-config/gh
+config/gh/hosts.yml
 config/git/personal
 config/htop
 
