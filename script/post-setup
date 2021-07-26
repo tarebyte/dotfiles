@@ -7,8 +7,8 @@ git submodule init; and git submodule update
 source ~/.config/fish/config.fish
 base16-ocean
 
-# Install fisher https://github.com/jorgebucaran/fisher
-curl -sL https://git.io/fisher | source && fisher update
+# Install packages from fish_plugins
+fisher update
 
 # Codespaces has a .gitconfig already setup, so just include
 # all of our files instead of messing around.
