@@ -47,7 +47,7 @@ end
 
 set -gx BAT_THEME "base16-256"
 set -gx EDITOR nvim
-set -gx FZF_DEFAULT_OPTS "--height 40% --layout=reverse --border"
+set -gx FZF_DEFAULT_OPTS "--height 40% --border"
 set -gx FZF_DEFAULT_COMMAND "rg --files --hidden --follow --no-messages --glob '!.git/*'"
 set -gx FZF_CTRL_T_COMMAND $FZF_DEFAULT_COMMAND
 set -gx FZF_TMUX 1
