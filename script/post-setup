@@ -1,15 +1,18 @@
 #!/usr/bin/env fish
 
+# Bring in all of our submodule dependencies
+git submodule init; and git submodule update
+
 # Set the terminal and Neovim theme
-base16-ocean
+if status --is-interactive
+	set BASE16_SHELL "$HOME/.config/base16-shell/"
+	source "$BASE16_SHELL/profile_helper.fish"
+
+	base16-ocean
+end
 
 # Install fisher https://github.com/jorgebucaran/fisher
-curl -sL https://git.io/fisher | source && fisher install jorgebucaran/fisher
-
-# Install fisher packages from ~/.config/fish/fish_plugins
-fisher update
-
-source ~/.config/fish/config.fish
+curl -sL https://git.io/fisher | source && fisher update
 
 # Codespaces has a .gitconfig already setup, so just include
 # all of our files instead of messing around.

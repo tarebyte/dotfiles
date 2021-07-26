@@ -47,4 +47,4 @@ else
 fi
 
 sudo chsh -s $(which fish)
-fish -c "./post-setup"
+fish $SETUP_DIRECTORY/post-setup
