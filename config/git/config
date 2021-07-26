@@ -1,75 +1,77 @@
-# vim:ft=gitconfig
+# # vim: set filetype=gitconfig
 
 [alias]
-  co  = checkout
-  cor = "!git for-each-ref --sort=-committerdate --format='%(refname:short) (%(committerdate:relative))' refs/heads | fzf --reverse --nth=1 --preview 'git log --patch --color {1}...{1}~5' | awk '{print $1}' | xargs git checkout"
-  cp  = cherry-pick
-  st  = status -sb
-  up  = !sh -c 'git pull --rebase --prune && git log --pretty=format:\"%Cred%ae %Creset- %C(yellow)%s %Creset(%ar)\" HEAD@{1}..'
+	co  = checkout
+	cor = "!git for-each-ref --sort=-committerdate --format='%(refname:short) (%(committerdate:relative))' refs/heads | fzf --reverse --nth=1 --preview 'git log --patch --color {1}...{1}~5' | awk '{print $1}' | xargs git checkout"
+	cp  = cherry-pick
+	st  = status -sb
+	up  = !sh -c 'git pull --rebase --prune && git log --pretty=format:\"%Cred%ae %Creset- %C(yellow)%s %Creset(%ar)\" HEAD@{1}..'
+
+[color]
+	ui = true
+
+[color "diff"]
+	meta = yellow
+	frag = magenta bold
+	commit = yellow bold
+	old = red bold
+	new = green bold
+	whitespace = red reverse
+
+[color "diff-highlight"]
+	oldNormal = red bold
+	oldHighlight = red bold 52
+	newNormal = green bold
+	newHighlight = green bold 22
 
 [commit]
-  gpgsign = true
-  verbose = true
+	verbose = true
 
 [core]
-  editor = nvim
-  excludesfile = ~/.config/git/ignore
-  whitespace = trailing-space,space-before-tab,indent-with-non-tab
-
-[delta]
-  features = side-by-side line-numbers decorations
-  syntax-theme = "base16-256"
-
-[delta "decorations"]
-  commit-decoration-style = bold yellow box ul
-  file-decoration-style = none
-  file-style = yellow ul
-  line-numbers-minus-style = red
-  line-numbers-plus-style = green
-  line-numbers-zero-style = "#4F5B66"
+	editor = nvim
+	excludesfile = ~/.config/git/ignore
+	pager = diff-so-fancy | less --tabs=4 -RFX
+	whitespace = trailing-space,space-before-tab,indent-with-non-tab
 
 [diff]
-  colorMoved = default
+	colorMoved = default
 
 [difftool]
-  prompt = false
+	prompt = false
 
 [filter "media"]
-  clean = git-media-clean %f
-  smudge = git-media-smudge %f
+	clean = git-media-clean %f
+	smudge = git-media-smudge %f
 
 [filter "lfs"]
-  clean = git-lfs clean -- %f
-  smudge = git-lfs smudge -- %f
-  process = git-lfs filter-process
-  required = true
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
 
 [gc]
-  auto = 0
+	auto = 0
 
 [hub]
-  protocol = https
+	protocol = https
 
 [include]
-  path = ~/.config/git/personal
+	path = ~/.config/git/personal
 
 [includeIf "gitdir:/Users"]
-  path = ~/.config/git/config-macos
+	path = ~/.config/git/config-macos
 
 # [includeIf "gitdir:/home"]
-#     path = ~/.gitconfig-linux
+# 	path = ~/.gitconfig-linux
+
+[init]
+	defaultBranch = main
 
 [interactive]
-  diffFilter = delta --color-only
-
-[pager]
-  diff = delta
-  log = delta
-  reflog = delta
-  show = delta
+	diffFilter = diff-so-fancy --patch
 
 [push]
-  default = current
+	default = current
 
 [protocol]
-  version = 2
+	version = 2
