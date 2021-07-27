@@ -4,6 +4,7 @@ brew "htop"
 brew "rbenv"
 brew "reattach-to-user-namespace"
 brew "ruby-build"
+brew "wifi-password"
 
 cask "1password-cli"
 cask "alfred"
