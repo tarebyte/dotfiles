@@ -127,7 +127,6 @@ fish_add_path $DOTFILES/bin
 
 if set -q MACOS
 	fish_add_path $GOPATH/bin
-	fish_add_path "$HOMEBREW_PREFIX/opt/mysql@5.7/bin"
 end
 
 ############
