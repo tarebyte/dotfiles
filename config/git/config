@@ -1,4 +1,4 @@
-# # vim: set filetype=gitconfig
+# vim:ft=gitconfig
 
 [alias]
 	br  = branch
