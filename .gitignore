@@ -11,6 +11,7 @@ config/gh/hosts.yml
 config/git/personal
 config/htop
 
+config/fish/completions/fisher.fish
 config/fish/conf.d/__async_prompt.fish
 config/fish/conf.d/_pure_init.fish
 config/fish/conf.d/fzf.fish
@@ -25,6 +26,7 @@ config/fish/functions/fish_greeting.fish
 config/fish/functions/fish_mode_prompt.fish
 config/fish/functions/fish_prompt.fish
 config/fish/functions/fish_title.fish
+config/fish/functions/fisher.fish
 
 config/nvim/autoload
 config/nvim/bundle
