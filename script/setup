@@ -52,6 +52,7 @@ git submodule init && git submodule update
 # Codespaces has a .gitconfig already setup, so just include
 # all of our files instead of messing around.
 if [ $CODESPACES ]; then
+	git config --global include.path /etc/gitconfig
 	git config --global include.path ~/.config/git/config
 fi
 
