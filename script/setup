@@ -26,14 +26,19 @@ for FILE in "${FILES_TO_SYMLINK[@]}"; do
 done
 
 [ $(uname -s) = "Linux" ] && export LINUX=1
+[[ $CODESPACES = "true" ]] && [[ $RepositoryName = "github" ]] && export GH_GH_CODESPACE=1
 
 if [ $LINUX ]; then
 	apt-get update -y && apt-get install -y build-essential procps curl file git
 fi
 
-CI=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+# Don't install Homebrew if we're inside of the github/github Codespace
+if [ ! $GH_GH_CODESPACE ]; then
+	CI=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+fi
 
-if [ $LINUX ]; then
+# Homebrew with Linux requires a little extra setup
+if [ $LINUX ] && [ ! $GH_GH_CODESPACE ]; then
 	echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> "${HOME}/.profile"
 	eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 fi
