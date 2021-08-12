@@ -60,12 +60,6 @@
 [include]
 	path = ~/.config/git/personal
 
-[includeIf "gitdir:/Users"]
-	path = ~/.config/git/config-macos
-
-# [includeIf "gitdir:/home"]
-# 	path = ~/.gitconfig-linux
-
 [init]
 	defaultBranch = main
 
