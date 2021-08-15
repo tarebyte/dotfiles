@@ -25,30 +25,18 @@ for FILE in "${FILES_TO_SYMLINK[@]}"; do
 	ln -sf "${DOTFILES_PATH}/${FILE}" "${HOME}/.${FILE}"
 done
 
-[ $(uname -s) = "Linux" ] && export LINUX=1
-[[ $CODESPACES = "true" ]] && [[ $RepositoryName = "github" ]] && export GH_GH_CODESPACE=1
+[ $(uname -s) = "Darwin" ] && export MACOS=1
 
-if [ $LINUX ]; then
-	apt-get update -y && apt-get install -y build-essential procps curl file git
-fi
-
-# Don't install Homebrew if we're inside of the github/github Codespace
-if [ ! $GH_GH_CODESPACE ]; then
+if [$ MACOS ]; then
 	CI=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 fi
 
-# Homebrew with Linux requires a little extra setup
-if [ $LINUX ] && [ ! $GH_GH_CODESPACE ]; then
-	echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> "${HOME}/.profile"
-	eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-fi
+if [[ -x "$(which brew)" ]]; then
+	brew bundle --file ./homebrew/Brewfile
 
-brew bundle --file ./homebrew/Brewfile
-
-if [ $LINUX ]; then
-	brew bundle --file homebrew/Brewfile.linux
-else
-	brew bundle --file homebrew/Brewfile.darwin
+	if [ $MACOS ]; then
+		brew bundle --file homebrew/Brewfile.darwin
+	fi
 fi
 
 # Bring in all of our submodule dependencies

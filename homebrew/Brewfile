@@ -4,10 +4,14 @@ tap "universal-ctags/universal-ctags"
 
 brew "autojump"
 brew "bat"
+brew "curl"
 brew "diff-so-fancy"
+brew "htop"
 brew "fish"
 brew "fzf"
-brew "git"
+brew "gcc"
+brew "git", args: ["with-brewed-openssl", "with-brewed-curl"]
+brew "openssl"
 brew "jq"
 brew "luajit", args: ["HEAD"]
 brew "neovim", args: ["HEAD"]
