@@ -27,7 +27,7 @@ done
 
 [ $(uname -s) = "Darwin" ] && export MACOS=1
 
-if [$ MACOS ]; then
+if [ $MACOS ]; then
 	CI=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 fi
 
