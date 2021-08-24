@@ -49,13 +49,14 @@ set -gx FZF_TMUX 1
 if set -q CODESPACES
 	set -gx PROJECTS /workspaces
 	set -gx DOTFILES /workspaces/.codespaces/.persistedshare/dotfiles
+	set -gx GOPATH ~/go
 else
 	set -gx PROJECTS $HOME/src
 	set -gx DOTFILES $PROJECTS/(whoami)/dotfiles
+	set -gx GOPATH $PROJECTS/go
 end
 
 if set -q MACOS
-	set -gx GOPATH $PROJECTS/go
 	set -gx ITERM_ENABLE_SHELL_INTEGRATION_WITH_TMUX YES
 	set -gx OBJC_DISABLE_INITIALIZE_FORK_SAFETY YES
 	set -gx RUBY_CONFIGURE_OPTS "--with-openssl-dir="$HOMEBREW_PREFIX"/opt/openssl@1.1"
