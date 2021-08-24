@@ -118,11 +118,8 @@ abbr -ag "+x" "chmod u+x"
 # Additional Paths #
 ####################
 
-fish_add_path $DOTFILES/bin
-
-if set -q MACOS
-	fish_add_path $GOPATH/bin
-end
+fish_add_path -aP $DOTFILES/bin
+fish_add_path -aP $GOPATH/bin
 
 ############
 # Autojump #
