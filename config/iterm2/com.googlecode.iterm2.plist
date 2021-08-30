@@ -1916,6 +1916,10 @@
 			<string>/Users/tarebyte</string>
 		</dict>
 	</array>
+	<key>OpenArrangementAtStartup</key>
+	<false/>
+	<key>OpenNoWindowsAtStartup</key>
+	<false/>
 	<key>OpenTmuxWindowsIn</key>
 	<integer>1</integer>
 	<key>PointerActions</key>
