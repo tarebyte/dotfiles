@@ -10,7 +10,7 @@ brew "htop"
 brew "fish"
 brew "fzf"
 brew "gcc"
-brew "git", args: ["with-brewed-openssl", "with-brewed-curl"]
+brew "git"
 brew "openssl"
 brew "jq"
 brew "luajit", args: ["HEAD"]
