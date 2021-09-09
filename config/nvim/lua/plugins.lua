@@ -174,6 +174,15 @@ return require('packer').startup({function()
 		requires = { 'junegunn/fzf.vim' },
 	}
 
+	use { 'junegunn/vim-easy-align',
+		config = function()
+			local map = vim.api.nvim_set_keymap
+
+			map('x', 'ga', '<Plug>(EasyAlign)', {})
+			map('n', 'ga', '<Plug>(EasyAlign)', {})
+		end
+	}
+
 	use {
 		'lewis6991/gitsigns.nvim', requires = { 'nvim-lua/plenary.nvim' },
 		config = function() require('gitsigns').setup() end
