@@ -143,9 +143,7 @@ return require('packer').startup({function()
 				};
 			}
 
-			local utils = require('config.utils') -- lua/config/utils.lua
-			local map = utils.map
-
+			local map = vim.api.nvim_set_keymap
 			local opts = { noremap = true, silent = true, expr = true }
 
 			-- https://github.com/hrsh7th/nvim-compe#mappings
@@ -160,12 +158,11 @@ return require('packer').startup({function()
 	use {
 		'junegunn/fzf',
 		config = function()
-			local utils = require('config.utils') -- lua/config/utils.lua
-			local map = utils.map
+			local map = vim.api.nvim_set_keymap
 
 			map('n', '<C-p>', ':FZF<cr>', { noremap = true })
-			map('n', '<Leader>t', ':FZF<cr>')
-			map('n', '<Leader>b', ':Buffers<cr>')
+			map('n', '<Leader>t', ':FZF<cr>', {})
+			map('n', '<Leader>b', ':Buffers<cr>', {})
 			map('n', '<c-]>', ':Tags <c-r><c-w><cr>', { noremap = true })
 		end,
 		run = function()

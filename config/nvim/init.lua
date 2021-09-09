@@ -1,6 +1,4 @@
--- From https://oroques.dev/notes/neovim-init/
-local utils = require('config.utils') -- lua/config/utils.lua
-local map = utils.map
+local map = vim.api.nvim_set_keymap
 
 --- PLUGINS ---
 require('plugins')
@@ -76,33 +74,33 @@ vim.g.mapleader = [[,]]
 vim.g.maplocalleader = [[,]]
 
 -- easy wrap toggling
-map('n', '<LEADER>w', ':set wrap!<CR>')
-map('n', '<LEADER>W', ':set nowrap<CR>')
+map('n', '<LEADER>w', ':set wrap!<CR>', {})
+map('n', '<LEADER>W', ':set nowrap<CR>', {})
 
 -- shortcut to save all
-map('n', '<Leader>ss', ':wa<cr>')
+map('n', '<Leader>ss', ':wa<cr>', {})
 
 -- close all other windows (in the current tab)
-map('n', 'gW', ':only<cr>')
+map('n', 'gW', ':only<cr>', {})
 
 -- go to the alternate file (previous buffer) with g-enter
-map('n', 'g', '')
+map('n', 'g', '', {})
 
 -- Search command shortcut
-map('n', '<Leader>s', ':Search<Space>')
+map('n', '<Leader>s', ':Search<Space>', {})
 
 -- insert blank lines without going into insert mode
-map('n', 'go', 'o<esc>')
-map('n', 'gO', 'O<esc>')
+map('n', 'go', 'o<esc>', {})
+map('n', 'gO', 'O<esc>', {})
 
 -- Yank from the cursor to the end of the line, to be consistent with C and D.
 map('n', 'Y', 'y$', { noremap = true })
 
 -- clean up trailing whitespace
-map('n', '<Leader>c', ':StripWhitespace<cr>')
+map('', '<Leader>c', ':StripWhitespace<cr>', {})
 
 -- delete all buffers
-map('n', '<Leader>d', ':bufdo bd<cr>')
+map('', '<Leader>d', ':bufdo bd<cr>', {})
 
 -- map spacebar to clear search highlight
 map('n', '<LEADER><SPACE>', ':noh<CR>', { noremap = true })
