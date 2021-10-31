@@ -15,7 +15,6 @@ return require('packer').startup({function()
 	use {
 		'dense-analysis/ale',
 		config = function()
-			vim.g['airline#extensions#ale#enabled'] = 1
 			vim.g['ale_virtualtext_cursor'] = 1
 			vim.g['ale_fix_on_save'] = 1
 
