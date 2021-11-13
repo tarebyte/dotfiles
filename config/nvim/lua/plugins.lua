@@ -29,6 +29,7 @@ return require('packer').startup({function()
 	use { 'kristijanhusak/vim-dirvish-git', config = [[require('config.vim-dirvish-git')]], requires = 'justinmk/vim-dirvish' }
 	use { 'ludovicchabant/vim-gutentags', config = [[require('config.vim-gutentags')]] }
 	use { 'neovim/nvim-lspconfig', config = [[require('config.nvim-lspconfig')]] }
+	use { 'nvim-lualine/lualine.nvim', config = [[require('config.lualine')]] }
 	use { 'nvim-treesitter/nvim-treesitter', config = [[require('config.nvim-treesitter')]], run = ':TSUpdate' }
 	use { 'nvim-treesitter/nvim-treesitter-textobjects', config = [[require('config.nvim-treesitter-textobjects')]] }
 	use { 'nvim-treesitter/playground', config = [[require('config.ale')]] }
