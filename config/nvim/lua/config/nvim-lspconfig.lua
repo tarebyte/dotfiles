@@ -32,18 +32,6 @@ local on_attach = function(client, bufnr)
 	buf_set_keymap('n', '<space>f', '<cmd>lua vim.lsp.buf.formatting()<CR>', opts)
 end
 
--- Use a loop to conveniently call 'setup' on multiple servers and
--- map buffer local keybindings when the language server attaches
-local servers = { 'solargraph', 'tsserver' }
-for _, lsp in ipairs(servers) do
-	nvim_lsp[lsp].setup {
-		on_attach = on_attach,
-		flags = {
-			debounce_text_changes = 150,
-		}
-	}
-end
-
 nvim_lsp.rust_analyzer.setup({
 	on_attach=on_attach,
 	flags = {
@@ -62,5 +50,41 @@ nvim_lsp.rust_analyzer.setup({
 				enable = true
 			},
 		}
+	}
+})
+
+nvim_lsp.solargraph.setup({
+	on_attach = on_attach,
+	flags = {
+		debounce_text_changes = 150,
+	},
+	useBundler = true
+})
+
+-- https://github.com/neovim/nvim-lspconfig/wiki/UI-customization#change-diagnostic-symbols-in-the-sign-column-gutter
+local signs = { Error = " ", Warn = "- ", Hint = " ", Info = "* " }
+
+for type, icon in pairs(signs) do
+	local hl = "DiagnosticSign" .. type
+	vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = hl })
+end
+
+vim.cmd [[
+  highlight DiagnosticInfo guifg=#96B5B4
+  highlight DiagnosticWarning guifg=#96B5B4
+]]
+
+-- https://github.com/neovim/nvim-lspconfig/wiki/UI-customization#change-prefixcharacter-preceding-the-diagnostics-virtual-text
+vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(vim.lsp.diagnostic.on_publish_diagnostics, {
+	virtual_text = {
+		source = "always",
+		prefix = '#',
+	}
+})
+
+nvim_lsp.tsserver.setup({
+	on_attach = on_attach,
+	flags = {
+		debounce_text_changes = 150,
 	}
 })
