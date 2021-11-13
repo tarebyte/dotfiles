@@ -31,7 +31,7 @@ return require('packer').startup({function()
 	use { 'nvim-lualine/lualine.nvim', config = [[require('config.lualine')]] }
 	use { 'nvim-treesitter/nvim-treesitter', config = [[require('config.nvim-treesitter')]], run = ':TSUpdate' }
 	use { 'nvim-treesitter/nvim-treesitter-textobjects', config = [[require('config.nvim-treesitter-textobjects')]] }
-	use { 'nvim-treesitter/playground', config = [[require('config.ale')]] }
+	use { 'nvim-treesitter/playground', config = [[require('config.playground')]] }
 	use { 'ntpeters/vim-better-whitespace', config = [[require('config.vim-better-whitespace')]] }
 	use { 'tarebyte/nvim-base16', branch = 'tarebyte/color-updates' }
 
