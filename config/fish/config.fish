@@ -118,8 +118,12 @@ abbr -ag "+x" "chmod u+x"
 # Additional Paths #
 ####################
 
-set -gx PATH $PATH $DOTFILES/bin
-set -gx PATH $PATH $GOPATH/bin
+fish_add_path $DOTFILES/bin
+fish_add_path $GOPATH/bin
+
+if set -q CODESPACES
+	fish_add_path $PROJECTS/$RepositoryName
+end
 
 ############
 # Autojump #
