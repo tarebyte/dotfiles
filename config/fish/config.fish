@@ -114,17 +114,6 @@ abbr -ag tn tmux new-session -A -s
 abbr -ag ":e" $EDITOR
 abbr -ag "+x" "chmod u+x"
 
-####################
-# Additional Paths #
-####################
-
-fish_add_path $DOTFILES/bin
-fish_add_path $GOPATH/bin
-
-if set -q CODESPACES
-	fish_add_path $PROJECTS/$RepositoryName
-end
-
 ############
 # Autojump #
 ############
