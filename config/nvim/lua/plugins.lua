@@ -35,7 +35,20 @@ return require('packer').startup({function()
 	use { 'nvim-treesitter/playground', config = [[require('config.ale')]] }
 	use { 'ntpeters/vim-better-whitespace', config = [[require('config.vim-better-whitespace')]] }
 	use { 'tarebyte/nvim-base16', branch = 'tarebyte/color-updates' }
-	use { 'tarebyte/lualine.nvim', branch = 'tarebyte/base16-ocean', config = [[require('config.lualine')]] }
+
+	use {
+		'hrsh7th/nvim-cmp',
+		config = [[require('config.nvim-cmp')]],
+		requires = {
+			'hrsh7th/cmp-buffer',
+			'hrsh7th/cmp-cmdline',
+			'hrsh7th/cmp-nvim-lsp',
+			'hrsh7th/cmp-path',
+			'hrsh7th/cmp-cmdline',
+			'L3MON4D3/LuaSnip',
+			'saadparwaiz1/cmp_luasnip'
+		}
+	}
 
 	use {
 		'junegunn/fzf',
