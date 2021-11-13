@@ -1,5 +1,6 @@
-vim.g['ale_virtualtext_cursor'] = 1
+vim.g['ale_disable_lsp'] = 1
 vim.g['ale_fix_on_save'] = 1
+vim.g['ale_virtualtext_cursor'] = 1
 
 vim.cmd('highlight ALEWarning gui=underline')
 vim.cmd('highlight ALEVirtualTextError guifg=#BF616A') -- red
