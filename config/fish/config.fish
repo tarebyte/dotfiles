@@ -63,6 +63,14 @@ if set -q MACOS
 	set -gx TREE_SITTER_PARSER_DIR $HOMEBREW_PREFIX/bin/
 end
 
+####################
+# Additional Paths #
+####################
+
+if status is-login
+	source ~/.config/fish/conf.d/additional_paths.fish
+end
+
 # https://github.com/pure-fish/pure/wiki/Async-git-Prompt#async-git-prompt
 set -g async_prompt_functions _pure_prompt_git
 
