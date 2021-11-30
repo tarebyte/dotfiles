@@ -1,3 +1,4 @@
+# https://starship.rs/presets/#pure
 format = """
 $username\
 $hostname\
