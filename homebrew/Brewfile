@@ -16,5 +16,6 @@ brew "jq"
 brew "luajit", args: ["HEAD"]
 brew "neovim", args: ["HEAD"]
 brew "ripgrep"
+brew "starship"
 brew "tmux"
 brew "universal-ctags/universal-ctags/universal-ctags", args: ["HEAD"]

@@ -130,3 +130,10 @@ abbr -ag "+x" "chmod u+x"
 ############
 
 [ -f "$HOMEBREW_PREFIX/share/autojump/autojump.fish" ]; and source $HOMEBREW_PREFIX/share/autojump/autojump.fish
+
+
+##########################
+# Must be at the bottom! #
+##########################
+
+starship init fish | source
