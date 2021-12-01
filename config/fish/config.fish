@@ -70,10 +70,6 @@ end
 fish_add_path $DOTFILES/bin
 fish_add_path $GOPATH/bin
 
-if set -q CODESPACES
-	fish_add_path $PROJECTS/$RepositoryName/bin
-end
-
 # https://github.com/pure-fish/pure/wiki/Async-git-Prompt#async-git-prompt
 set -g async_prompt_functions _pure_prompt_git
 
