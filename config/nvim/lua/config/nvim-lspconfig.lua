@@ -53,14 +53,6 @@ nvim_lsp.rust_analyzer.setup({
 	}
 })
 
-nvim_lsp.solargraph.setup({
-	on_attach = on_attach,
-	flags = {
-		debounce_text_changes = 150,
-	},
-	useBundler = true
-})
-
 -- https://github.com/neovim/nvim-lspconfig/wiki/UI-customization#change-diagnostic-symbols-in-the-sign-column-gutter
 local signs = { Error = " ", Warn = "- ", Hint = " ", Info = "* " }
 

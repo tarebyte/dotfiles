@@ -24,6 +24,7 @@ return require('packer').startup({function()
 	use 'tpope/vim-repeat'
 	use 'tpope/vim-surround'
 
+	use { 'dense-analysis/ale', config = [[require('config.ale')]] }
 	use { 'junegunn/vim-easy-align', config = [[require('config.vim-easy-align')]] }
 	use { 'kristijanhusak/vim-dirvish-git', config = [[require('config.vim-dirvish-git')]], requires = 'justinmk/vim-dirvish' }
 	use { 'ludovicchabant/vim-gutentags', config = [[require('config.vim-gutentags')]] }

@@ -1,5 +1,8 @@
 local map = vim.api.nvim_set_keymap
 
+-- https://github.com/dense-analysis/ale#5iii-how-can-i-use-ale-and-cocnvim-together
+vim.g['ale_disable_lsp'] = 1
+
 --- PLUGINS ---
 require('plugins')
 
