@@ -13,8 +13,7 @@ brew "gcc"
 brew "git"
 brew "openssl"
 brew "jq"
-brew "luajit", args: ["HEAD"]
-brew "neovim", args: ["HEAD"]
+brew "neovim"
 brew "ripgrep"
 brew "starship"
 brew "tmux"
