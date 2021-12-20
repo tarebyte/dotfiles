@@ -57,6 +57,7 @@ vim.opt.splitright = true
 vim.opt.splitbelow = true
 
 -- use 2 spaces for tabs
+vim.opt.expandtab = true
 vim.opt.tabstop = 2
 vim.opt.softtabstop = 2
 vim.opt.shiftwidth = 2
