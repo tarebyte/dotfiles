@@ -159,4 +159,4 @@ set -g pane-border-style bg=black
 set -g pane-active-border-style bg=black,fg=green
 
 # something dev made me do
-set -g default-command "reattach-to-user-namespace -l zsh"
+# set -g default-command "reattach-to-user-namespace -l zsh"

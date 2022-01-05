@@ -45,8 +45,8 @@ export PATH="bin:$PATH"
 export PATH="/usr/local/sbin:$PATH"
 
 # Set Go Paths
-export GOPATH=$HOME
-export GOSRC=$GOPATH/src/github.com
+export GOPATH=$HOME/src/go_path
+export GOSRC=$HOME/src/github.com
 export PATH=$PATH:$GOROOT/bin:$GOPATH/bin
 export PATH=$PATH:~/Library/Python/3.6/bin
 
@@ -89,6 +89,8 @@ bindkey "\e[3~" delete-char
 # export TDD=0
 # export PRY=1
 # source /opt/dev/dev.sh
+# export DEV)ALLOW_ITERM2_INTEGRATION=1
+# export MallocNanoZone=0
 
 #osx specific
 alias rebuild_spotlight="sudo mdutil -E /"
