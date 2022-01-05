@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if test $PLATFORM == "osx"; then
-  result=`/usr/local/bin/brew --prefix postgresql`
+  result=`brew --prefix postgresql`
   if test -e "$result"; then
     echo "postgresql installed"
   else

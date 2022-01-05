@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if test $PLATFORM == "osx"; then
-  result=`/usr/local/bin/brew --prefix chruby`
+  result=`brew --prefix chruby`
   if test -e "$result"; then
     echo "chruby installed"
   else

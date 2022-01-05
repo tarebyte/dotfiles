@@ -2,7 +2,7 @@
 
 #TODO this has a dependency on python3 which should be automated
 if test $PLATFORM == "osx"; then
-  result=`/usr/local/bin/brew --prefix neovim`
+  result=`brew --prefix neovim`
   if test -e "$result" ; then
     echo "neovim installed"
   else

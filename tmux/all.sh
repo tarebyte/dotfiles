@@ -2,7 +2,7 @@
 set -e
 
 if test $PLATFORM == "osx"; then
-  result=`/usr/local/bin/brew --prefix tmux`
+  result=`brew --prefix tmux`
   if test -e "$result" ; then
     echo "tmux installed"
   else
