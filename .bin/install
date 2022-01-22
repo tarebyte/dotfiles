@@ -2,50 +2,75 @@
 
 set -e
 
-SCRIPT_SETUP="$0"
-SETUP_DIRECTORY=$(dirname $SCRIPT_SETUP)
+un="$(uname)"
+case "${un}" in
+  Linux)
+    ostype=linux
+    homebrew_prefix_default=/home/linuxbrew/.linuxbrew
+    ;;
+  Darwin)
+    ostype=macos
+    if [[ "$(uname -m)" == "arm64" ]]
+    then
+      homebrew_prefix_default=/opt/homebrew
+    else
+      homebrew_prefix_default=/usr/local
+    fi
+esac
 
-cd $SETUP_DIRECTORY/..
-DOTFILES_PATH=$(pwd -P)
-
-FILES_TO_SYMLINK=(config gemrc pryrc tmux tmux-macos.conf tmux.conf)
-
-# If the config directory already exists, then just symlink all of
-# the contents instead.
-if [ -d "${HOME}/.config" ]; then
-	for CONFIG_FILE in $DOTFILES_PATH/config/*; do
-		ln -sfv $CONFIG_FILE $HOME/.config/$(basename $CONFIG_FILE)
-	done
-
-	# Remove config from list since we've symlinked the contents.
-	unset FILES_TO_SYMLINK[0]
+# Install homebrew if it doesn't exist
+if [[ ! -d "${homebrew_prefix_default}" ]]; then
+  CI=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 fi
 
-for FILE in "${FILES_TO_SYMLINK[@]}"; do
-	ln -sf "${DOTFILES_PATH}/${FILE}" "${HOME}/.${FILE}"
-done
+# Install the dotfiles on new machines as a bare repository.
+# For codespaces it will symlink all .* files as a symlink to the home
+# directory for us.
+#
+# https://docs.github.com/en/codespaces/customizing-your-codespace/personalizing-codespaces-for-your-account#dotfiles
+if [ -n $CODESPACES ]
+then
+  # Codespaces has a .gitconfig already setup, but in order to take advantage of
+  # the attributes set in /etc/gitconfig we have to explicitly include the path.
+  git config --global include.path /etc/gitconfig
 
-[ $(uname -s) = "Darwin" ] && export MACOS=1
+  current_dir="$(pwd -P)"
+  dotfiles_path=/workspaces/.codespaces/.persistedshare/dotfiles
 
-if [ $MACOS ]; then
-	CI=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  cd $dotfiles_path && git submodule init && git submodule update && cd $current_dir
+elif [ ! -d $HOME/.dotfiles ]
+then
+  # https://www.atlassian.com/git/tutorials/dotfiles
+  git clone --bare https://github.com/tarebyte/dotfiles.git $HOME/.dotfiles
+
+  function dconfig {
+    /usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME $@
+  }
+
+  dconfig checkout
+  dconfig status.showUntrackedFiles no
+
+  # Bring in all of our submodule dependencies
+  dconfig submodule init && dconfig submodule update
 fi
 
-if [[ -x "$(which brew)" ]]; then
-	brew bundle --file ./homebrew/Brewfile
+alias brew="$homebrew_prefix_default/bin/brew"
+brew bundle --file $HOME/.homebrew/Brewfile
 
-	if [ $MACOS ]; then
-		brew bundle --file homebrew/Brewfile.darwin
-	fi
+if [ "${ostype}" == macos ]; then
+  brew bundle --file $HOME/.homebrew/Brewfile.darwin
 fi
 
-# Bring in all of our submodule dependencies
-git submodule init && git submodule update
+homebrew_fish_path="${homebrew_prefix_default}/bin/fish"
+alias fish=$homebrew_fish_path
 
-# Codespaces has a .gitconfig already setup, but in order to take advantage of
-# the attributes set in /etc/gitconfig we have to explicitly include the path.
-if [ $CODESPACES ]; then
-	git config --global include.path /etc/gitconfig
-fi
+echo $homebrew_fish_path | sudo tee -a /etc/shells
+chsh -s $homebrew_fish_path
 
-sudo chsh -s $(which fish)
+# Install fisher plugins
+fish "$(curl -sL https://git.io/fisher | source && fisher update)"
+
+# Set the theme
+fish "$(base16-ocean)"
+
+echo "All set!"
