@@ -19,7 +19,8 @@ case "${un}" in
 esac
 
 # Install homebrew if it doesn't exist
-if [[ ! -d "${homebrew_prefix_default}" ]]; then
+if [[ ! -d "${homebrew_prefix_default}" ]]
+then
   CI=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 fi
 
@@ -57,7 +58,8 @@ fi
 alias brew="$homebrew_prefix_default/bin/brew"
 brew bundle --file $HOME/.homebrew/Brewfile
 
-if [ "${ostype}" == macos ]; then
+if [ "${ostype}" == macos ]
+then
   brew bundle --file $HOME/.homebrew/Brewfile.darwin
 fi
 
