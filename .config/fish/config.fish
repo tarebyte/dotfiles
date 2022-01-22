@@ -84,9 +84,10 @@ fish_add_path -aP $HOME/.bin
 fish_add_path -aP $GOPATH/bin
 
 #####################
-# Color adjustments #
+# Other adjustments #
 #####################
 
+set -U fish_greeting
 set -U fish_color_autosuggestion 4f5b66
 set -U fish_color_command green
 set -U fish_color_end brblack
