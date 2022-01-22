@@ -12,7 +12,6 @@
 .config/htop
 
 .config/fish/completions/fisher.fish
-.config/fish/completions/rbenv.fish
 
 .config/fish/conf.d/__async_prompt.fish
 .config/fish/conf.d/_pure_init.fish
@@ -20,7 +19,6 @@
 .config/fish/conf.d/fzf.fish
 .config/fish/conf.d/halostatue_fish_rust.fish
 .config/fish/conf.d/pure.fish
-.config/fish/conf.d/rbenv.fish
 
 .config/fish/fish_variables
 
@@ -32,7 +30,6 @@
 .config/fish/functions/fish_prompt.fish
 .config/fish/functions/fish_title.fish
 .config/fish/functions/fisher.fish
-.config/fish/functions/rbenv.fish
 
 .config/nvim/autoload
 .config/nvim/bundle
