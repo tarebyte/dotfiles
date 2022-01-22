@@ -3,15 +3,7 @@
 ## To install
 
 ```sh
-git clone --recursive https://github.com/tarebyte/dotfiles.git ~/src/$(whoami)/dotfiles
-```
-
-```sh
-cd ~/src/$(whoami)/dotfiles
-```
-
-```sh
-./script/setup
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/tarebyte/dotfiles/HEAD/.bin/install)"
 ```
 
 Meant primarily for MacOS, but also works for [GitHub Codespaces](https://docs.github.com/en/codespaces/customizing-your-codespace/personalizing-codespaces-for-your-account#dotfiles) if that's your jam.
