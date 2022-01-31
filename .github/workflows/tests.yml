@@ -19,4 +19,4 @@ jobs:
       uses: fish-actions/install-fish@v1.1.0
 
     - name: Validate syntax
-      run: fish -n config/fish/**/*.fish
+      run: fish -n .config/fish/**/*.fish
