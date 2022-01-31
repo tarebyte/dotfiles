@@ -31,4 +31,3 @@ vim.g["gutentags_ctags_exclude"] = {
 	"*.cache",
 	"tags*",
 }
-
