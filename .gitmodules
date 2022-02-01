@@ -10,6 +10,6 @@
 [submodule "tmux/plugins/tpm"]
 	path = .tmux/plugins/tpm
 	url = https://github.com/tmux-plugins/tpm
-[submodule "fonts"]
-	path = .fonts
+[submodule ".config/fonts"]
+	path = .config/fonts
 	url = https://github.com/tarebyte/dotfiles-fonts
