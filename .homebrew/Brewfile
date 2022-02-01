@@ -2,6 +2,7 @@
 
 tap "universal-ctags/universal-ctags"
 
+brew "asdf"
 brew "autojump"
 brew "bat"
 brew "curl"
