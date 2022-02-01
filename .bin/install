@@ -70,9 +70,9 @@ echo $homebrew_fish_path | sudo tee -a /etc/shells
 chsh -s $homebrew_fish_path
 
 # Install fisher plugins
-fish "$(curl -sL https://git.io/fisher | source && fisher update)"
+echo "curl -sL https://git.io/fisher | source && fisher update" | fish
 
 # Set the theme
-fish "$(base16-ocean)"
+echo "base16-ocean" | fish
 
 echo "All set!"
