@@ -3,4 +3,11 @@ if not status_ok then
 	return
 end
 
-gitsigns.setup()
+gitsigns.setup({
+	signs = {
+		add = { text = "▎" },
+		change = { text = "▎" },
+		changedelete = { text = "▎" },
+	},
+	numhl = true,
+})
