@@ -17,9 +17,7 @@ local function diff_source()
 	end
 end
 
-vim.cmd([[
-	highlight LualineWarning guifg=${colors.base0A} guibg=${colors.base02}
-]])
+vim.cmd([[highlight LualineWarning guifg=]] .. colors.base0A .. [[ guibg=]] .. colors.base02)
 
 lualine.setup({
 	extensions = { "fugitive", "fzf" },
