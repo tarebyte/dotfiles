@@ -7,26 +7,28 @@ if vim.fn.filereadable(vim.fn.expand("~/.vimrc_background")) then
 	vim.api.nvim_exec([[ source ~/.vimrc_background ]], true)
 end
 
+local colors = require("user.utils.colors")
+
 -- https://github.com/hrsh7th/nvim-cmp/wiki/Menu-Appearance#how-to-add-visual-studio-code-dark-theme-colors-to-the-menu
 vim.cmd([[
   " gray
-  highlight! CmpItemAbbrDeprecated guibg=NONE gui=strikethrough guifg=#65737E
+  highlight! CmpItemAbbrDeprecated guibg=NONE gui=strikethrough guifg=${colors.base03}
 
   " blue
-  highlight! CmpItemAbbrMatch guibg=NONE guifg=#8FA1B3
-  highlight! CmpItemAbbrMatchFuzzy guibg=NONE guifg=#8FA1B3
+  highlight! CmpItemAbbrMatch guibg=NONE guifg=${colors.base0D}
+  highlight! CmpItemAbbrMatchFuzzy guibg=NONE guifg=${colors.base0D}
 
   " cyan
-  highlight! CmpItemKindVariable guibg=NONE guifg=#96B5B4
-  highlight! CmpItemKindInterface guibg=NONE guifg=#96B5B4
-  highlight! CmpItemKindText guibg=NONE guifg=#96B5B4
+  highlight! CmpItemKindVariable guibg=NONE guifg=${colors.base0C}
+  highlight! CmpItemKindInterface guibg=NONE guifg=${colors.base0C}
+  highlight! CmpItemKindText guibg=NONE guifg=${colors.base0C}
 
   " magenta
-  highlight! CmpItemKindFunction guibg=NONE guifg=#B48EAD
-  highlight! CmpItemKindMethod guibg=NONE guifg=#B48EAD
+  highlight! CmpItemKindFunction guibg=NONE guifg=${colors.base0E}
+  highlight! CmpItemKindMethod guibg=NONE guifg=${colors.base0E}
 
   " front
-  highlight! CmpItemKindKeyword guibg=NONE guifg=#DFE1E8
-  highlight! CmpItemKindProperty guibg=NONE guifg=#DFE1E8
-  highlight! CmpItemKindUnit guibg=NONE guifg=#DFE1E8
+  highlight! CmpItemKindKeyword guibg=NONE guifg=${colors.base06}
+  highlight! CmpItemKindProperty guibg=NONE guifg=${colors.base06}
+  highlight! CmpItemKindUnit guibg=NONE guifg=${colors.base06}
 ]])
