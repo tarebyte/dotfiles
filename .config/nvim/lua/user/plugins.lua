@@ -48,6 +48,7 @@ return require("packer").startup({
 		use("hrsh7th/cmp-path")
 		use("hrsh7th/cmp-cmdline")
 		use("saadparwaiz1/cmp_luasnip")
+		use({ "petertriho/cmp-git", requires = "nvim-lua/plenary.nvim" })
 
 		-- Snippets
 		use("L3MON4D3/LuaSnip")
@@ -86,6 +87,7 @@ return require("packer").startup({
 			"lewis6991/gitsigns.nvim",
 			requires = "nvim-lua/plenary.nvim",
 			config = [[require("user.plugins.gitsigns")]],
+			tag = "release",
 		})
 		use({ "tarebyte/nvim-base16", branch = "tarebyte/color-updates" })
 

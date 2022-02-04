@@ -8,6 +8,11 @@ if not snip_status_ok then
 	return
 end
 
+local ok, cmp_git = pcall(require, "cmp_git")
+if not ok then
+	return
+end
+
 require("luasnip/loaders/from_vscode").lazy_load()
 
 -- https://github.com/LunarVim/Neovim-from-scratch/blob/2683495c3df5ee7d3682897e0d47b0facb3cedc9/lua/user/cmp.lua#L13-L16
@@ -92,14 +97,17 @@ cmp.setup({
 		end, { "i", "s" }),
 	},
 	sources = {
-		{ name = "luasnip" },
 		{ name = "buffer" },
+		{ name = "cmp_git" },
+		{ name = "luasnip" },
 		{ name = "path" },
 	},
 	documentation = {
 		border = { "╭", "─", "╮", "│", "╯", "─", "╰", "│" },
 	},
 })
+
+cmp_git.setup()
 
 -- Enable more languages for snippets
 luasnip.filetype_extend("ruby", { "rails" })
