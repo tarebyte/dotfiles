@@ -107,6 +107,13 @@ cmp.setup({
 	},
 })
 
+local ok, cmp_autopairs = pcall(require, "nvim-autopairs.completion.cmp")
+if ok then
+	cmp.event:on("confirm_done", cmp_autopairs.on_confirm_done({ map_char = { tex = "" } }))
+else
+	return
+end
+
 cmp_git.setup()
 
 -- Enable more languages for snippets
