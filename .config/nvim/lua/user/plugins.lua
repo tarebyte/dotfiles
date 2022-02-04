@@ -78,6 +78,7 @@ return require("packer").startup({
 		-- Tree Sitter
 		use({ "nvim-treesitter/nvim-treesitter", run = ":TSUpdate" })
 		use("nvim-treesitter/nvim-treesitter-textobjects")
+		use("nvim-treesitter/playground")
 
 		-- Theme
 		use({ "nvim-lualine/lualine.nvim", config = [[require("user.plugins.lualine")]] })
