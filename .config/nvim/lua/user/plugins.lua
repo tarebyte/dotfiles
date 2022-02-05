@@ -39,6 +39,7 @@ return require("packer").startup({
 		use("tpope/vim-repeat")
 		use("tpope/vim-surround")
 		use({ "windwp/nvim-autopairs", config = [[require("user.plugins.autopairs")]] })
+		use("RRethy/nvim-treesitter-endwise")
 
 		-- CTags
 		use({ "ludovicchabant/vim-gutentags", config = [[require("user.plugins.vim-gutentags")]] })

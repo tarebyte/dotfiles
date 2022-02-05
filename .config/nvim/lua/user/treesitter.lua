@@ -5,6 +5,9 @@ end
 
 nvim_treesitter.setup({
 	ensure_installed = "maintained",
+	endwise = {
+		enable = true,
+	},
 	highlight = {
 		enable = true,
 	},
