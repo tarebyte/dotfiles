@@ -20,12 +20,11 @@ end
 vim.cmd([[highlight LualineWarning guifg=]] .. colors.base0A .. [[ guibg=]] .. colors.base02)
 
 lualine.setup({
-	extensions = { "fugitive", "fzf" },
 	options = {
-		component_separators = { "", "" },
 		icons_enabled = true,
-		section_separators = { "", "" },
 		theme = "base16_ocean",
+		component_separators = { left = "", right = "" },
+		section_separators = { left = "", right = "" },
 	},
 	sections = {
 		lualine_a = {
@@ -38,23 +37,27 @@ lualine.setup({
 			},
 		},
 		lualine_b = {
-			{ "branch", "b:gitsigns_head", icon = "" },
-			{ "diff", source = diff_source(), symbols = { added = " ", modified = " ", removed = " " } },
+			{ "branch", "b:gitsigns_head", icon = "" },
+			{
+				"diff",
+				colored = true,
+				source = diff_source(),
+				symbols = { added = " ", modified = " ", removed = " " },
+			},
 			{
 				"diagnostics",
 				sources = { "ale" },
 				diagnostics_color = {
 					warn = "LualineWarning",
 				},
-				symbols = { error = " ", warn = " ", info = " ", hint = " " },
+				symbols = { error = " ", warn = " ", info = "כֿ ", hint = " " },
 			},
 		},
 		lualine_c = {
-			{ "filename", path = 1 },
+			{ "filename", symbols = { readonly = "" }, path = 1 },
 		},
 		lualine_x = {
 			"encoding",
-			"fileformat",
 			{ "filetype", colored = false },
 		},
 	},
@@ -63,4 +66,5 @@ lualine.setup({
 			{ "filename", path = 1 },
 		},
 	},
+	extensions = { "fzf" },
 })

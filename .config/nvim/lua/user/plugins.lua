@@ -30,7 +30,7 @@ return require("packer").startup({
 		use("wbthomason/packer.nvim")
 
 		-- Misc
-		use("kyazdani42/nvim-web-devicons")
+		use({ "kyazdani42/nvim-web-devicons", config = [[require("user.plugins.devicons")]] })
 		use("tomtom/tcomment_vim")
 		use("tpope/vim-fugitive")
 		use("tpope/vim-projectionist")
