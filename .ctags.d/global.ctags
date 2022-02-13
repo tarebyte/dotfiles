@@ -1,0 +1,12 @@
+-R
+--tag-relative=yes
+--totals=yes
+--extras=+f
+--fields=+ail
+--exclude=*.md
+--exclude=app/assets/builds
+--exclude=public
+--exclude=node_modules
+--exclude=log
+--exclude=tmp
+--exclude=vendor
