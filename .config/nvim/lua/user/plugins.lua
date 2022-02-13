@@ -41,9 +41,6 @@ return require("packer").startup({
 		use({ "windwp/nvim-autopairs", config = [[require("user.plugins.autopairs")]] })
 		use("RRethy/nvim-treesitter-endwise")
 
-		-- CTags
-		use({ "ludovicchabant/vim-gutentags", config = [[require("user.plugins.vim-gutentags")]] })
-
 		-- CMP
 		use("hrsh7th/nvim-cmp")
 		use("hrsh7th/cmp-buffer")
