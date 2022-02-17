@@ -28,6 +28,7 @@ nvim_treesitter.setup({
 	},
 	indent = {
 		enable = true,
+		disable = { "ruby" },
 	},
 	playground = {
 		enable = true,

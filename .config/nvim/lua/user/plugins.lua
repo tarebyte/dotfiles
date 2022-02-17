@@ -38,8 +38,8 @@ return require("packer").startup({
 		use("tpope/vim-rake")
 		use("tpope/vim-repeat")
 		use("tpope/vim-surround")
+		use("vim-ruby/vim-ruby")
 		use({ "windwp/nvim-autopairs", config = [[require("user.plugins.autopairs")]] })
-		use("RRethy/nvim-treesitter-endwise")
 
 		-- CMP
 		use("hrsh7th/nvim-cmp")
@@ -79,6 +79,7 @@ return require("packer").startup({
 		use({ "nvim-treesitter/nvim-treesitter", run = ":TSUpdate" })
 		use("nvim-treesitter/nvim-treesitter-textobjects")
 		use("nvim-treesitter/playground")
+		use("RRethy/nvim-treesitter-endwise")
 
 		-- Theme
 		use({ "nvim-lualine/lualine.nvim", config = [[require("user.plugins.lualine")]] })
