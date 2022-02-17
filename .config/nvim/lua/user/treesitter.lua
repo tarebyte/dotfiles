@@ -4,7 +4,22 @@ if not status_ok then
 end
 
 nvim_treesitter.setup({
-	ensure_installed = "maintained",
+	ensure_installed = {
+		"bash",
+		"comment",
+		"css",
+		"elixir",
+		"fish",
+		"html",
+		"javascript",
+		"json",
+		"lua",
+		"query",
+		"ruby",
+		"scss",
+		"typescript",
+		"vim",
+	},
 	endwise = {
 		enable = true,
 	},
