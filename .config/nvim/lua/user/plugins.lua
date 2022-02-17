@@ -49,10 +49,6 @@ return require("packer").startup({
 		use("saadparwaiz1/cmp_luasnip")
 		use({ "petertriho/cmp-git", requires = "nvim-lua/plenary.nvim" })
 
-		-- Snippets
-		use("L3MON4D3/LuaSnip")
-		use("rafamadriz/friendly-snippets")
-
 		-- Linting and formatting
 		use({ "dense-analysis/ale", config = [[require("user.plugins.ale")]] })
 		use({ "ntpeters/vim-better-whitespace", config = [[require("user.plugins.vim-better-whitespace")]] })
