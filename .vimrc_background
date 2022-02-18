@@ -1,4 +1,0 @@
-if !exists('g:colors_name') || g:colors_name != 'ocean'
-  colorscheme base16-ocean
-  set background=dark
-endif
