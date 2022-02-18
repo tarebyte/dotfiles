@@ -88,15 +88,6 @@ fish_add_path -aP $GOPATH/bin
 #####################
 
 set -U fish_greeting
-set -U fish_color_autosuggestion 4f5b66
-set -U fish_color_command green
-set -U fish_color_end brblack
-set -U fish_color_error red
-set -U fish_color_escape yellow
-set -U fish_color_operator blue
-set -U fish_color_param a7adba
-set -U fish_color_quote yellow
-set -U fish_color_redirection cyan
 
 ###########
 # Aliases #
