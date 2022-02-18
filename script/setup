@@ -30,9 +30,6 @@ then
   # the attributes set in /etc/gitconfig we have to explicitly include the path.
   git config --global include.path /etc/gitconfig
 
-  # Bring in all of our submodule dependencies
-  git submodule update  --recursive --init
-
   dotfiles_dir="/workspaces/.codespaces/.persistedshare/dotfiles"
 
   # Symlink all of the dotfiles to the $HOME directory
@@ -67,6 +64,10 @@ then
       ln -sv "$source" "$destination"
     fi
   done
+
+  # Bring in all of our submodule dependencies
+  git submodule update --init --recursive || true
+  git submodule foreach --recursive git reset --hard
 elif [ ! -d $HOME/.dotfiles ]
 then
   # https://www.atlassian.com/git/tutorials/dotfiles
