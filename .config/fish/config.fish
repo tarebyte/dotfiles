@@ -2,8 +2,6 @@ switch (uname)
   case "Darwin"
     set -gx ITERM_ENABLE_SHELL_INTEGRATION_WITH_TMUX YES
     set -gx OBJC_DISABLE_INITIALIZE_FORK_SAFETY YES
-    set -gx RUBY_CONFIGURE_OPTS "--with-openssl-dir="$HOMEBREW_PREFIX"/opt/openssl@1.1"
-    set -gx TREE_SITTER_PARSER_DIR $HOMEBREW_PREFIX/bin/
 
     # https://github.com/Homebrew/install/blob/abe5c4fe830cf6c36d1916b9eaac3ee818c949b8/uninstall.sh#L68-L73
     switch (uname -m)
@@ -12,6 +10,9 @@ switch (uname)
       case "*"
         set -gx HOMEBREW_PREFIX "/usr/local"
     end
+
+    set -gx RUBY_CONFIGURE_OPTS "--with-openssl-dir="$HOMEBREW_PREFIX"/opt/openssl@1.1"
+    set -gx TREE_SITTER_PARSER_DIR $HOMEBREW_PREFIX/bin/
 
     alias ls "ls -GpF"
   case "Linux"
