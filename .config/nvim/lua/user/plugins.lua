@@ -30,8 +30,7 @@ return require("packer").startup({
 		use("wbthomason/packer.nvim")
 
 		-- Misc
-		use({ "kyazdani42/nvim-web-devicons", config = [[require("user.plugins.devicons")]] })
-		use("tomtom/tcomment_vim")
+		use("kyazdani42/nvim-web-devicons")
 		use("tpope/vim-fugitive")
 		use("tpope/vim-projectionist")
 		use("tpope/vim-rails")
@@ -39,7 +38,7 @@ return require("packer").startup({
 		use("tpope/vim-repeat")
 		use("tpope/vim-surround")
 		use("vim-ruby/vim-ruby")
-		use({ "windwp/nvim-autopairs", config = [[require("user.plugins.autopairs")]] })
+		use("windwp/nvim-autopairs")
 
 		-- CMP
 		use("hrsh7th/nvim-cmp")
@@ -50,21 +49,27 @@ return require("packer").startup({
 		use({ "petertriho/cmp-git", requires = "nvim-lua/plenary.nvim" })
 
 		-- Linting and formatting
-		use({ "dense-analysis/ale", config = [[require("user.plugins.ale")]] })
-		use({ "ntpeters/vim-better-whitespace", config = [[require("user.plugins.vim-better-whitespace")]] })
+		use("dense-analysis/ale")
+		use("ntpeters/vim-better-whitespace")
+
+		-- Commenting
+		use({
+			"numToStr/Comment.nvim",
+			config = function()
+				require("Comment").setup()
+			end,
+		})
 
 		-- Files
 		use("danro/rename.vim")
 		use({
 			"kristijanhusak/vim-dirvish-git",
-			config = [[require("user.plugins.vim-dirvish-git")]],
 			requires = "justinmk/vim-dirvish",
 		})
 
 		-- FZF
 		use({
 			"junegunn/fzf",
-			config = [[require("user.plugins.fzf")]],
 			requires = "junegunn/fzf.vim",
 			run = function()
 				vim.fn["fzf#install"]()
@@ -78,11 +83,10 @@ return require("packer").startup({
 		use("RRethy/nvim-treesitter-endwise")
 
 		-- Theme
-		use({ "nvim-lualine/lualine.nvim", config = [[require("user.plugins.lualine")]] })
+		use("nvim-lualine/lualine.nvim")
 		use({
 			"lewis6991/gitsigns.nvim",
 			requires = "nvim-lua/plenary.nvim",
-			config = [[require("user.plugins.gitsigns")]],
 			tag = "release",
 		})
 		use({ "tarebyte/nvim-base16", branch = "tarebyte/color-updates" })
