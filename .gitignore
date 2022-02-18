@@ -1,5 +1,8 @@
+.config/fish/completions
 .config/fish/conf.d
+.config/fish/fish_variables
 .config/fish/functions/base16-*
 .config/fish/functions/__*
+.config/fish/functions/fisher.fish
 
 .homebrew/Brewfile.lock.json
