@@ -30,19 +30,24 @@ then
   # the attributes set in /etc/gitconfig we have to explicitly include the path.
   git config --global include.path /etc/gitconfig
 
-  dotfiles_dir="$(pwd -P)"
+  # Bring in all of our submodule dependencies
+  git submodule update  --recursive --init
+
+  dotfiles_dir="/workspaces/.codespaces/.persistedshare/dotfiles"
 
   # Symlink all of the dotfiles to the $HOME directory
   for dotfile in .*; do
     # Skip . and .. directories
     echo $dotfile | egrep -q '^(\.+)$' && continue
-    
+
+    # Skip .git directory
+    echo $dotfile | egrep -q '^(\.git)$' && continue
+
     source="$dotfiles_dir/$dotfile"
     destination="$HOME/$dotfile"
 
     # If the directory already exists in the $HOME directory then we'll
     # just symlink the contents rather than the directory itself.
-    # Basically this is just ~/.config
     if [ -d $destination ] && ! [ -L $destination ]
     then
       for file in $source/*
@@ -54,17 +59,14 @@ then
 
     [ -d $dotfile ] && dotfile="$dotfile/"
 
-    if [ -L $destination ] && [ -d $dotfile ]
+    if [ -L $destination ] && ! [ -d $dotfile ]
     then
       ln -sfv "$source" "$destination"
     else
-      rm -rv "$destination" 2>/dev/null
+      [ -d $destination ] && rm -rv "$destination" 2>/dev/null
       ln -sv "$source" "$destination"
     fi
   done
-
-  # Bring in all of our submodule dependencies
-  git submodule update  --recursive --init
 elif [ ! -d $HOME/.dotfiles ]
 then
   # https://www.atlassian.com/git/tutorials/dotfiles
