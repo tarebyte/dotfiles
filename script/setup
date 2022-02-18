@@ -64,7 +64,7 @@ then
   done
 
   # Bring in all of our submodule dependencies
-  git submodule init && git submodule update
+  git submodule update  --recursive --init
 elif [ ! -d $HOME/.dotfiles ]
 then
   # https://www.atlassian.com/git/tutorials/dotfiles
@@ -78,7 +78,7 @@ then
   dconfig status.showUntrackedFiles no
 
   # Bring in all of our submodule dependencies
-  dconfig submodule init && dconfig submodule update
+  dconfig submodule update --recursive --init
 fi
 
 alias brew="$homebrew_prefix_default/bin/brew"
