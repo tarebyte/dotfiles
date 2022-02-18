@@ -24,21 +24,25 @@ then
   CI=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 fi
 
-# Install the dotfiles on new machines as a bare repository.
-# For codespaces it will symlink all .* files as a symlink to the home
-# directory for us.
-#
-# https://docs.github.com/en/codespaces/customizing-your-codespace/personalizing-codespaces-for-your-account#dotfiles
 if [ -n $CODESPACES ]
 then
   # Codespaces has a .gitconfig already setup, but in order to take advantage of
   # the attributes set in /etc/gitconfig we have to explicitly include the path.
   git config --global include.path /etc/gitconfig
 
-  current_dir="$(pwd -P)"
-  dotfiles_path=/workspaces/.codespaces/.persistedshare/dotfiles
+  current_dir="$(pwd -p)"
+  dotfiles_path="/workspaces/.codespaces/.persistedshare/dotfiles"
 
-  cd $dotfiles_path && git submodule init && git submodule update && cd $current_dir
+  # Symlink all of the dotfiles to the $HOME directory
+  for dotfile in .*; do
+    source="$current_dir/$dotfile"
+    destination="$HOME/$dotfile"
+
+    ln -sv "$source" "$destination"
+  done
+
+  # Bring in all of our submodule dependencies
+  git submodule init && git submodule update
 elif [ ! -d $HOME/.dotfiles ]
 then
   # https://www.atlassian.com/git/tutorials/dotfiles
