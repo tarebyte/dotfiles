@@ -1,8 +1,3 @@
-local colors = require("user.utils.colors")
-if not colors.loaded then
-	return
-end
-
 local status_ok, lualine = pcall(require, "lualine")
 if not status_ok then
 	return
@@ -19,8 +14,6 @@ local function diff_source()
 		}
 	end
 end
-
-vim.cmd([[highlight LualineWarning guifg=]] .. colors.base0A .. [[ guibg=]] .. colors.base02)
 
 lualine.setup({
 	options = {
@@ -49,15 +42,12 @@ lualine.setup({
 			},
 			{
 				"diagnostics",
-				sources = { "ale" },
-				diagnostics_color = {
-					warn = "LualineWarning",
-				},
-				symbols = { error = " ", warn = " ", info = "כֿ ", hint = " " },
+				sources = { "nvim_diagnostic" },
+				symbols = { error = " ", warn = " ", hint = " ", info = " " },
 			},
 		},
 		lualine_c = {
-			{ "filename", symbols = { readonly = "" }, path = 1 },
+			{ "filename", symbols = { readonly = " " }, path = 1 },
 		},
 		lualine_x = {
 			"encoding",

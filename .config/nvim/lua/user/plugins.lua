@@ -49,7 +49,7 @@ return require("packer").startup({
 		use({ "petertriho/cmp-git", requires = "nvim-lua/plenary.nvim" })
 
 		-- Linting and formatting
-		use("dense-analysis/ale")
+		use("jose-elias-alvarez/null-ls.nvim")
 		use("ntpeters/vim-better-whitespace")
 
 		-- Commenting
