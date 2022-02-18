@@ -4,7 +4,7 @@ require("user.plugins")
 require("user.colorscheme")
 require("user.autocommands")
 
--- Cross cutting plugin configuruations
+-- Cross cutting plugin configurations
 require("user.cmp")
 require("user.treesitter")
 
