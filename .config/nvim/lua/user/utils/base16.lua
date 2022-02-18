@@ -27,7 +27,7 @@ M.theme = function()
 				line = string.gsub(line, "%\\x2d", "-")
 
 				start, stop = string.find(line, "%:.*$")
-				theme = string.sub(line, (start+ 1), stop)
+				theme = string.sub(line, (start + 1), stop)
 			end
 		end
 
