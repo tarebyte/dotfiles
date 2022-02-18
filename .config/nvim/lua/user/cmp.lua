@@ -3,11 +3,6 @@ if not cmp_status_ok then
 	return
 end
 
-local ok, cmp_git = pcall(require, "cmp_git")
-if not ok then
-	return
-end
-
 -- https://github.com/LunarVim/Neovim-from-scratch/blob/2683495c3df5ee7d3682897e0d47b0facb3cedc9/lua/user/cmp.lua#L13-L16
 local check_backspace = function()
 	local col = vim.fn.col(".") - 1
@@ -84,6 +79,7 @@ cmp.setup({
 		{ name = "buffer" },
 		{ name = "cmp_git" },
 		{ name = "path" },
+		{ name = "tags" },
 	},
 	documentation = {
 		border = { "╭", "─", "╮", "│", "╯", "─", "╰", "│" },
@@ -97,9 +93,12 @@ else
 	return
 end
 
-cmp_git.setup()
+require("cmp_git").setup()
 
 local colors = require("user.utils.colors")
+if not colors.loaded then
+	return
+end
 
 -- https://github.com/hrsh7th/nvim-cmp/wiki/Menu-Appearance#how-to-add-visual-studio-code-dark-theme-colors-to-the-menu
 vim.cmd([[

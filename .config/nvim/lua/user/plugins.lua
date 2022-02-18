@@ -37,16 +37,20 @@ return require("packer").startup({
 		use("tpope/vim-rake")
 		use("tpope/vim-repeat")
 		use("tpope/vim-surround")
-		use("vim-ruby/vim-ruby")
 		use("windwp/nvim-autopairs")
+		use("vim-ruby/vim-ruby")
 
 		-- CMP
-		use("hrsh7th/nvim-cmp")
-		use("hrsh7th/cmp-buffer")
-		use("hrsh7th/cmp-path")
-		use("hrsh7th/cmp-cmdline")
-		use("saadparwaiz1/cmp_luasnip")
-		use({ "petertriho/cmp-git", requires = "nvim-lua/plenary.nvim" })
+		use({
+			"hrsh7th/nvim-cmp",
+			requires = {
+				"hrsh7th/cmp-buffer",
+				"hrsh7th/cmp-path",
+				"hrsh7th/cmp-cmdline",
+				{ "quangnguyen30192/cmp-nvim-tags", ft = { "ruby" } },
+				{ "petertriho/cmp-git", requires = "nvim-lua/plenary.nvim" },
+			},
+		})
 
 		-- Linting and formatting
 		use("jose-elias-alvarez/null-ls.nvim")
