@@ -71,6 +71,7 @@ if set -q CODESPACES
   set -gx PROJECTS /workspaces
   set -gx DOTFILES /workspaces/.codespaces/.persistedshare/dotfiles
   set -gx GOPATH $HOME/go
+  set -gx RUBY_DEBUG 1
 else
   set -gx PROJECTS $HOME/src
   set -gx DOTFILES $PROJECTS/(whoami)/dotfiles
