@@ -8,7 +8,11 @@ end
 base16 = require("user.utils.base16")
 
 local background = base16.background()
-if background~=nil then vim.opt.background = background end
+if background ~= nil then
+	vim.opt.background = background
+end
 
 local colorscheme = base16.theme()
-if colorscheme~=nil then vim.cmd("colorscheme " .. colorscheme) end
+if colorscheme ~= nil then
+	vim.cmd("colorscheme " .. colorscheme)
+end
