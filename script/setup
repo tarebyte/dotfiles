@@ -30,15 +30,37 @@ then
   # the attributes set in /etc/gitconfig we have to explicitly include the path.
   git config --global include.path /etc/gitconfig
 
-  current_dir="$(pwd -p)"
-  dotfiles_path="/workspaces/.codespaces/.persistedshare/dotfiles"
+  dotfiles_dir="$(pwd -P)"
 
   # Symlink all of the dotfiles to the $HOME directory
   for dotfile in .*; do
-    source="$current_dir/$dotfile"
+    # Skip . and .. directories
+    echo $dotfile | egrep -q '^(\.+)$' && continue
+    
+    source="$dotfiles_dir/$dotfile"
     destination="$HOME/$dotfile"
 
-    ln -sv "$source" "$destination"
+    # If the directory already exists in the $HOME directory then we'll
+    # just symlink the contents rather than the directory itself.
+    # Basically this is just ~/.config
+    if [ -d $destination ] && ! [ -L $destination ]
+    then
+      for file in $source/*
+      do
+        ln -sfv "$file" "$destination"
+      done
+      continue
+    fi
+
+    [ -d $dotfile ] && dotfile="$dotfile/"
+
+    if [ -L $destination ] && [ -d $dotfile ]
+    then
+      ln -sfv "$source" "$destination"
+    else
+      rm -rv "$destination" 2>/dev/null
+      ln -sv "$source" "$destination"
+    fi
   done
 
   # Bring in all of our submodule dependencies
