@@ -98,3 +98,29 @@ else
 end
 
 cmp_git.setup()
+
+local colors = require("user.utils.colors")
+
+-- https://github.com/hrsh7th/nvim-cmp/wiki/Menu-Appearance#how-to-add-visual-studio-code-dark-theme-colors-to-the-menu
+vim.cmd([[
+  " gray
+  highlight! CmpItemAbbrDeprecated guibg=NONE gui=strikethrough guifg=${colors.base03}
+
+  " blue
+  highlight! CmpItemAbbrMatch guibg=NONE guifg=${colors.base0D}
+  highlight! CmpItemAbbrMatchFuzzy guibg=NONE guifg=${colors.base0D}
+
+  " cyan
+  highlight! CmpItemKindVariable guibg=NONE guifg=${colors.base0C}
+  highlight! CmpItemKindInterface guibg=NONE guifg=${colors.base0C}
+  highlight! CmpItemKindText guibg=NONE guifg=${colors.base0C}
+
+  " magenta
+  highlight! CmpItemKindFunction guibg=NONE guifg=${colors.base0E}
+  highlight! CmpItemKindMethod guibg=NONE guifg=${colors.base0E}
+
+  " front
+  highlight! CmpItemKindKeyword guibg=NONE guifg=${colors.base06}
+  highlight! CmpItemKindProperty guibg=NONE guifg=${colors.base06}
+  highlight! CmpItemKindUnit guibg=NONE guifg=${colors.base06}
+]])
