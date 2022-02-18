@@ -1,9 +1,12 @@
+local colors = require("user.utils.colors")
+if not colors.loaded then
+	return
+end
+
 local status_ok, lualine = pcall(require, "lualine")
 if not status_ok then
 	return
 end
-
-local colors = require("user.utils.colors")
 
 -- https://github.com/LunarVim/LunarVim/blob/41b3f63c37ce2f79defc22a2cbcd347281a808a5/lua/lvim/core/lualine/components.lua#L4-L13
 local function diff_source()

@@ -1,4 +1,7 @@
 local colors = require("user.utils.colors")
+if not colors.loaded then
+	return
+end
 
 return {
 	normal = {
