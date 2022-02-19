@@ -3,48 +3,40 @@ if not cmp_status_ok then
 	return
 end
 
+local luasnip_ok, luasnip = pcall(require, "luasnip")
+if not luasnip_ok then
+	return
+end
+
+local lspkind_ok, lspkind = pcall(require, "lspkind")
+if not lspkind_ok then
+	return
+end
+
 -- https://github.com/LunarVim/Neovim-from-scratch/blob/2683495c3df5ee7d3682897e0d47b0facb3cedc9/lua/user/cmp.lua#L13-L16
 local check_backspace = function()
 	local col = vim.fn.col(".") - 1
 	return col == 0 or vim.fn.getline("."):sub(col, col):match("%s")
 end
 
--- https://github.com/hrsh7th/nvim-cmp/wiki/Menu-Appearance#how-to-add-visual-studio-code-codicons-to-the-menu
-local cmp_kinds = {
-	Text = "  ",
-	Method = "  ",
-	Function = "  ",
-	Constructor = "  ",
-	Field = "  ",
-	Variable = "  ",
-	Class = "  ",
-	Interface = "  ",
-	Module = "  ",
-	Property = "  ",
-	Unit = "  ",
-	Value = "  ",
-	Enum = "  ",
-	Keyword = "  ",
-	Snippet = "  ",
-	Color = "  ",
-	File = "  ",
-	Reference = "  ",
-	Folder = "  ",
-	EnumMember = "  ",
-	Constant = "  ",
-	Struct = "  ",
-	Event = "  ",
-	Operator = "  ",
-	TypeParameter = "  ",
-}
-
 cmp.setup({
-	formatting = {
-		fields = { "kind", "abbr" },
-		format = function(_, vim_item)
-			vim_item.kind = cmp_kinds[vim_item.kind] or ""
-			return vim_item
+	snippet = {
+		expand = function(args)
+			luasnip.lsp_expand(args.body)
 		end,
+	},
+	formatting = {
+		format = lspkind.cmp_format({
+			preset = "codicons",
+			-- menu = ({
+			-- 	nvim_lsp = "[LSP]",
+			-- 	nvim_lua = "[Lua]",
+			-- 	luasnip = "[LuaSnip]",
+			-- 	buffer = "[Buffer]",
+			-- 	cmp_git = "[Git]",
+			-- 	path = "[Path]",
+			-- })
+		}),
 	},
 	mapping = {
 		["<C-b>"] = cmp.mapping(cmp.mapping.scroll_docs(-4), { "i", "c" }),
@@ -60,8 +52,12 @@ cmp.setup({
 		["<Tab>"] = cmp.mapping(function(fallback)
 			if cmp.visible() then
 				cmp.select_next_item()
+			elseif luasnip.expandable() then
+				luasnip.expand()
+			elseif luasnip.expand_or_jumpable() then
+				luasnip.expand_or_jump()
 			elseif check_backspace() then
-				cmp.complete()
+				fallback()
 			else
 				fallback()
 			end
@@ -70,24 +66,28 @@ cmp.setup({
 		["<S-Tab>"] = cmp.mapping(function(fallback)
 			if cmp.visible() then
 				cmp.select_prev_item()
+			elseif luasnip.jumpable(-1) then
+				luasnip.jump(-1)
 			else
 				fallback()
 			end
 		end, { "i", "s" }),
 	},
 	sources = {
+		{ name = "nvim_lsp" },
+		{ name = "nvim_lua" },
+		{ name = "luasnip" },
 		{ name = "buffer" },
 		{ name = "cmp_git" },
 		{ name = "path" },
-		{ name = "tags" },
 	},
 	documentation = {
 		border = { "╭", "─", "╮", "│", "╯", "─", "╰", "│" },
 	},
 })
 
-local ok, cmp_autopairs = pcall(require, "nvim-autopairs.completion.cmp")
-if ok then
+local completion_ok, cmp_autopairs = pcall(require, "nvim-autopairs.completion.cmp")
+if completion_ok then
 	cmp.event:on("confirm_done", cmp_autopairs.on_confirm_done({ map_char = { tex = "" } }))
 else
 	return
@@ -101,25 +101,24 @@ if not colors.loaded then
 end
 
 -- https://github.com/hrsh7th/nvim-cmp/wiki/Menu-Appearance#how-to-add-visual-studio-code-dark-theme-colors-to-the-menu
-vim.cmd([[
-  " gray
-  highlight! CmpItemAbbrDeprecated guibg=NONE gui=strikethrough guifg=${colors.base03}
+--
+-- gray
+vim.cmd([[highlight! CmpItemAbbrDeprecated guibg=NONE gui=strikethrough guifg=]] .. colors.base03)
 
-  " blue
-  highlight! CmpItemAbbrMatch guibg=NONE guifg=${colors.base0D}
-  highlight! CmpItemAbbrMatchFuzzy guibg=NONE guifg=${colors.base0D}
+-- blue
+vim.cmd([[highlight! CmpItemAbbrMatch guibg=NONE guifg=]] .. colors.base0D)
+vim.cmd([[highlight! CmpItemAbbrMatchFuzzy guibg=NONE guifg=]] .. colors.base0D)
 
-  " cyan
-  highlight! CmpItemKindVariable guibg=NONE guifg=${colors.base0C}
-  highlight! CmpItemKindInterface guibg=NONE guifg=${colors.base0C}
-  highlight! CmpItemKindText guibg=NONE guifg=${colors.base0C}
+-- cyan
+vim.cmd([[highlight! CmpItemKindVariable guibg=NONE guifg=]] .. colors.base0C)
+vim.cmd([[highlight! CmpItemKindInterface guibg=NONE guifg=]] .. colors.base0C)
+vim.cmd([[highlight! CmpItemKindText guibg=NONE guifg=]] .. colors.base0C)
 
-  " magenta
-  highlight! CmpItemKindFunction guibg=NONE guifg=${colors.base0E}
-  highlight! CmpItemKindMethod guibg=NONE guifg=${colors.base0E}
+-- magenta
+vim.cmd([[highlight! CmpItemKindFunction guibg=NONE guifg=]] .. colors.base0E)
+vim.cmd([[highlight! CmpItemKindMethod guibg=NONE guifg=]] .. colors.base0E)
 
-  " front
-  highlight! CmpItemKindKeyword guibg=NONE guifg=${colors.base06}
-  highlight! CmpItemKindProperty guibg=NONE guifg=${colors.base06}
-  highlight! CmpItemKindUnit guibg=NONE guifg=${colors.base06}
-]])
+-- front
+vim.cmd([[highlight! CmpItemKindKeyword guibg=NONE guifg=]] .. colors.base06)
+vim.cmd([[highlight! CmpItemKindProperty guibg=NONE guifg=]] .. colors.base06)
+vim.cmd([[highlight! CmpItemKindUnit guibg=NONE guifg=]] .. colors.base06)

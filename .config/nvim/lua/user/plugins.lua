@@ -5,7 +5,7 @@ local install_path = fn.stdpath("data") .. "/site/pack/packer/start/packer.nvim"
 
 -- Ensure that packer is available before trying to use packages.
 if fn.empty(fn.glob(install_path)) > 0 then
-	packer_bootstrap = fn.system({
+	PACKER_BOOTSTRAP = fn.system({
 		"git",
 		"clone",
 		"--depth",
@@ -40,15 +40,26 @@ return require("packer").startup({
 		use("windwp/nvim-autopairs")
 		use("vim-ruby/vim-ruby")
 
+		-- LSP
+		use("neovim/nvim-lspconfig")
+		use("tamago324/nlsp-settings.nvim")
+		use("williamboman/nvim-lsp-installer")
+
+		-- snippets
+		use("L3MON4D3/LuaSnip") --snippet engine
+
 		-- CMP
 		use({
 			"hrsh7th/nvim-cmp",
 			requires = {
 				"hrsh7th/cmp-buffer",
-				"hrsh7th/cmp-path",
 				"hrsh7th/cmp-cmdline",
-				{ "quangnguyen30192/cmp-nvim-tags", ft = { "ruby" } },
+				"hrsh7th/cmp-path",
+				"hrsh7th/cmp-nvim-lsp",
+				"hrsh7th/cmp-nvim-lua",
+				"onsails/lspkind-nvim",
 				{ "petertriho/cmp-git", requires = "nvim-lua/plenary.nvim" },
+				"saadparwaiz1/cmp_luasnip",
 			},
 		})
 
@@ -95,7 +106,7 @@ return require("packer").startup({
 		})
 		use({ "tarebyte/nvim-base16", branch = "tarebyte/color-updates" })
 
-		if packer_bootstrap then
+		if PACKER_BOOTSTRAP then
 			require("packer").sync()
 		end
 	end,
