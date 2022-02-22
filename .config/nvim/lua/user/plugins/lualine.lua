@@ -3,6 +3,11 @@ if not status_ok then
 	return
 end
 
+local colors = require("user.utils.colors")
+if not colors.loaded then
+	return
+end
+
 -- https://github.com/LunarVim/LunarVim/blob/41b3f63c37ce2f79defc22a2cbcd347281a808a5/lua/lvim/core/lualine/components.lua#L4-L13
 local function diff_source()
 	local gitsigns = vim.b.gitsigns_status_dict
@@ -14,6 +19,21 @@ local function diff_source()
 		}
 	end
 end
+
+-- https://github.com/LunarVim/LunarVim/blob/52b74557415eb757ad4b7481b0aec8a3f98dd58d/lua/lvim/core/lualine/components.lua#L141-L153
+local scrollbar = {
+	function()
+		local current_line = vim.fn.line(".")
+		local total_lines = vim.fn.line("$")
+		local chars = { "__", "▁▁", "▂▂", "▃▃", "▄▄", "▅▅", "▆▆", "▇▇", "██" }
+		local line_ratio = current_line / total_lines
+		local index = math.ceil(line_ratio * #chars)
+		return chars[index]
+	end,
+	padding = { left = 0, right = 0 },
+	color = { fg = colors.base0A, bg = colors.base01 },
+	cond = nil,
+}
 
 lualine.setup({
 	options = {
@@ -33,30 +53,60 @@ lualine.setup({
 			},
 		},
 		lualine_b = {
-			{ "branch", "b:gitsigns_head", icon = "" },
+			{
+				"branch",
+				"b:gitsigns_head",
+				icon = "",
+				color = { fg = colors.base04, bg = colors.base01, gui = "bold" },
+				padding = { left = 2, right = 1 },
+			},
+		},
+		lualine_c = {
+			{
+				"filename",
+				symbols = { readonly = " " },
+				path = 1,
+				color = { fg = colors.base04, bg = colors.base01 },
+			},
 			{
 				"diff",
 				colored = true,
 				source = diff_source(),
 				symbols = { added = " ", modified = " ", removed = " " },
 			},
-			{
-				"diagnostics",
-				sources = { "nvim_diagnostic" },
-				symbols = { error = " ", warn = " ", hint = " ", info = " " },
-			},
-		},
-		lualine_c = {
-			{ "filename", symbols = { readonly = " " }, path = 1 },
 		},
 		lualine_x = {
-			"encoding",
-			{ "filetype", colored = false },
+			{
+				"diagnostics",
+				sources = { "nvim_lsp", "nvim_diagnostic" },
+				colored = true,
+				symbols = { error = " ", warn = " ", hint = " ", info = " " },
+			},
+			{ "filetype", colored = false, color = { fg = colors.base04 } },
+		},
+		lualine_y = {
+			{
+				"location",
+				fmt = function()
+					return "Ln %l, Col %-2v"
+				end,
+			},
+		},
+		lualine_z = {
+			scrollbar,
 		},
 	},
 	inactive_sections = {
 		lualine_c = {
 			{ "filename", path = 1 },
+		},
+		lualine_x = {
+			{
+				"location",
+				fmt = function()
+					return "Ln %l,Col %-2v"
+				end,
+			},
 		},
 	},
 	extensions = { "fzf" },
