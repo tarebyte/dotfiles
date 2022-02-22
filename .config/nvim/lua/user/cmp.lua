@@ -26,15 +26,7 @@ cmp.setup({
 		end,
 	},
 	formatting = {
-		format = lspkind.cmp_format({
-			preset = "codicons",
-			-- menu = ({
-			-- 	nvim_lsp = "[LSP]",
-			-- 	nvim_lua = "[Lua]",
-			-- 	luasnip = "[LuaSnip]",
-			-- 	cmp_git = "[Git]",
-			-- })
-		}),
+		format = lspkind.cmp_format({ preset = "codicons" }),
 	},
 	mapping = {
 		["<C-b>"] = cmp.mapping(cmp.mapping.scroll_docs(-4), { "i", "c" }),
