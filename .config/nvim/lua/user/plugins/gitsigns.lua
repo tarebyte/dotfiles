@@ -10,4 +10,8 @@ gitsigns.setup({
 		changedelete = { text = "▎" },
 	},
 	numhl = true,
+	current_line_blame = true,
+	current_line_blame_opts = {
+		delay = 400,
+	},
 })
