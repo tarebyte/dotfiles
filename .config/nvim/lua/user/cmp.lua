@@ -32,9 +32,7 @@ cmp.setup({
 			-- 	nvim_lsp = "[LSP]",
 			-- 	nvim_lua = "[Lua]",
 			-- 	luasnip = "[LuaSnip]",
-			-- 	buffer = "[Buffer]",
 			-- 	cmp_git = "[Git]",
-			-- 	path = "[Path]",
 			-- })
 		}),
 	},

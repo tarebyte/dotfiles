@@ -8,7 +8,6 @@ require("user.autocommands")
 require("user.lsp")
 require("user.cmp")
 require("user.treesitter")
-require("user.diagnostics")
 
 -- Other plugins
 require("user.plugins.autopairs")
