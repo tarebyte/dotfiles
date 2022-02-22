@@ -5,7 +5,7 @@ if not ok then
 	return
 end
 
-base16 = require("user.utils.base16")
+local base16 = require("user.utils.base16")
 
 local background = base16.background()
 if background ~= nil then
