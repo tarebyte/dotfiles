@@ -38,3 +38,7 @@ keymap("n", "<LEADER><SPACE>", ":noh<CR>", { noremap = true })
 
 -- fast access to the :
 keymap("n", "<Space>", ":", { noremap = true })
+
+-- vim-test
+keymap("n", "\\t", ":TestNearest<CR>", {})
+keymap("n", "\\T", ":TestFile<CR>", {})

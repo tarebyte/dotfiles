@@ -45,7 +45,7 @@ return require("packer").startup({
 		use("tamago324/nlsp-settings.nvim")
 		use("williamboman/nvim-lsp-installer")
 
-		-- snippets
+		-- Snippets
 		use("L3MON4D3/LuaSnip") --snippet engine
 
 		-- CMP
@@ -110,6 +110,12 @@ return require("packer").startup({
 		})
 
 		use({ "tarebyte/nvim-base16", branch = "tarebyte/color-updates" })
+
+		-- Testing
+		use({ "vim-test/vim-test", requires = {
+			"tpope/vim-dispatch",
+			"radenling/vim-dispatch-neovim",
+		} })
 
 		if PACKER_BOOTSTRAP then
 			require("packer").sync()
