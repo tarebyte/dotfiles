@@ -85,6 +85,14 @@ end
 fish_add_path -aP $HOME/.bin
 fish_add_path -aP $GOPATH/bin
 
+# Only add the projects bin/ directory in special cases
+if set -q CODESPACES
+  switch $RepositoryName
+    case "github"
+      fish_add_path -aP $PROJECTS/$RepositoryName/bin
+  end
+end
+
 #####################
 # Other adjustments #
 #####################
