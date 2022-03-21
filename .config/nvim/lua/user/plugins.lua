@@ -38,7 +38,6 @@ return require("packer").startup({
 		use("tpope/vim-repeat")
 		use("tpope/vim-surround")
 		use("windwp/nvim-autopairs")
-		use("vim-ruby/vim-ruby")
 
 		-- LSP
 		use("neovim/nvim-lspconfig")
