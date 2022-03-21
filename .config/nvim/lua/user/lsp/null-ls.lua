@@ -10,9 +10,13 @@ local formatting = null_ls.builtins.formatting
 null_ls.setup({
 	sources = {
 		code_actions.gitsigns,
+		code_actions.eslint,
+		diagnostics.eslint,
 		diagnostics.rubocop.with({
 			prefer_local = "bin/rubocop",
 		}),
+		formatting.eslint,
+		formatting.fish_indent,
 		formatting.rubocop.with({
 			prefer_local = "bin/rubocop",
 		}),
