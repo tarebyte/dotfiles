@@ -1,3 +1,3 @@
 function ports
-	lsof -iTCP -sTCP:LISTEN -P
+    lsof -iTCP -sTCP:LISTEN -P
 end
