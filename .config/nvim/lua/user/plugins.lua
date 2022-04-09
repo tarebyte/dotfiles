@@ -81,6 +81,9 @@ return require("packer").startup({
 			requires = "justinmk/vim-dirvish",
 		})
 
+		-- Folding
+		use("anuvyklack/pretty-fold.nvim")
+
 		-- FZF
 		use({
 			"junegunn/fzf",
