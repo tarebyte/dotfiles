@@ -2,3 +2,4 @@ ruby 3.0.3
 nodejs 17.4.0
 elixir 1.13.2-otp-24
 erlang 24.2
+python 3.10.4
