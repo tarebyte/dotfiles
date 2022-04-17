@@ -71,8 +71,10 @@ cmp.setup({
 		{ name = "cmp_git" },
 		{ name = "path" },
 	},
-	documentation = {
-		border = { "╭", "─", "╮", "│", "╯", "─", "╰", "│" },
+	window = {
+		documentation = {
+			border = { "╭", "─", "╮", "│", "╯", "─", "╰", "│" },
+		}
 	},
 })
 
