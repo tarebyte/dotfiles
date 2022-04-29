@@ -1,44 +1,42 @@
-local keymap = vim.api.nvim_set_keymap
-
 -- The one true leader key
 vim.g.mapleader = [[,]]
 vim.g.maplocalleader = [[,]]
 
 -- easy wrap toggling
-keymap("n", "<LEADER>w", ":set wrap!<CR>", {})
-keymap("n", "<LEADER>W", ":set nowrap<CR>", {})
+vim.keymap.set("n", "<LEADER>w", ":set wrap!<CR>")
+vim.keymap.set("n", "<LEADER>W", ":set nowrap<CR>")
 
 -- shortcut to save all
-keymap("n", "<Leader>ss", ":wa<cr>", {})
+vim.keymap.set("n", "<Leader>ss", ":wa<cr>")
 
 -- close all other windows (in the current tab)
-keymap("n", "gW", ":only<cr>", {})
+vim.keymap.set("n", "gW", ":only<cr>")
 
 -- go to the alternate file (previous buffer) with g-enter
-keymap("n", "g", "", {})
+vim.keymap.set("n", "g", "")
 
 -- Search command shortcut
-keymap("n", "<Leader>s", ":Search<Space>", {})
+vim.keymap.set("n", "<Leader>s", ":Search<Space>")
 
 -- insert blank lines without going into insert mode
-keymap("n", "go", "o<esc>", {})
-keymap("n", "gO", "O<esc>", {})
+vim.keymap.set("n", "go", "o<esc>")
+vim.keymap.set("n", "gO", "O<esc>")
 
 -- Yank from the cursor to the end of the line, to be consistent with C and D.
-keymap("n", "Y", "y$", { noremap = true })
+vim.keymap.set("n", "Y", "y$")
 
 -- clean up trailing whitespace
-keymap("", "<Leader>c", ":StripWhitespace<cr>", {})
+vim.keymap.set("", "<Leader>c", ":StripWhitespace<cr>")
 
 -- delete all buffers
-keymap("", "<Leader>d", ":bufdo bd<cr>", {})
+vim.keymap.set("", "<Leader>d", ":bufdo bd<cr>")
 
 -- map spacebar to clear search highlight
-keymap("n", "<LEADER><SPACE>", ":noh<CR>", { noremap = true })
+vim.keymap.set("n", "<LEADER><SPACE>", ":noh<CR>")
 
 -- fast access to the :
-keymap("n", "<Space>", ":", { noremap = true })
+vim.keymap.set("n", "<Space>", ":")
 
 -- vim-test
-keymap("n", "\\t", ":TestNearest<CR>", {})
-keymap("n", "\\T", ":TestFile<CR>", {})
+vim.keymap.set("n", "\\t", ":TestNearest<CR>", {})
+vim.keymap.set("n", "\\T", ":TestFile<CR>", {})
