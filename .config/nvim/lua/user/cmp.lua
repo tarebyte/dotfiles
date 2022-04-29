@@ -55,7 +55,7 @@ cmp.setup({
 			else
 				fallback()
 			end
-		end
+		end,
 	}),
 	sources = {
 		{ name = "nvim_lsp" },
@@ -68,7 +68,7 @@ cmp.setup({
 	window = {
 		documentation = {
 			border = { "╭", "─", "╮", "│", "╯", "─", "╰", "│" },
-		}
+		},
 	},
 })
 
