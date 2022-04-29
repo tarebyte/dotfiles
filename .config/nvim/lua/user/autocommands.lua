@@ -25,4 +25,5 @@ vim.api.nvim_create_autocmd({ "BufReadPost" }, {
 			vim.api.nvim_win_set_cursor(0, { row, col })
 		end
 	end,
+	desc = "Restores the cursor to the last position.",
 })
