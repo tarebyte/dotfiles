@@ -83,6 +83,7 @@ return require("packer").startup({
 
 		-- Folding
 		use("anuvyklack/pretty-fold.nvim")
+		use("anuvyklack/nvim-keymap-amend")
 
 		-- FZF
 		use({
