@@ -1,0 +1,10 @@
+#!/bin/sh
+
+# Install fisher plugins
+echo "curl -sL https://git.io/fisher | source && fisher update" | fish
+
+# Set the theme
+echo "base16-ocean" | fish
+
+# Install Neovim packages via packer
+echo "nvim --headless -c 'autocmd User PackerComplete quitall' -c 'PackerSync'" | fish

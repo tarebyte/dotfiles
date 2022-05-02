@@ -1,0 +1,11 @@
+#!/bin/sh
+
+brew bundle --file $HOME/.homebrew/Brewfile
+
+# We want fish as our default shell
+if ! grep -q "vscode.*/bin/fish" /etc/passwd
+then
+  sudo chsh -s $(which fish) vscode
+fi
+
+source ./post-setup

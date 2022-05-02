@@ -84,27 +84,20 @@ then
   dconfig submodule update --recursive --init
 fi
 
-alias brew="$homebrew_prefix_default/bin/brew"
-brew bundle --file $HOME/.homebrew/Brewfile
-
 if [ "${ostype}" == macos ]
 then
+  alias brew="$homebrew_prefix_default/bin/brew"
+
+  brew bundle --file $HOME/.homebrew/Brewfile
   brew bundle --file $HOME/.homebrew/Brewfile.darwin
+
+  homebrew_fish_path="${homebrew_prefix_default}/bin/fish"
+  alias fish=$homebrew_fish_path
+
+  echo $homebrew_fish_path | sudo tee -a /etc/shells
+  chsh -s $homebrew_fish_path
+
+  source ./post-setup
 fi
-
-homebrew_fish_path="${homebrew_prefix_default}/bin/fish"
-alias fish=$homebrew_fish_path
-
-echo $homebrew_fish_path | sudo tee -a /etc/shells
-chsh -s $homebrew_fish_path
-
-# Install fisher plugins
-echo "curl -sL https://git.io/fisher | source && fisher update" | fish
-
-# Set the theme
-echo "base16-ocean" | fish
-
-# Install Neovim packages via packer
-echo "nvim --headless -c 'autocmd User PackerComplete quitall' -c 'PackerSync'" | fish
 
 echo "All set!"
