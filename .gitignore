@@ -5,6 +5,8 @@
 .config/fish/functions/__*
 .config/fish/functions/fisher.fish
 
+.config/git/personal
+
 .config/nvim/plugin/
 
 .homebrew/Brewfile.lock.json
