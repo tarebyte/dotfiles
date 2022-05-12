@@ -84,6 +84,8 @@ then
   dconfig submodule update --recursive --init
 fi
 
+homebrew_fish_path="${homebrew_prefix_default}/bin/fish"
+
 if [ "${ostype}" == macos ]
 then
   alias brew="$homebrew_prefix_default/bin/brew"
@@ -91,13 +93,31 @@ then
   brew bundle --file $HOME/.homebrew/Brewfile
   brew bundle --file $HOME/.homebrew/Brewfile.darwin
 
-  homebrew_fish_path="${homebrew_prefix_default}/bin/fish"
-  alias fish=$homebrew_fish_path
-
   echo $homebrew_fish_path | sudo tee -a /etc/shells
   chsh -s $homebrew_fish_path
+else
+  # https://github.com/djensenius/dotfiles/blob/1d25e46179285f7f8180ffdf8ad4aae53f35323c/install.sh#L22-L24
+  echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> ${HOME}/.profile
+  eval "$($homebrew_prefix_default/bin/brew shellenv)"
 
-  source ./post-setup
+  sleep 10
+
+  brew bundle --file $dotfiles_dir/.homebrew/Brewfile
+
+  # We want fish as our default shell
+  if ! grep -q "vscode.*/bin/fish" /etc/passwd
+  then
+    sudo chsh -s $homebrew_prefix_default/bin/fish vscode
+  fi
 fi
+
+# Install fisher plugins
+echo "curl -sL https://git.io/fisher | source && fisher update" | $fish
+
+# Set the theme
+echo "base16-ocean" | $fish
+
+# Install Neovim packages via packer
+echo "nvim --headless -c 'autocmd User PackerComplete quitall' -c 'PackerSync'" | $fish
 
 echo "All set!"
