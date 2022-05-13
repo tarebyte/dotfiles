@@ -1,0 +1,6 @@
+AllCops:
+  DisabledByDefault: true
+
+Style/StringLiterals:
+  Enabled: true
+  EnforcedStyle: double_quotes
