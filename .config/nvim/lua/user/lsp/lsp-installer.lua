@@ -10,5 +10,5 @@ lsp_installer.setup({
 local lspconfig = require("lspconfig")
 
 lspconfig.sumneko_lua.setup({
-	settings = require("user.lsp.settings.sumneko_lua")
+	settings = require("user.lsp.settings.sumneko_lua"),
 })
