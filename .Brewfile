@@ -1,0 +1,6 @@
+brew "autojump"
+brew "bat"
+brew "fish"
+brew "fzf"
+brew "neovim"
+brew "ripgrep"
