@@ -91,6 +91,7 @@ then
   echo $(which fish) | sudo tee -a /etc/shells
   chsh -s $(which fish)
 elif [ -n $CODESPACES ]
+then
   # https://github.com/djensenius/dotfiles/blob/1d25e46179285f7f8180ffdf8ad4aae53f35323c/install.sh#L22-L24
   echo 'eval "$($/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> ${HOME}/.profile
   eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
@@ -98,14 +99,8 @@ elif [ -n $CODESPACES ]
   sleep 5
 
   # These are a pain to install manually.
-  brew install autojump fish
+  brew install autojump diff-so-fancy fish
   brew install --HEAD universal-ctags/universal-ctags/universal-ctags
-
-  # Skip the Homebrew process as much as I can tolerate for faster setup.
-  sudo add-apt-repository ppa:aos1/diff-so-fancy
-  sudo apt-get update
-
-  sudo apt-get install diff-so-fancy -y
 
   git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
   ~/.fzf/install --bin
@@ -121,7 +116,7 @@ elif [ -n $CODESPACES ]
   gh release download --repo nelsonenzo/tmux-appimage --pattern "tmux.appimage" --dir /tmp
 
   chmod +x /tmp/tmux.appimage
-  mv /tmp/tmux.appimage /usr/local/bin/tmux
+  sudo mv /tmp/tmux.appimage /usr/local/bin/tmux
 
   gh release download --repo sharkdp/bat -p "bat_*_i686.deb" --dir /tmp
 
