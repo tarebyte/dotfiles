@@ -92,6 +92,8 @@ then
   chsh -s $(which fish)
 elif [ -n $CODESPACES ]
 then
+  sudo apt-get -y install fuse libfuse2
+
   # https://github.com/djensenius/dotfiles/blob/1d25e46179285f7f8180ffdf8ad4aae53f35323c/install.sh#L22-L24
   echo 'eval "$($/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> ${HOME}/.profile
   eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
