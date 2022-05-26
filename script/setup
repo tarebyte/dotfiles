@@ -101,7 +101,7 @@ then
   sleep 5
 
   # These are a pain to install manually.
-  brew install autojump diff-so-fancy fish
+  brew install diff-so-fancy fish
   brew install --HEAD universal-ctags/universal-ctags/universal-ctags
 
   git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
