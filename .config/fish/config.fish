@@ -87,6 +87,7 @@ end
 
 fish_add_path -aP $HOME/.bin
 fish_add_path -aP $GOPATH/bin
+[ -d "$HOME/.fzf/bin" ]; and fish_add_path -aP $HOME/.fzf/bin
 
 # Only add the projects bin/ directory in special cases
 if set -q CODESPACES
