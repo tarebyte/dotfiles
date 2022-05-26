@@ -118,10 +118,10 @@ then
   chmod +x /tmp/tmux.appimage
   sudo mv /tmp/tmux.appimage /usr/local/bin/tmux
 
-  gh release download --repo sharkdp/bat -p "bat_*_i686.deb" --dir /tmp
+  gh release download --repo sharkdp/bat -p "bat_*_amd64.deb" --dir /tmp
 
   bat_version=$(ls /tmp | grep bat_* | cut -d _ -f 2)
-  sudo dpkg -i "/tmp/bat_${bat_version}_i686.deb"
+  sudo dpkg -i "/tmp/bat_${bat_version}_amd64.deb"
 
   curl -sS https://starship.rs/install.sh | sh
 
