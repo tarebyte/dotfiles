@@ -125,7 +125,7 @@ then
   bat_version=$(ls /tmp | grep bat_* | cut -d _ -f 2)
   sudo dpkg -i "/tmp/bat_${bat_version}_amd64.deb"
 
-  curl -sS https://starship.rs/install.sh | sh -- --yes
+  curl -sS https://starship.rs/install.sh | sh -s -- --yes
 
   # We want Homebrew fish as our default shell
   if ! grep -q "vscode.*/bin/fish" /etc/passwd
