@@ -131,7 +131,7 @@ then
   if ! grep -q "vscode.*/bin/fish" /etc/passwd
   then
     echo "${homebrew_prefix_default}/bin/fish" | sudo tee -a /etc/shells
-    sudo chsh -s "${homebrew_fish_path}/bin/fish" vscode
+    sudo chsh -s $homebrew_fish_path/bin/fish vscode
   fi
 fi
 
