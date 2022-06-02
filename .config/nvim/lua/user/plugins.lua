@@ -46,6 +46,7 @@ return require("packer").startup({
 
 		-- Snippets
 		use("L3MON4D3/LuaSnip") --snippet engine
+		use("rafamadriz/friendly-snippets")
 
 		-- CMP
 		use({
