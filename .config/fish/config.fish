@@ -107,8 +107,6 @@ set -U fish_greeting
 # Aliases #
 ###########
 
-alias brewup "brew update; brew doctor; brew outdated; brew upgrade; brew cleanup"
-
 alias gh-prepare gh_prepare
 
 alias vi $EDITOR
