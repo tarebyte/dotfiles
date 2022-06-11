@@ -90,24 +90,36 @@ if not colors.loaded then
 end
 
 -- https://github.com/hrsh7th/nvim-cmp/wiki/Menu-Appearance#how-to-add-visual-studio-code-dark-theme-colors-to-the-menu
---
--- gray
-vim.cmd([[highlight! CmpItemAbbrDeprecated guibg=NONE gui=strikethrough guifg=]] .. colors.base03)
+-- https://github.com/RRethy/nvim-base16/pull/42
 
--- blue
-vim.cmd([[highlight! CmpItemAbbrMatch guibg=NONE guifg=]] .. colors.base0D)
-vim.cmd([[highlight! CmpItemAbbrMatchFuzzy guibg=NONE guifg=]] .. colors.base0D)
+local hi = colors.highlight
 
--- cyan
-vim.cmd([[highlight! CmpItemKindVariable guibg=NONE guifg=]] .. colors.base0C)
-vim.cmd([[highlight! CmpItemKindInterface guibg=NONE guifg=]] .. colors.base0C)
-vim.cmd([[highlight! CmpItemKindText guibg=NONE guifg=]] .. colors.base0C)
-
--- magenta
-vim.cmd([[highlight! CmpItemKindFunction guibg=NONE guifg=]] .. colors.base0E)
-vim.cmd([[highlight! CmpItemKindMethod guibg=NONE guifg=]] .. colors.base0E)
-
--- front
-vim.cmd([[highlight! CmpItemKindKeyword guibg=NONE guifg=]] .. colors.base06)
-vim.cmd([[highlight! CmpItemKindProperty guibg=NONE guifg=]] .. colors.base06)
-vim.cmd([[highlight! CmpItemKindUnit guibg=NONE guifg=]] .. colors.base06)
+hi.CmpDocumentationBorder   = { guifg = colors.base05, guibg = colors.base00, gui = nil, guisp = nil }
+hi.CmpDocumentation         = { guifg = colors.base05, guibg = colors.base00, gui = nil, guisp = nil }
+hi.CmpItemAbbr              = { guifg = colors.base05, guibg = colors.base01, gui = nil, guisp = nil }
+hi.CmpItemAbbrDeprecated    = { guifg = colors.base03, guibg = nil, gui = 'strikethrough', guisp = nil }
+hi.CmpItemAbbrMatch         = { guifg = colors.base0D, guibg = nil, gui = nil, guisp = nil }
+hi.CmpItemAbbrMatchFuzzy    = { guifg = colors.base0D, guibg = nil, gui = nil, guisp = nil }
+hi.CmpItemKindDefault       = { guifg = colors.base05, guibg = nil, gui = nil, guisp = nil }
+hi.CmpItemMenu              = { guifg = colors.base04, guibg = nil, gui = nil, guisp = nil }
+hi.CmpItemKindKeyword       = { guifg = colors.base0E, guibg = nil, gui = nil, guisp = nil }
+hi.CmpItemKindVariable      = { guifg = colors.base08, guibg = nil, gui = nil, guisp = nil }
+hi.CmpItemKindConstant      = { guifg = colors.base09, guibg = nil, gui = nil, guisp = nil }
+hi.CmpItemKindReference     = { guifg = colors.base08, guibg = nil, gui = nil, guisp = nil }
+hi.CmpItemKindValue         = { guifg = colors.base09, guibg = nil, gui = nil, guisp = nil }
+hi.CmpItemKindFunction      = { guifg = colors.base0D, guibg = nil, gui = nil, guisp = nil }
+hi.CmpItemKindMethod        = { guifg = colors.base0D, guibg = nil, gui = nil, guisp = nil }
+hi.CmpItemKindConstructor   = { guifg = colors.base0D, guibg = nil, gui = nil, guisp = nil }
+hi.CmpItemKindClass         = { guifg = colors.base0A, guibg = nil, gui = nil, guisp = nil }
+hi.CmpItemKindInterface     = { guifg = colors.base0A, guibg = nil, gui = nil, guisp = nil }
+hi.CmpItemKindStruct        = { guifg = colors.base0A, guibg = nil, gui = nil, guisp = nil }
+hi.CmpItemKindEvent         = { guifg = colors.base0A, guibg = nil, gui = nil, guisp = nil }
+hi.CmpItemKindEnum          = { guifg = colors.base0A, guibg = nil, gui = nil, guisp = nil }
+hi.CmpItemKindUnit          = { guifg = colors.base0A, guibg = nil, gui = nil, guisp = nil }
+hi.CmpItemKindModule        = { guifg = colors.base05, guibg = nil, gui = nil, guisp = nil }
+hi.CmpItemKindProperty      = { guifg = colors.base08, guibg = nil, gui = nil, guisp = nil }
+hi.CmpItemKindField         = { guifg = colors.base08, guibg = nil, gui = nil, guisp = nil }
+hi.CmpItemKindTypeParameter = { guifg = colors.base0A, guibg = nil, gui = nil, guisp = nil }
+hi.CmpItemKindEnumMember    = { guifg = colors.base0A, guibg = nil, gui = nil, guisp = nil }
+hi.CmpItemKindOperator      = { guifg = colors.base05, guibg = nil, gui = nil, guisp = nil }
+hi.CmpItemKindSnippet       = { guifg = colors.base04, guibg = nil, gui = nil, guisp = nil }

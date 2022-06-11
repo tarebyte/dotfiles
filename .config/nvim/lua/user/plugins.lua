@@ -113,7 +113,7 @@ return require("packer").startup({
 			tag = "release",
 		})
 
-		use({ "tarebyte/nvim-base16", branch = "tarebyte/color-updates" })
+		use("RRethy/nvim-base16")
 
 		-- Testing
 		use({ "vim-test/vim-test", requires = {

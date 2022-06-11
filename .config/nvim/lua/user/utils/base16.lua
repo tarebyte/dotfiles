@@ -26,7 +26,7 @@ M.theme = function()
 			if string.match(line, "SETUVAR base16_fish_theme") then
 				line = string.gsub(line, "%\\x2d", "-")
 
-				start, stop = string.find(line, "%:.*$")
+				local start, stop = string.find(line, "%:.*$")
 				theme = string.sub(line, (start + 1), stop)
 			end
 		end
