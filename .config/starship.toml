@@ -1,4 +1,4 @@
-# https://starship.rs/presets/#pure
+# https://starship.rs/presets/#pure-prompt
 format = """
 $username\
 $hostname\
