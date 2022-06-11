@@ -1,8 +1,0 @@
-{
-  "alfredsnippet" : {
-    "snippet" : "require \"pry\"; binding.pry",
-    "uid" : "CD2FA957-788D-4A89-BA8D-3D9F0B2B1BC7",
-    "name" : "pry",
-    "keyword" : "pry"
-  }
-}
