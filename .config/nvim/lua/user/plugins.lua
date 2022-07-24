@@ -65,7 +65,7 @@ return require("packer").startup({
 
 		-- Linting and formatting
 		use("jose-elias-alvarez/null-ls.nvim")
-		use({"ntpeters/vim-better-whitespace", commit = "c5afbe91d29c5e3be81d5125ddcdc276fd1f1322"})
+		use({ "ntpeters/vim-better-whitespace", commit = "c5afbe91d29c5e3be81d5125ddcdc276fd1f1322" })
 
 		-- Commenting
 		use({
