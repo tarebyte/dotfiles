@@ -5,11 +5,6 @@ if not fold_ok then
 	return
 end
 
-local preview_ok, pretty_fold_preview = pcall(require, "pretty-fold.preview")
-if not preview_ok then
-	return
-end
-
 pretty_fold.setup({
 	keep_indentation = false,
 	fill_char = " ",
@@ -25,6 +20,11 @@ pretty_fold.setup({
 	},
 })
 
-pretty_fold_preview.setup({
+local preview_ok, fold_preview = pcall(require, "fold-preview")
+if not preview_ok then
+	return
+end
+
+fold_preview.setup({
 	border = { "╭", "─", "╮", "│", "╯", "─", "╰", "│" },
 })
