@@ -40,9 +40,12 @@ return require("packer").startup({
 		use("windwp/nvim-autopairs")
 
 		-- LSP
-		use("neovim/nvim-lspconfig")
-		use("tamago324/nlsp-settings.nvim")
-		use("williamboman/nvim-lsp-installer")
+		use({
+			"williamboman/mason.nvim",
+			"williamboman/mason-lspconfig.nvim",
+			"neovim/nvim-lspconfig",
+			"tamago324/nlsp-settings.nvim"
+		})
 
 		-- Snippets
 		use("L3MON4D3/LuaSnip") --snippet engine
