@@ -107,8 +107,11 @@ then
   git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
   ~/.fzf/install --bin
 
-  gh release download --repo neovim/neovim --pattern "nvim-linux64.deb" --dir /tmp
-  sudo apt-get install /tmp/nvim-linux64.deb
+  # Some codespaces may already install Neovim via Homebrew.
+  if ! brew list neovim &>/dev/null; then
+    gh release download --repo neovim/neovim --pattern "nvim-linux64.deb" --dir /tmp
+    sudo apt-get install /tmp/nvim-linux64.deb
+  fi
 
   gh release download --repo BurntSushi/ripgrep --pattern "ripgrep_*_amd64.deb" --dir /tmp
 
