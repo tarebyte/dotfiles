@@ -6,6 +6,8 @@
 	<true/>
 	<key>Default Bookmark Guid</key>
 	<string>70D1A0E3-0870-4EE6-825C-EFB6138CF732</string>
+	<key>EnableAPIServer</key>
+	<true/>
 	<key>HapticFeedbackForEsc</key>
 	<false/>
 	<key>HideScrollbar</key>
@@ -543,7 +545,7 @@
 			<key>Non-ASCII Anti Aliased</key>
 			<true/>
 			<key>Normal Font</key>
-			<string>OperatorMonoNerdFontComplete-Book 13</string>
+			<string>OperatorMonoNerdFontComplete-Medium 13</string>
 			<key>Option Key Sends</key>
 			<integer>0</integer>
 			<key>Prompt Before Closing 2</key>
