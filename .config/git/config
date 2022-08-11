@@ -63,11 +63,11 @@
 [interactive]
 	diffFilter = diff-so-fancy --patch
 
-[push]
-	default = current
-
 [protocol]
 	version = 2
 
 [pull]
 	rebase = true
+
+[push]
+	default = current
