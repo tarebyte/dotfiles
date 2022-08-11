@@ -54,9 +54,6 @@
 [gc]
 	auto = 0
 
-[hub]
-	protocol = https
-
 [include]
 	path = ~/.config/git/personal
 
