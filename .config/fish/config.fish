@@ -37,20 +37,9 @@ if test -d $HOMEBREW_PREFIX
     set -gx HOMEBREW_CELLAR "$HOMEBREW_PREFIX/Cellar"
     set -gx HOMEBREW_REPOSITORY $HOMEBREW_PREFIX
 
-    set -q PATH; or set PATH ''
-    set -gx PATH "$HOMEBREW_PREFIX/bin" "$HOMEBREW_PREFIX/sbin" $PATH
-    set -q MANPATH; or set MANPATH ''
-    set -gx MANPATH "$HOMEBREW_PREFIX/share/man" $MANPATH
-    set -q INFOPATH; or set INFOPATH ''
-    set -gx INFOPATH "$HOMEBREW_PREFIX/share/info" $INFOPATH
-
-    if test -d $HOMEBREW_PREFIX/share/fish/completions
-        set -gx fish_complete_path $fish_complete_path $HOMEBREW_PREFIX/share/fish/completions
-    end
-
-    if test -d $HOMEBREW_PREFIX/share/fish/vendor_completions.d
-        set -gx fish_complete_path $fish_complete_path $HOMEBREW_PREFIX/share/fish/vendor_completions.d
-    end
+    set -q PATH; or set PATH ''; fish_add_path -gp "$HOMEBREW_PREFIX/bin" "$HOMEBREW_PREFIX/sbin"
+    set -q MANPATH; or set MANPATH ''; set -gx MANPATH "$HOMEBREW_PREFIX/share/man" $MANPATH;
+    set -q INFOPATH; or set INFOPATH ''; set -gx INFOPATH "$HOMEBREW_PREFIX/share/info" $INFOPATH;
 
     # Autojump
     [ -f "$HOMEBREW_PREFIX/share/autojump/autojump.fish" ]; and source $HOMEBREW_PREFIX/share/autojump/autojump.fish
@@ -87,7 +76,7 @@ end
 
 fish_add_path -aP $HOME/.bin
 fish_add_path -aP $GOPATH/bin
-[ -d "$HOME/.fzf/bin" ]; and fish_add_path -aP $HOME/.fzf/bin
+fish_add_path -a $HOME/.fzf/bin
 
 # Only add the projects bin/ directory in special cases
 if set -q CODESPACES
