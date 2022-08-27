@@ -17,4 +17,4 @@ lspconfig.sumneko_lua.setup({
 	settings = require("user.lsp.settings.sumneko_lua"),
 })
 
-lspconfig.sorbet.setup{}
+lspconfig.sorbet.setup({})
