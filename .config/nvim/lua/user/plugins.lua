@@ -102,7 +102,6 @@ return require("packer").startup({
 		use("nvim-treesitter/playground")
 		use("RRethy/nvim-treesitter-endwise")
 
-		-- Theme
 		use({
 			"nvim-lualine/lualine.nvim",
 			requires = { "kyazdani42/nvim-web-devicons", opt = true },
@@ -114,8 +113,10 @@ return require("packer").startup({
 			tag = "release",
 		})
 
+		-- Theme
 		use("RRethy/nvim-base16")
 		use("miyakogi/conoline.vim")
+		use("lukas-reineke/indent-blankline.nvim")
 
 		-- Testing
 		use({ "vim-test/vim-test", requires = {
