@@ -3,7 +3,6 @@ require("user.keymaps")
 require("user.plugins")
 require("user.colorscheme")
 require("user.autocommands")
-require("user.commands")
 
 -- Cross cutting plugin configurations
 require("user.lsp")

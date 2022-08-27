@@ -90,11 +90,9 @@ return require("packer").startup({
 
 		-- FZF
 		use({
-			"junegunn/fzf",
-			requires = "junegunn/fzf.vim",
-			run = function()
-				vim.fn["fzf#install"]()
-			end,
+			"ibhagwan/fzf-lua",
+			-- optional for icon support
+			requires = { "kyazdani42/nvim-web-devicons" },
 		})
 
 		-- Tree Sitter
