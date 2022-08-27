@@ -116,6 +116,7 @@ return require("packer").startup({
 		})
 
 		use("RRethy/nvim-base16")
+		use("miyakogi/conoline.vim")
 
 		-- Testing
 		use({ "vim-test/vim-test", requires = {
