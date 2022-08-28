@@ -3,6 +3,6 @@ if not ok then
 	return
 end
 
-require("user.lsp.lsp-installer")
+require("user.lsp.configs")
 require("user.lsp.handlers").setup()
 require("user.lsp.null-ls")
