@@ -65,6 +65,16 @@ then
     fi
   done
 
+  # Make some of the bin/ files accessible globally instead of just adding the
+  # projects entire bin/ directory.
+  case "${RepositoryName}" in
+    github)
+      declare -a Executables=("node" "npm" "rubocop" "srb" "solargraph")
+      for executable in ${Executables[@]}; do
+        sudo ln -s /workspaces/github/bin/$executable /usr/local/bin/$executable
+      end
+  esac
+
   # Bring in all of our submodule dependencies
   git submodule update --init --recursive || true
   git submodule foreach --recursive git reset --hard
