@@ -41,6 +41,22 @@ function gh_prepare -d "Update github/github"
         cp /tmp/$gist_id/projections.json $github_path/config/projections.json
     end
 
+    if test ! -e $github_path/.rgignore
+        _gh_prepare_message "Setting .rgignore..."
+
+        set gist_id c0bac52be3c6ab5cd920bde93738f9e2
+
+        if test ! -d /tmp/$gist_id
+            _gh_prepare_message "Pulling .rgignore from Gist..."
+            git clone https://gist.github.com/$gist_id.git /tmp/$gist_id
+        else
+            _gh_prepare_message "Updating .rgignore from Gist..."
+            cd /tmp/$gist_id; and git pull origin master
+        end
+
+        cp /tmp/$gist_id/.rgignore $github_path/.rgignore
+    end
+
     _gh_prepare_message "Gitting ready..."
     git up
 
