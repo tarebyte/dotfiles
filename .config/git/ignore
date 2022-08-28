@@ -40,3 +40,4 @@ tags*
 .local.vimrc
 projections.json
 .projections.json
+.rgignore
