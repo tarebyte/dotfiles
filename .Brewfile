@@ -20,7 +20,6 @@ brew "universal-ctags/universal-ctags/universal-ctags", args: ["HEAD"]
 brew "wifi-password"
 
 cask "1password-cli"
-cask "bartender"
 cask "cleanmymac"
 cask "dash"
 cask "docker"
