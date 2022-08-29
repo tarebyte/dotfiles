@@ -14,10 +14,14 @@ mason_lspconfig.setup({
 -- Borrowed from https://github.com/LunarVim/Neovim-from-scratch/blob/9a928f56a118596426cc82682c7ab8ba26c88370/lua/user/lsp/configs.lua
 local servers = { "sorbet", "sumneko_lua", "tsserver" }
 
+local on_attach = require("user.lsp.handlers").on_attach
 local capabilities = require("user.lsp.handlers").capabilities
 
 for _, server in pairs(servers) do
-	local opts = { capabilities = capabilities }
+	local opts = {
+		on_attach = on_attach,
+		capabilities = capabilities,
+	}
 
 	local has_custom_opts, server_custom_opts = pcall(require, "user.lsp.settings." .. server)
 
