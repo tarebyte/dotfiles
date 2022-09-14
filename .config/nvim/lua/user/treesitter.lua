@@ -17,6 +17,7 @@ nvim_treesitter.setup({
 		"query",
 		"ruby",
 		"scss",
+		"scheme",
 		"typescript",
 		"vim",
 	},
