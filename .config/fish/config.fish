@@ -102,6 +102,7 @@ alias whereami pwd
 abbr -ag gp git push
 abbr -ag mux tmuxinator
 abbr -ag tn tmux new-session -A -s
+abbr -ag lg lazygit
 abbr -ag ":e" $EDITOR
 abbr -ag "+x" "chmod u+x"
 
