@@ -11,6 +11,7 @@ require("user.treesitter")
 
 -- Other plugins
 require("user.plugins.autopairs")
+require("user.plugins.conoline")
 require("user.plugins.devicons")
 require("user.plugins.fzf")
 require("user.plugins.gitsigns")

@@ -12,11 +12,7 @@ M.setup = function()
 		vim.fn.sign_define(sign.name, { texthl = sign.name, text = sign.text, numhl = "" })
 	end
 
-	local colors = require("user.utils.colors")
-
-	if colors.loaded then
-		vim.cmd([[hi DiagnosticSignWarn guifg=]] .. colors.base0A)
-	end
+	vim.cmd([[hi DiagnosticSignWarn guifg=#]] .. vim.g.base16_gui0A)
 
 	vim.diagnostic.config({
 		virtual_text = {

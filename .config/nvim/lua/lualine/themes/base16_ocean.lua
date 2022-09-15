@@ -1,37 +1,32 @@
-local colors = require("user.utils.colors")
-if not colors.loaded then
-	return
-end
-
 return {
 	normal = {
-		a = { fg = colors.base01, bg = colors.base0B, gui = "bold" },
-		b = { fg = colors.base06, bg = colors.base02 },
-		c = { fg = colors.base09, bg = colors.base01 },
+		a = { fg = vim.g.base16_gui01, bg = vim.g.base16_gui0B, gui = "bold" },
+		b = { fg = vim.g.base16_gui06, bg = vim.g.base16_gui02 },
+		c = { fg = vim.g.base16_gui09, bg = vim.g.base16_gui01 },
 	},
 	insert = {
-		a = { fg = colors.base01, bg = colors.base0D, gui = "bold" },
-		b = { fg = colors.base06, bg = colors.base02 },
-		c = { fg = colors.base09, bg = colors.base01 },
+		a = { fg = vim.g.base16_gui01, bg = vim.g.base16_gui0D, gui = "bold" },
+		b = { fg = vim.g.base16_gui06, bg = vim.g.base16_gui02 },
+		c = { fg = vim.g.base16_gui09, bg = vim.g.base16_gui01 },
 	},
 	replace = {
-		a = { fg = colors.base01, bg = colors.base08, gui = "bold" },
-		b = { fg = colors.base06, bg = colors.base02 },
-		c = { fg = colors.base09, bg = colors.base01 },
+		a = { fg = vim.g.base16_gui01, bg = vim.g.base16_gui08, gui = "bold" },
+		b = { fg = vim.g.base16_gui06, bg = vim.g.base16_gui02 },
+		c = { fg = vim.g.base16_gui09, bg = vim.g.base16_gui01 },
 	},
 	visual = {
-		a = { fg = colors.base01, bg = colors.base0E, gui = "bold" },
-		b = { fg = colors.base06, bg = colors.base02 },
-		c = { fg = colors.base09, bg = colors.base01 },
+		a = { fg = vim.g.base16_gui01, bg = vim.g.base16_gui0E, gui = "bold" },
+		b = { fg = vim.g.base16_gui06, bg = vim.g.base16_gui02 },
+		c = { fg = vim.g.base16_gui09, bg = vim.g.base16_gui01 },
 	},
 	command = {
-		a = { fg = colors.base01, bg = colors.base0C, gui = "bold" },
-		b = { fg = colors.base06, bg = colors.base02 },
-		c = { fg = colors.base09, bg = colors.base01 },
+		a = { fg = vim.g.base16_gui01, bg = vim.g.base16_gui0C, gui = "bold" },
+		b = { fg = vim.g.base16_gui06, bg = vim.g.base16_gui02 },
+		c = { fg = vim.g.base16_gui09, bg = vim.g.base16_gui01 },
 	},
 	inactive = {
-		a = { fg = colors.base05, bg = colors.base01, gui = "bold" },
-		b = { fg = colors.base05, bg = colors.base01 },
-		c = { fg = colors.base05, bg = colors.base01 },
+		a = { fg = vim.g.base16_gui05, bg = vim.g.base16_gui01, gui = "bold" },
+		b = { fg = vim.g.base16_gui05, bg = vim.g.base16_gui01 },
+		c = { fg = vim.g.base16_gui05, bg = vim.g.base16_gui01 },
 	},
 }

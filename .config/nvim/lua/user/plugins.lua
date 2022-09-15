@@ -44,7 +44,7 @@ return require("packer").startup({
 			"williamboman/mason.nvim",
 			"williamboman/mason-lspconfig.nvim",
 			"neovim/nvim-lspconfig",
-			{ "weilbith/nvim-code-action-menu", cmd = "CodeActionMenu" }
+			{ "weilbith/nvim-code-action-menu", cmd = "CodeActionMenu" },
 		})
 
 		-- Snippets
@@ -114,7 +114,7 @@ return require("packer").startup({
 		})
 
 		-- Theme
-		use("RRethy/nvim-base16")
+		use("base16-project/base16-vim")
 		use("miyakogi/conoline.vim")
 		use("lukas-reineke/indent-blankline.nvim")
 
