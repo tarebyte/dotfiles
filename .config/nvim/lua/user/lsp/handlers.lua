@@ -12,8 +12,6 @@ M.setup = function()
 		vim.fn.sign_define(sign.name, { texthl = sign.name, text = sign.text, numhl = "" })
 	end
 
-	vim.cmd([[hi DiagnosticSignWarn guifg=#]] .. vim.g.base16_gui0A)
-
 	vim.diagnostic.config({
 		virtual_text = {
 			prefix = "",
