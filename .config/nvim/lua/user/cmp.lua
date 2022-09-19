@@ -61,10 +61,10 @@ cmp.setup({
 		end,
 	}),
 	sources = {
-		{ name = "nvim_lsp" },
-		{ name = "nvim_lua" },
 		{ name = "luasnip" },
+		{ name = "nvim_lsp" },
 		{ name = "buffer" },
+		{ name = "nvim_lua" },
 		{ name = "cmp_git" },
 		{ name = "path" },
 	},
