@@ -17,3 +17,4 @@ end
 vim.cmd([[hi TSField guifg=#]] .. vim.g.base16_gui05)
 vim.cmd([[hi TSPunctSpecial guifg=#]] .. vim.g.base16_gui0F)
 vim.cmd([[hi TSFuncBuiltin cterm=italic gui=italic ctermfg=6 guifg=#]] .. vim.g.base16_gui0C)
+vim.cmd([[hi def link TSSymbol rubySymbol]])
