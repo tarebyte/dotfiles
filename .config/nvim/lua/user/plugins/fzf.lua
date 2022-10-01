@@ -5,8 +5,6 @@ end
 
 fzfLua.setup({
 	winopts = {
-		height = 0.74375,
-		width = 0.7,
 		preview = {
 			title_align = "center",
 		},
