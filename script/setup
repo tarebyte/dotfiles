@@ -70,7 +70,7 @@ then
   # projects entire bin/ directory.
   case "${RepositoryName}" in
     github)
-      declare -a Executables=("rubocop" "srb" "solargraph")
+      declare -a Executables=("eslint" "eslint-ignore-errors" "rubocop" "srb")
       for executable in "${Executables[@]}"; do
         sudo ln -s /workspaces/github/bin/$executable /usr/local/bin/$executable
       done
