@@ -89,12 +89,10 @@ return require("packer").startup({
 		use("anuvyklack/pretty-fold.nvim")
 		use({ "anuvyklack/fold-preview.nvim", requires = "anuvyklack/keymap-amend.nvim" })
 
-		-- FZF
-		use({
-			"ibhagwan/fzf-lua",
-			-- optional for icon support
-			requires = { "kyazdani42/nvim-web-devicons" },
-		})
+		-- Telescope
+		use({ "nvim-telescope/telescope.nvim", tag = "0.1.0" })
+		use({ "nvim-telescope/telescope-fzf-native.nvim", run = "make" })
+		use("gnfisher/nvim-telescope-ctags-plus")
 
 		-- Tree Sitter
 		use({ "nvim-treesitter/nvim-treesitter", run = ":TSUpdate" })
