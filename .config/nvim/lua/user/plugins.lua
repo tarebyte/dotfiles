@@ -45,6 +45,7 @@ return require("packer").startup({
 			"williamboman/mason-lspconfig.nvim",
 			"neovim/nvim-lspconfig",
 			{ "weilbith/nvim-code-action-menu", cmd = "CodeActionMenu" },
+			"kosayoda/nvim-lightbulb",
 		})
 
 		-- Snippets
