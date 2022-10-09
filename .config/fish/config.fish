@@ -48,6 +48,20 @@ if test -d $HOMEBREW_PREFIX
     [ -f "$HOMEBREW_PREFIX/opt/asdf/libexec/asdf.fish" ]; and source $HOMEBREW_PREFIX/opt/asdf/libexec/asdf.fish
 end
 
+################
+# Language ENV #
+################
+
+# NODENV
+if command -s nodenv > /dev/null
+    eval "$(nodenv init -)"
+end
+
+# RBENV
+if command -s rbenv > /dev/null
+    status --is-interactive; and rbenv init - fish | source
+end
+
 #######
 # ENV #
 #######
