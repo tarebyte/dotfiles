@@ -1,6 +1,5 @@
 # vim: ft=ruby
 
-brew "asdf"
 brew "autojump"
 brew "bat"
 brew "curl"
@@ -12,8 +11,10 @@ brew "htop"
 brew "jq"
 brew "lazygit"
 brew "neovim"
+brew "nodenv"
 brew "openssl"
 brew "reattach-to-user-namespace"
+brew "rbenv"
 brew "ripgrep"
 brew "starship"
 brew "tmux"
