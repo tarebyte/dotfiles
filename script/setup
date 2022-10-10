@@ -2,6 +2,11 @@
 
 set -e
 
+package_version ()
+{
+    echo $(ls /tmp | grep "${1}_*" | cut -d _ -f 2)
+}
+
 un="$(uname)"
 case "${un}" in
   Linux)
@@ -131,20 +136,19 @@ then
     sudo apt-get install /tmp/nvim-linux64.deb
   fi
 
-  gh release download --repo BurntSushi/ripgrep --pattern "ripgrep_*_amd64.deb" --dir /tmp
-
-  ripgrep_version=$(ls /tmp | grep ripgrep_* | cut -d _ -f 2)
-  sudo dpkg -i "/tmp/ripgrep_${ripgrep_version}_amd64.deb"
-
   gh release download --repo nelsonenzo/tmux-appimage --pattern "tmux.appimage" --dir /tmp
 
   chmod +x /tmp/tmux.appimage
   sudo mv /tmp/tmux.appimage /usr/local/bin/tmux
 
-  gh release download --repo sharkdp/bat -p "bat_*_amd64.deb" --dir /tmp
+  gh release download --repo BurntSushi/ripgrep --pattern "ripgrep_*_amd64.deb" --dir /tmp --skip-existing
+  sudo dpkg -i "/tmp/ripgrep_$(package_version 'ripgrep')_amd64.deb"
 
-  bat_version=$(ls /tmp | grep bat_* | cut -d _ -f 2)
-  sudo dpkg -i "/tmp/bat_${bat_version}_amd64.deb"
+  gh release download --repo sharkdp/bat -p "bat_*_amd64.deb" --dir /tmp
+  sudo dpkg -i "/tmp/bat_$(package_version 'bat')_amd64.deb"
+
+  gh release download --repo jesseduffield/lazygit -p "lazygit_*_Linux_x86_64.tar.gz" --dir /tmp
+  sudo tar xf "/tmp/lazygit_$(package_version 'lazygit').tar.gz" -C /usr/local/bin lazygit
 
   curl -sS https://starship.rs/install.sh | sh -s -- --yes
 
