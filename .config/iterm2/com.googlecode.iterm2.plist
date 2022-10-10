@@ -4,6 +4,8 @@
 <dict>
 	<key>AllowClipboardAccess</key>
 	<true/>
+	<key>AlternateMouseScroll</key>
+	<true/>
 	<key>Custom Color Presets</key>
 	<dict>
 		<key>base16-ocean</key>
