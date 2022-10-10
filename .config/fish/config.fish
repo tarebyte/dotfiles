@@ -43,9 +43,6 @@ if test -d $HOMEBREW_PREFIX
 
     # Autojump
     [ -f "$HOMEBREW_PREFIX/share/autojump/autojump.fish" ]; and source $HOMEBREW_PREFIX/share/autojump/autojump.fish
-
-    # ASDF
-    [ -f "$HOMEBREW_PREFIX/opt/asdf/libexec/asdf.fish" ]; and source $HOMEBREW_PREFIX/opt/asdf/libexec/asdf.fish
 end
 
 ################

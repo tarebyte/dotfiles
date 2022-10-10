@@ -118,7 +118,7 @@ then
   sleep 5
 
   # These are a pain to install manually.
-  brew install asdf diff-so-fancy fish
+  brew install diff-so-fancy fish
   brew install --HEAD universal-ctags/universal-ctags/universal-ctags
 
   # Install a newer version of NodeJS to get LSP servers working.
