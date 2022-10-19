@@ -14,7 +14,11 @@ if colorscheme ~= nil then
 	vim.cmd("colorscheme " .. colorscheme)
 end
 
-vim.cmd([[hi TSField guifg=#]] .. vim.g.base16_gui05)
-vim.cmd([[hi TSPunctSpecial guifg=#]] .. vim.g.base16_gui0F)
-vim.cmd([[hi TSFuncBuiltin cterm=italic gui=italic ctermfg=6 guifg=#]] .. vim.g.base16_gui0C)
-vim.cmd([[hi def link TSSymbol rubySymbol]])
+vim.cmd([[hi link @variable Identifier]])
+vim.cmd([[hi @function.builtin cterm=italic gui=italic ctermfg=6 guifg=#]] .. vim.g.base16_gui0C)
+
+-- Ruby specific
+vim.cmd([[hi link @field.ruby Normal]])
+vim.cmd([[hi link @punctuation.special.ruby rubyInterpolationDelimiter]])
+vim.cmd([[hi link @symbol.ruby rubySymbol]])
+vim.cmd([[hi link @variable.builtin.ruby Debug]])
