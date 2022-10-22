@@ -5,9 +5,8 @@ end
 
 gitsigns.setup({
 	signs = {
-		add = { text = "▎" },
-		change = { text = "▎" },
-		changedelete = { text = "▎" },
+		add = { text = "+" },
+		change = { text = "~" },
 	},
 	numhl = true,
 	current_line_blame = true,

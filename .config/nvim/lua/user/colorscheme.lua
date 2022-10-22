@@ -33,7 +33,7 @@ vim.cmd([[hi @function.builtin cterm=italic gui=italic ctermfg=6 guifg=]] .. vim
 vim.cmd([[hi @tag guifg=]] .. vim.g.base16_gui08)
 
 vim.cmd([[hi LineNr guifg=]] .. vim.g.base16_gui03)
-vim.cmd([[hi SignColumn guifg=]] .. vim.g.base16_gui03 .. [[ guibg=]] .. vim.g.base16_gui01)
+vim.cmd([[hi SignColumn guifg=]] .. vim.g.base16_gui03 .. [[ guibg=]] .. vim.g.base16_gui00)
 vim.cmd([[hi StatusLine guifg=]] .. vim.g.base16_gui04 .. [[ guibg=]] .. vim.g.base16_gui02 .. [[ gui=none]])
 vim.cmd([[hi StatusLineNC guifg=]] .. vim.g.base16_gui03 .. [[ guibg=]] .. vim.g.base16_gui01 .. [[ gui=none]])
 vim.cmd([[hi VertSplit guifg=]] .. vim.g.base16_gui02 .. [[ guibg=]] .. vim.g.base16_gui02 .. [[ gui=none]])
