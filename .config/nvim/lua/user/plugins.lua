@@ -114,7 +114,7 @@ return require("packer").startup({
 		})
 
 		-- Theme
-		use("tinted-theming/base16-vim")
+		use("RRethy/nvim-base16")
 		use("miyakogi/conoline.vim")
 		use("lukas-reineke/indent-blankline.nvim")
 

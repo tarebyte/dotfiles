@@ -75,10 +75,6 @@ cmp.setup({
 	},
 })
 
--- https://github.com/RRethy/nvim-base16/blob/d2a56671ed19fb471acf0c39af261568ea47ee26/lua/base16-colorscheme.lua#L399-L400
-vim.cmd([[hi CmpDocumentationBorder guifg=#]] .. vim.g.base16_gui05 .. [[ guibg=#]] .. vim.g.base16_gui00)
-vim.cmd([[hi CmpDocumentation guifg=#]] .. vim.g.base16_gui05 .. [[ guibg=#]] .. vim.g.base16_gui00)
-
 local completion_ok, cmp_autopairs = pcall(require, "nvim-autopairs.completion.cmp")
 if completion_ok and cmp_autopairs then
 	cmp.event:on("confirm_done", cmp_autopairs.on_confirm_done({ map_char = { tex = "" } }))
