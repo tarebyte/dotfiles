@@ -12,9 +12,9 @@ if not ok then
 	return
 end
 
-base16_colorscheme.with_config {
+base16_colorscheme.with_config({
 	telescope = false,
-}
+})
 
 local colorscheme = base16.theme()
 if colorscheme ~= nil then

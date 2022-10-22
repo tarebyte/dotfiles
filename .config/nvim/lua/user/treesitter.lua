@@ -56,5 +56,5 @@ if not context_ok then
 end
 
 treesitter_context.setup({
-	enable = true
+	enable = true,
 })
