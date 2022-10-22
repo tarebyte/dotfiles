@@ -99,6 +99,7 @@ return require("packer").startup({
 		use({ "nvim-treesitter/nvim-treesitter", run = ":TSUpdate" })
 		use("nvim-treesitter/nvim-treesitter-textobjects")
 		use("nvim-treesitter/playground")
+		use("nvim-treesitter/nvim-treesitter-context")
 		use("RRethy/nvim-treesitter-endwise")
 
 		use({

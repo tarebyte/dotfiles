@@ -49,3 +49,12 @@ nvim_treesitter.setup({
 -- https://github.com/nvim-treesitter/nvim-treesitter#folding
 vim.wo.foldmethod = "expr"
 vim.wo.foldexpr = "nvim_treesitter#foldexpr()"
+
+local context_ok, treesitter_context = pcall(require, "treesitter-context")
+if not context_ok then
+	return
+end
+
+treesitter_context.setup({
+	enable = true
+})
