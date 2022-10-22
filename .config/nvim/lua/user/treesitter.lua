@@ -8,6 +8,7 @@ nvim_treesitter.setup({
 		"bash",
 		"comment",
 		"css",
+		"dockerfile",
 		"elixir",
 		"fish",
 		"html",
