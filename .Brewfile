@@ -16,7 +16,6 @@ brew "openssl"
 brew "reattach-to-user-namespace"
 brew "rbenv"
 brew "ripgrep"
-brew "starship"
 brew "tmux"
 brew "universal-ctags/universal-ctags/universal-ctags", args: ["HEAD"]
 brew "wifi-password"
