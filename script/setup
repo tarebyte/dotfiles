@@ -121,7 +121,7 @@ then
   sudo apt-get remove fish nodejs -y
   sudo apt autoremove -y
 
-  sudo apt-get install fish/bullseye-backports
+  sudo apt-get install fish/bullseye-backports -y
 
   # Install and set global Node version
   nodenv install 16.13.0
