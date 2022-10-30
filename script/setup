@@ -97,16 +97,16 @@ then
   dconfig submodule update --recursive --init
 fi
 
+local_fish=$(which fish)
+
 if [ "${ostype}" == macos ]
 then
   brew bundle --global
 
-  echo $(which fish) | sudo tee -a /etc/shells
-  chsh -s $(which fish)
+  echo $local_fish | sudo tee -a /etc/shells
+  chsh -s $local_fish
 elif [ -n $CODESPACES ]
 then
-  sudo apt-get -y install fuse libfuse2
-
   # https://github.com/djensenius/dotfiles/blob/1d25e46179285f7f8180ffdf8ad4aae53f35323c/install.sh#L22-L24
   echo 'eval "$($/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> ${HOME}/.profile
   eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
@@ -114,16 +114,13 @@ then
   sleep 5
 
   # These are a pain to install manually.
-  brew install diff-so-fancy fish lazygit nodenv
+  brew install diff-so-fancy fzf lazygit nodenv
   brew install --HEAD universal-ctags/universal-ctags/universal-ctags
 
   # Install a newer version of NodeJS to get LSP servers working.
   sudo apt-get remove nodejs -y
-  nodenv install 18.10.0
-  nodenv global 18.10.0
-
-  git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
-  ~/.fzf/install --bin
+  nodenv install 16.13.0
+  nodenv global 16.13.0
 
   # Some codespaces may already install Neovim via Homebrew.
   if ! brew list neovim &>/dev/null; then
@@ -131,32 +128,15 @@ then
     sudo apt-get install /tmp/nvim-linux64.deb
   fi
 
-  gh release download --repo nelsonenzo/tmux-appimage --pattern "tmux.appimage" --dir /tmp
-
-  chmod +x /tmp/tmux.appimage
-  sudo mv /tmp/tmux.appimage /usr/local/bin/tmux
-
   gh release download --repo BurntSushi/ripgrep --pattern "ripgrep_*_amd64.deb" --dir /tmp --skip-existing
   sudo dpkg -i "/tmp/ripgrep_$(package_version 'ripgrep')_amd64.deb"
-
-  gh release download --repo sharkdp/bat -p "bat_*_amd64.deb" --dir /tmp
-  sudo dpkg -i "/tmp/bat_$(package_version 'bat')_amd64.deb"
-
-  curl -sS https://starship.rs/install.sh | sh -s -- --yes
-
-  # We want Homebrew fish as our default shell
-  if ! grep -q "vscode.*/bin/fish" /etc/passwd
-  then
-    echo "${homebrew_prefix_default}/bin/fish" | sudo tee -a /etc/shells
-    sudo chsh -s /home/linuxbrew/.linuxbrew/bin/fish vscode
-  fi
 fi
 
 # Install fisher plugins
-echo "curl -sL https://git.io/fisher | source && fisher update" | "${homebrew_prefix_default}/bin/fish"
+echo "curl -sL https://git.io/fisher | source && fisher update" | $local_fish
 
 # Set the theme
-echo "base16-ocean" | "${homebrew_prefix_default}/bin/fish"
+echo "base16-ocean" | $local_fish
 
 # Install Neovim packages via packer
 nvim --headless -c 'autocmd User PackerComplete quitall' -c 'PackerSync'
