@@ -32,10 +32,6 @@ fi
 
 if [ -n $CODESPACES ]
 then
-  # Codespaces has a .gitconfig already setup, but in order to take advantage of
-  # the attributes set in /etc/gitconfig we have to explicitly include the path.
-  git config --global include.path /etc/gitconfig
-
   dotfiles_dir="/workspaces/.codespaces/.persistedshare/dotfiles"
 
   # Symlink all of the dotfiles to the $HOME directory
