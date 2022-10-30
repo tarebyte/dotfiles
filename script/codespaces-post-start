@@ -1,8 +1,5 @@
 #!/bin/sh
 # Run by github/github codespaces after starting
 
-# We want Homebrew fish as our default shell
-if ! grep -q "vscode.*/bin/fish" /etc/passwd
-then
-  sudo chsh -s $(which fish) vscode
-fi
+# We always want Fish as our default shell
+sudo chsh -s $(which fish) vscode
