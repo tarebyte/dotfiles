@@ -119,7 +119,7 @@ then
 
   # Replace previously installed versions of Fish and NodeJS
   sudo apt-get remove fish nodejs -y
-  sudo apt autoremove
+  sudo apt autoremove -y
 
   sudo apt-get install fish/bullseye-backports
 
