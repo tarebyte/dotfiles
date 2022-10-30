@@ -117,8 +117,13 @@ then
   brew install diff-so-fancy fzf lazygit nodenv
   brew install --HEAD universal-ctags/universal-ctags/universal-ctags
 
-  # Install a newer version of NodeJS to get LSP servers working.
-  sudo apt-get remove nodejs -y
+  # Replace previously installed versions of Fish and NodeJS
+  sudo apt-get remove fish nodejs -y
+  sudo apt autoremove
+
+  sudo apt-get install fish/bullseye-backports
+
+  # Install and set global Node version
   nodenv install 16.13.0
   nodenv global 16.13.0
 

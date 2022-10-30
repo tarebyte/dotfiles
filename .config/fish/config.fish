@@ -38,16 +38,7 @@ if test -d $HOMEBREW_PREFIX
     set -gx HOMEBREW_CELLAR "$HOMEBREW_PREFIX/Cellar"
     set -gx HOMEBREW_REPOSITORY $HOMEBREW_PREFIX
 
-    set -q PATH; or set PATH '';
-
-    if type -q fish_add_path
-        fish_add_path -gp "$HOMEBREW_PREFIX/bin" "$HOMEBREW_PREFIX/sbin"
-    else
-        if not contains "$HOMEBREW_PREFIX/bin" $PATH
-            set -gx PATH "$HOMEBREW_PREFIX/bin" "$HOMEBREW_PREFIX/sbin" $PATH
-        end
-    end
-
+    set -q PATH; or set PATH ''; fish_add_path -gp "$HOMEBREW_PREFIX/bin" "$HOMEBREW_PREFIX/sbin"
     set -q MANPATH; or set MANPATH ''; set -gx MANPATH "$HOMEBREW_PREFIX/share/man" $MANPATH;
     set -q INFOPATH; or set INFOPATH ''; set -gx INFOPATH "$HOMEBREW_PREFIX/share/info" $INFOPATH;
 
@@ -107,13 +98,7 @@ end
 # Additional Paths #
 ####################
 
-if type -q fish_add_path
-    fish_add_path -aP $HOME/.bin
-else
-    if not contains "$HOME/.bin" $PATH
-        set -gx PATH $PATH $HOME/.bin
-    end
-end
+fish_add_path -aP $HOME/.bin
 
 #####################
 # Other adjustments #
