@@ -115,13 +115,12 @@ then
 
   # These are a pain to install manually.
   brew install diff-so-fancy fzf lazygit nodenv
-  brew install --HEAD universal-ctags/universal-ctags/universal-ctags
 
   # Replace previously installed versions of Fish and NodeJS
-  sudo apt-get remove fish nodejs -y
+  sudo apt-get remove nodejs -y
   sudo apt autoremove -y
 
-  sudo apt-get install fish/bullseye-backports -y
+  sudo apt-get install universal-ctags -y
 
   # Install and set global Node version
   nodenv install 16.13.0
