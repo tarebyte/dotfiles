@@ -139,6 +139,9 @@ fi
 # Install fisher plugins
 echo "curl -sL https://git.io/fisher | source && fisher update" | $local_fish
 
+# Set fish as the default shell
+sudo chsh -s $local_fish vscode
+
 # Set the theme
 echo "base16-ocean" | $local_fish
 

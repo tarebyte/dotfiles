@@ -1,5 +1,0 @@
-#!/bin/sh
-# Run by github/github codespaces after starting
-
-# We always want Fish as our default shell
-sudo chsh -s $(which fish) vscode
