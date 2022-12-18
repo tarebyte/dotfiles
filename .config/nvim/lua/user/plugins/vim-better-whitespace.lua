@@ -1,6 +1,11 @@
+local ok, base16 = pcall(require, "base16-colorscheme")
+if not ok then
+	return
+end
+
 vim.cmd(
 	[[highlight ExtraWhitespace ctermbg=red ctermfg=white guibg=]]
-		.. vim.g.base16_gui08
+		.. base16.colors.base08
 		.. [[ guifg=]]
-		.. vim.g.base16_gui05
+		.. base16.colors.base05
 )

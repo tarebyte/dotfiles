@@ -3,6 +3,11 @@ if not status_ok then
 	return
 end
 
+local ok, base16 = pcall(require, "base16-colorscheme")
+if not ok then
+	return
+end
+
 -- https://github.com/LunarVim/LunarVim/blob/41b3f63c37ce2f79defc22a2cbcd347281a808a5/lua/lvim/core/lualine/components.lua#L4-L13
 local function diff_source()
 	local gitsigns = vim.b.gitsigns_status_dict
@@ -26,7 +31,7 @@ local scrollbar = {
 		return chars[index]
 	end,
 	padding = { left = 0, right = 0 },
-	color = { fg = vim.g.base16_gui0A, bg = vim.g.base16_gui01 },
+	color = { fg = base16.colors.base0A, bg = base16.colors.base01 },
 	cond = nil,
 }
 
@@ -52,7 +57,7 @@ lualine.setup({
 				"branch",
 				"b:gitsigns_head",
 				icon = "",
-				color = { fg = vim.g.base16_gui04, bg = vim.g.base16_gui01, gui = "bold" },
+				color = { fg = base16.colors.base04, bg = base16.colors.base01, gui = "bold" },
 				padding = { left = 2, right = 1 },
 			},
 		},
@@ -61,7 +66,7 @@ lualine.setup({
 				"filename",
 				symbols = { readonly = " " },
 				path = 1,
-				color = { fg = vim.g.base16_gui04, bg = vim.g.base16_gui01 },
+				color = { fg = base16.colors.base04, bg = base16.colors.base01 },
 			},
 			{
 				"diff",
@@ -77,7 +82,7 @@ lualine.setup({
 				colored = true,
 				symbols = { error = " ", warn = " ", hint = " ", info = " " },
 			},
-			{ "filetype", colored = false, color = { fg = vim.g.base16_gui04 } },
+			{ "filetype", colored = false, color = { fg = base16.colors.base04 } },
 		},
 		lualine_y = {
 			{

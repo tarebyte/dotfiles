@@ -3,17 +3,22 @@ if not ok then
 	return
 end
 
+local base16_ok, base16 = pcall(require, "base16-colorscheme")
+if not base16_ok then
+	return
+end
+
 devicons.setup({
 	override = {
 		["config.ru"] = {
 			icon = "",
-			color = "#BF616A",
+			color = base16.colors.base08,
 			cterm_color = "52",
 			name = "ConfigRu",
 		},
 		erb = {
 			icon = "",
-			color = "#BF616A",
+			color = base16.colors.base08,
 			cterm_color = "52",
 			name = "Erb",
 		},
@@ -25,13 +30,13 @@ devicons.setup({
 		},
 		rake = {
 			icon = "",
-			color = "#BF616A",
+			color = base16.colors.base08,
 			cterm_color = "52",
 			name = "Rake",
 		},
 		rb = {
 			icon = "",
-			color = "#BF616A",
+			color = base16.colors.base08,
 			cterm_color = "52",
 			name = "Rb",
 		},
