@@ -11,7 +11,9 @@ null_ls.setup({
 	sources = {
 		code_actions.gitsigns,
 		code_actions.eslint,
+		code_actions.shellcheck,
 		diagnostics.eslint,
+		diagnostics.shellcheck,
 		diagnostics.rubocop.with({
 			prefer_local = "bin/rubocop",
 		}),
