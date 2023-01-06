@@ -4,6 +4,7 @@ if not ok then
 end
 
 local actions = require("telescope.actions")
+local builtin = require("telescope.builtin")
 
 telescope.setup({
 	defaults = {
@@ -15,10 +16,10 @@ telescope.setup({
 	},
 })
 
-require("telescope").load_extension("fzf")
-require("telescope").load_extension("ctags_plus")
+telescope.load_extension("ctags_plus")
+telescope.load_extension("fzf")
 
-vim.keymap.set("n", "<C-p>", ":Telescope find_files<cr>", { silent = true })
-vim.keymap.set("n", "<Leader>t", ":Telescope find_files<cr>", { silent = true })
-vim.keymap.set("n", "<Leader>b", ":Telescope buffers<cr>", { silent = true })
+vim.keymap.set("n", "<C-p>", builtin.find_files, { silent = true })
+vim.keymap.set("n", "<Leader>t", builtin.find_files, { silent = true })
+vim.keymap.set("n", "<Leader>b", builtin.buffers, { silent = true })
 vim.keymap.set("n", "<C-]>", ":lua require('telescope').extensions.ctags_plus.jump_to_tag()<cr>")
