@@ -4,7 +4,7 @@ set -e
 
 package_version ()
 {
-    echo $(ls /tmp | grep "${1}_*" | cut -d _ -f 2)
+    find "/tmp/${1}*" | cut -d _ -f 2
 }
 
 un="$(uname)"
@@ -30,39 +30,39 @@ then
   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 fi
 
-if [ -n $CODESPACES ]
+if [[ -n $CODESPACES ]]
 then
   dotfiles_dir="/workspaces/.codespaces/.persistedshare/dotfiles"
 
   # Symlink all of the dotfiles to the $HOME directory
   for dotfile in .*; do
     # Skip . and .. directories
-    echo $dotfile | egrep -q '^(\.+)$' && continue
+    echo "$dotfile" | grep -Eq '^(\.+)$' && continue
 
     # Skip .git directory
-    echo $dotfile | egrep -q '^(\.git)$' && continue
+    echo "$dotfile" | grep -Eq '^(\.git)$' && continue
 
     source="$dotfiles_dir/$dotfile"
     destination="$HOME/$dotfile"
 
     # If the directory already exists in the $HOME directory then we'll
     # just symlink the contents rather than the directory itself.
-    if [ -d $destination ] && ! [ -L $destination ]
+    if [ -d "$destination" ] && ! [ -L "$destination" ]
     then
-      for file in $source/*
+      for file in "$source"/*
       do
         ln -sfv "$file" "$destination"
       done
       continue
     fi
 
-    [ -d $dotfile ] && dotfile="$dotfile/"
+    [ -d "$dotfile" ] && dotfile="$dotfile/"
 
-    if [ -L $destination ] && ! [ -d $dotfile ]
+    if [ -L "$destination" ] && ! [ -d "$dotfile" ]
     then
       ln -sfv "$source" "$destination"
     else
-      [ -d $destination ] && rm -rv "$destination" 2>/dev/null
+      [ -d "$destination" ] && rm -rv "$destination" 2>/dev/null
       ln -sv "$source" "$destination"
     fi
   done
@@ -73,7 +73,7 @@ then
     github)
       declare -a Executables=("eslint" "eslint-ignore-errors" "rubocop" "srb")
       for executable in "${Executables[@]}"; do
-        sudo ln -s /workspaces/github/bin/$executable /usr/local/bin/$executable
+        sudo ln -s /workspaces/github/bin/"$executable" /usr/local/bin/"$executable"
       done
       ;;
   esac
@@ -81,13 +81,13 @@ then
   # Bring in all of our submodule dependencies
   git submodule update --init --recursive || true
   git submodule foreach --recursive git reset --hard
-elif [ ! -d $HOME/.dotfiles ]
+elif [ ! -d "$HOME"/.dotfiles ]
 then
   # https://www.atlassian.com/git/tutorials/dotfiles
-  git clone --bare https://github.com/tarebyte/dotfiles.git $HOME/.dotfiles
+  git clone --bare https://github.com/tarebyte/dotfiles.git "$HOME"/.dotfiles
 
   function dconfig {
-    /usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME $@
+    /usr/bin/git --git-dir="$HOME"/.dotfiles/ --work-tree="$HOME" "$@"
   }
 
   dconfig checkout
@@ -97,18 +97,17 @@ then
   dconfig submodule update --recursive --init
 fi
 
-local_fish=$(which fish)
-
 if [ "${ostype}" == macos ]
 then
   brew bundle --global
+  local_fish=$(which fish)
 
-  echo $local_fish | sudo tee -a /etc/shells
-  chsh -s $local_fish
-elif [ -n $CODESPACES ]
+  echo "$local_fish" | sudo tee -a /etc/shells
+  chsh -s "$local_fish"
+elif [[ -n $CODESPACES ]]
 then
   # https://github.com/djensenius/dotfiles/blob/1d25e46179285f7f8180ffdf8ad4aae53f35323c/install.sh#L22-L24
-  echo 'eval "$($/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> ${HOME}/.profile
+  echo "eval '$($/home/linuxbrew/.linuxbrew/bin/brew shellenv)'" >> "${HOME}"/.profile
   eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 
   sleep 5
@@ -137,13 +136,13 @@ then
 fi
 
 # Install fisher plugins
-echo "curl -sL https://git.io/fisher | source && fisher update" | $local_fish
+echo "curl -sL https://git.io/fisher | source && fisher update" | /usr/bin/fish
 
 # Set fish as the default shell
-sudo chsh -s $local_fish vscode
+sudo chsh -s /usr/bin/fish vscode
 
 # Set the theme
-echo "base16-ocean" | $local_fish
+echo "base16-ocean" | /usr/bin/fish
 
 # Install Neovim packages via packer
 nvim --headless -c 'autocmd User PackerComplete quitall' -c 'PackerSync'
