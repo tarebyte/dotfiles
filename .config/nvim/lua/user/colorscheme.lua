@@ -40,3 +40,13 @@ vim.cmd([[hi link @tag.delimiter.html Normal]])
 
 -- Ruby
 vim.cmd([[hi link @punctuation.special.ruby Boolean]])
+
+-- Plugins --
+
+-- Telescope
+local colors = require("user.utils.colors")
+local darker_black = colors.darken(base16_colorscheme.colors.base00, 0.06)
+
+vim.cmd([[hi TelescopeBorder guifg=]] .. darker_black .. [[ guibg=]] .. darker_black)
+vim.cmd([[hi TelescopeNormal guibg=]] .. darker_black)
+vim.cmd([[hi TelescopePromptNormal guibg=]] .. darker_black)
