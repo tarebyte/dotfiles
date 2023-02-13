@@ -1,6 +1,6 @@
 local ok, base16 = pcall(require, "base16-colorscheme")
 if not ok then
-	return
+	return {}
 end
 
 return {

@@ -38,9 +38,12 @@ if test -d $HOMEBREW_PREFIX
     set -gx HOMEBREW_CELLAR "$HOMEBREW_PREFIX/Cellar"
     set -gx HOMEBREW_REPOSITORY $HOMEBREW_PREFIX
 
-    set -q PATH; or set PATH ''; fish_add_path -gp "$HOMEBREW_PREFIX/bin" "$HOMEBREW_PREFIX/sbin"
-    set -q MANPATH; or set MANPATH ''; set -gx MANPATH "$HOMEBREW_PREFIX/share/man" $MANPATH;
-    set -q INFOPATH; or set INFOPATH ''; set -gx INFOPATH "$HOMEBREW_PREFIX/share/info" $INFOPATH;
+    set -q PATH; or set PATH ''
+    fish_add_path -gp "$HOMEBREW_PREFIX/bin" "$HOMEBREW_PREFIX/sbin"
+    set -q MANPATH; or set MANPATH ''
+    set -gx MANPATH "$HOMEBREW_PREFIX/share/man" $MANPATH
+    set -q INFOPATH; or set INFOPATH ''
+    set -gx INFOPATH "$HOMEBREW_PREFIX/share/info" $INFOPATH
 
     # Inside of a Codespace we're using the image provided fish which is not
     # installed via Homebrew.
