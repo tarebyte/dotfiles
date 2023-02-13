@@ -145,7 +145,7 @@ sudo chsh -s $local_fish vscode
 # Set the theme
 echo "base16-ocean" | $local_fish
 
-# Install Neovim packages via packer
-nvim --headless -c 'autocmd User PackerComplete quitall' -c 'PackerSync'
+# Install Neovim packages via lazy.nvim
+nvim --headless "+Lazy! sync" +qa
 
 echo "All set!"
