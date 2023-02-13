@@ -38,7 +38,7 @@ return require("packer").startup({
 		use("tpope/vim-repeat")
 		use("tpope/vim-surround")
 		use("windwp/nvim-autopairs")
-		use {"shortcuts/no-neck-pain.nvim", tag = "*" }
+		use({ "shortcuts/no-neck-pain.nvim", tag = "*" })
 
 		-- LSP
 		use({
