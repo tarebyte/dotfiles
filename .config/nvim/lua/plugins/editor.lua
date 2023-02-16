@@ -37,6 +37,7 @@ return {
 		opts = {
 			filetype_exclude = { "dirvish", "help", "lazy" },
 			show_current_context_start = true,
+			use_treesitter = true,
 		},
 	},
 	{
