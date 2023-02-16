@@ -110,6 +110,7 @@ return {
 
 					diagnostics.eslint,
 					diagnostics.shellcheck,
+					diagnostics.vale,
 
 					diagnostics.rubocop.with({
 						prefer_local = "bin/rubocop",

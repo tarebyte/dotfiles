@@ -21,6 +21,8 @@ return {
 			"javascript",
 			"json",
 			"lua",
+			"markdown",
+			"markdown_inline",
 			"query",
 			"regex",
 			"ruby",
