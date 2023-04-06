@@ -22,42 +22,44 @@ return {
 		local colorscheme = Base16.theme()
 		if colorscheme ~= nil then
 			vim.cmd("colorscheme " .. colorscheme)
+		else
+			vim.cmd [[colorscheme base16-ocean]]
 		end
 
-		vim.api.nvim_set_hl(0, "@function.builtin", { fg = base16_colorscheme.colors.base0C, italic = true })
-		vim.api.nvim_set_hl(0, "@keyword.return", { fg = base16_colorscheme.colors.base0E, italic = true })
-		vim.api.nvim_set_hl(0, "@method.call", { fg = base16_colorscheme.colors.base0D, italic = true })
-		vim.api.nvim_set_hl(0, "@tag", { fg = base16_colorscheme.colors.base08 })
-		vim.api.nvim_set_hl(0, "@tag.attribute", { fg = base16_colorscheme.colors.base0A, italic = true })
+		vim.api.nvim_set_hl(0, "@function.builtin", { fg = vim.g.base16_gui0C, italic = true })
+		vim.api.nvim_set_hl(0, "@keyword.return", { fg = vim.g.base16_gui0E, italic = true })
+		vim.api.nvim_set_hl(0, "@method.call", { fg = vim.g.base16_gui0D, italic = true })
+		vim.api.nvim_set_hl(0, "@tag", { fg = vim.g.base16_gui08 })
+		vim.api.nvim_set_hl(0, "@tag.attribute", { fg = vim.g.base16_gui0A, italic = true })
 
 		vim.api.nvim_set_hl(0, "LineNr", {
-			fg = base16_colorscheme.colors.base03,
-			bg = base16_colorscheme.colors.base00,
+			fg = vim.g.base16_gui03,
+			bg = vim.g.base16_gui00,
 			ctermfg = 11,
 		})
 
 		vim.api.nvim_set_hl(0, "SignColumn", {
-			fg = base16_colorscheme.colors.base03,
-			bg = base16_colorscheme.colors.base00,
+			fg = vim.g.base16_gui03,
+			bg = vim.g.base16_gui00,
 			ctermfg = 14,
 			ctermbg = 242,
 		})
 
 		vim.api.nvim_set_hl(0, "StatusLine", {
-			fg = base16_colorscheme.colors.base04,
-			bg = base16_colorscheme.colors.base02,
+			fg = vim.g.base16_gui04,
+			bg = vim.g.base16_gui02,
 			cterm = { bold = true, reverse = true },
 		})
 
 		vim.api.nvim_set_hl(0, "StatusLineNC", {
-			fg = base16_colorscheme.colors.base03,
-			bg = base16_colorscheme.colors.base01,
+			fg = vim.g.base16_gui03,
+			bg = vim.g.base16_gui01,
 			cterm = { reverse = true },
 		})
 
 		vim.api.nvim_set_hl(0, "VertSplit", {
-			fg = base16_colorscheme.colors.base02,
-			bg = base16_colorscheme.colors.base02,
+			fg = vim.g.base16_gui02,
+			bg = vim.g.base16_gui02,
 		})
 
 		-----------------------
@@ -77,58 +79,58 @@ return {
 		-- Better whitespace
 		vim.cmd(
 			[[highlight ExtraWhitespace ctermbg=red ctermfg=white guibg=]]
-				.. base16_colorscheme.colors.base08
+				.. vim.g.base16_gui08
 				.. [[ guifg=]]
-				.. base16_colorscheme.colors.base05
+				.. vim.g.base16_gui05
 		)
 
 		-- Conoline
-		vim.g.conoline_color_normal_dark = string.format("guibg=%s", base16_colorscheme.colors.base01)
+		vim.g.conoline_color_normal_dark = string.format("guibg=%s", vim.g.base16_gui01)
 		vim.g.conoline_color_normal_nr_dark = string.format(
 			"guibg=%s guifg=%s",
-			base16_colorscheme.colors.base00,
-			base16_colorscheme.colors.base07
+			vim.g.base16_gui00,
+			vim.g.base16_gui07
 		)
 
 		-- Hide away on insert.
-		vim.g.conoline_color_insert_dark = string.format("guibg=%s", base16_colorscheme.colors.base00)
+		vim.g.conoline_color_insert_dark = string.format("guibg=%s", vim.g.base16_gui00)
 		vim.g.conoline_color_insert_nr_dark = string.format(
 			"guibg=%s guifg=%s",
-			base16_colorscheme.colors.base00,
-			base16_colorscheme.colors.base07
+			vim.g.base16_gui00,
+			vim.g.base16_gui07
 		)
 
 		-- Lualine
 		vim.api.nvim_set_hl(0, "SLBranch", {
-			fg = base16_colorscheme.colors.base04,
-			bg = base16_colorscheme.colors.base01,
+			fg = vim.g.base16_gui04,
+			bg = vim.g.base16_gui01,
 			bold = true,
 		})
 
 		vim.api.nvim_set_hl(0, "SLDiagnostics", {
-			fg = base16_colorscheme.colors.base04,
-			bg = base16_colorscheme.colors.base01,
+			fg = vim.g.base16_gui04,
+			bg = vim.g.base16_gui01,
 		})
 
 		vim.api.nvim_set_hl(0, "SLFilename", {
-			fg = base16_colorscheme.colors.base04,
-			bg = base16_colorscheme.colors.base01,
+			fg = vim.g.base16_gui04,
+			bg = vim.g.base16_gui01,
 		})
 
 		vim.api.nvim_set_hl(0, "SLProgress", {
-			fg = base16_colorscheme.colors.base0A,
-			bg = base16_colorscheme.colors.base01,
+			fg = vim.g.base16_gui0A,
+			bg = vim.g.base16_gui01,
 		})
 
 		-- Pretty fold
 		vim.api.nvim_set_hl(0, "Folded", {
-			fg = base16_colorscheme.colors.base03,
+			fg = vim.g.base16_gui03,
 			ctermfg = 14,
 		})
 
 		-- Telescope
 		local colors = require("user.utils.colors")
-		local darker_black = colors.darken(base16_colorscheme.colors.base00, 0.06)
+		local darker_black = colors.darken(vim.g.base16_gui00, 0.06)
 
 		vim.api.nvim_set_hl(0, "TelescopeBorder", { fg = darker_black, bg = darker_black })
 		vim.api.nvim_set_hl(0, "TelescopeNormal", { bg = darker_black })

@@ -3,7 +3,7 @@ return {
 		"nvim-tree/nvim-web-devicons",
 		lazy = true,
 		config = function()
-			local ok, base16 = pcall(require, "base16-colorscheme")
+			local ok, _ = pcall(require, "base16-colorscheme")
 			if not ok then
 				return
 			end
@@ -12,13 +12,13 @@ return {
 				override = {
 					["config.ru"] = {
 						icon = "",
-						color = base16.colors.base08,
+						color = vim.g.base16_gui08,
 						cterm_color = "52",
 						name = "ConfigRu",
 					},
 					erb = {
 						icon = "",
-						color = base16.colors.base08,
+						color = vim.g.base16_gui08,
 						cterm_color = "52",
 						name = "Erb",
 					},
@@ -30,13 +30,13 @@ return {
 					},
 					rake = {
 						icon = "",
-						color = base16.colors.base08,
+						color = vim.g.base16_gui08,
 						cterm_color = "52",
 						name = "Rake",
 					},
 					rb = {
 						icon = "",
-						color = base16.colors.base08,
+						color = vim.g.base16_gui08,
 						cterm_color = "52",
 						name = "Rb",
 					},
