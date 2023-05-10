@@ -2,9 +2,9 @@ local M = {}
 
 -- Public: Get the background setting for the set theme.
 --
--- Returns a String or nil.
+-- Returns a String (default "dark).
 M.background = function()
-	return os.getenv("base16_fish_shell_background")
+	return os.getenv("base16_fish_shell_background") or "dark"
 end
 
 -- Public: Get the base16 theme as set by the FabioAntunes/base16-fish-shell
@@ -15,9 +15,9 @@ end
 --   > get_base16_theme()
 --   => "base16-ocean"
 --
--- Returns a String or nil.
+-- Returns a String (default "base16-ocean").
 M.theme = function()
-	local file = io.open(os.getenv("HOME") .. "/.config/fish/fish_variables")
+	local file, _ = io.open(os.getenv("HOME") .. "/.config/fish/fish_variables")
 
 	if file ~= nil then
 		local theme = ""
@@ -38,7 +38,7 @@ M.theme = function()
 		end
 	end
 
-	return nil
+	return "base16-ocean"
 end
 
 return M
