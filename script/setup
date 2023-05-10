@@ -2,150 +2,21 @@
 
 set -e
 
-package_version ()
-{
-    echo $(ls /tmp | grep "${1}_*" | cut -d _ -f 2)
-}
-
-un="$(uname)"
-case "${un}" in
-  Linux)
-    ostype=linux
-    homebrew_prefix_default=/home/linuxbrew/.linuxbrew
-    ;;
-  Darwin)
-    ostype=macos
-    if [[ "$(uname -m)" == "arm64" ]]
-    then
-      homebrew_prefix_default=/opt/homebrew
-    else
-      homebrew_prefix_default=/usr/local
-    fi
-    ;;
-esac
-
-# Install homebrew if it doesn't exist
-if [[ ! -d "${homebrew_prefix_default}" ]]
-then
-  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-fi
-
-if [ -n $CODESPACES ]
+if [[ -n $CODESPACES ]]
 then
   dotfiles_dir="/workspaces/.codespaces/.persistedshare/dotfiles"
 
-  # Symlink all of the dotfiles to the $HOME directory
-  for dotfile in .*; do
-    # Skip . and .. directories
-    echo $dotfile | egrep -q '^(\.+)$' && continue
+  # Symlink yadm configuration
+  ln -s "${dotfiles_dir}/.config/yadm" "${HOME}/.config/"
 
-    # Skip .git directory
-    echo $dotfile | egrep -q '^(\.git)$' && continue
+  # Bootstrap!
+  eval "${dotfiles_dir}/.yadm-project/bin/yadm bootstrap"
+else
+  # Temporarily clone yadm
+  git clone https://github.com/TheLocehiliosan/yadm.git /tmp/yadm-project
 
-    source="$dotfiles_dir/$dotfile"
-    destination="$HOME/$dotfile"
+  eval "/tmp/yadm-project/yadm clone --bootstrap https://github.com/tarebyte/dotfiles.git"
 
-    # If the directory already exists in the $HOME directory then we'll
-    # just symlink the contents rather than the directory itself.
-    if [ -d $destination ] && ! [ -L $destination ]
-    then
-      for file in $source/*
-      do
-        ln -sfv "$file" "$destination"
-      done
-      continue
-    fi
-
-    [ -d $dotfile ] && dotfile="$dotfile/"
-
-    if [ -L $destination ] && ! [ -d $dotfile ]
-    then
-      ln -sfv "$source" "$destination"
-    else
-      [ -d $destination ] && rm -rv "$destination" 2>/dev/null
-      ln -sv "$source" "$destination"
-    fi
-  done
-
-  # Make some of the bin/ files accessible globally instead of just adding the
-  # projects entire bin/ directory.
-  case "${RepositoryName}" in
-    github)
-      declare -a Executables=("eslint" "eslint-ignore-errors" "rubocop" "srb")
-      for executable in "${Executables[@]}"; do
-        sudo ln -s /workspaces/github/bin/$executable /usr/local/bin/$executable
-      done
-      ;;
-  esac
-
-  # Bring in all of our submodule dependencies
-  git submodule update --init --recursive || true
-  git submodule foreach --recursive git reset --hard
-elif [ ! -d $HOME/.dotfiles ]
-then
-  # https://www.atlassian.com/git/tutorials/dotfiles
-  git clone --bare https://github.com/tarebyte/dotfiles.git $HOME/.dotfiles
-
-  function dconfig {
-    /usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME $@
-  }
-
-  dconfig checkout
-  dconfig status.showUntrackedFiles no
-
-  # Bring in all of our submodule dependencies
-  dconfig submodule update --recursive --init
+  # Cleanup
+  rm -rf /tmp/yadm-project
 fi
-
-local_fish=$(which fish)
-
-if [ "${ostype}" == macos ]
-then
-  brew bundle --global
-
-  echo $local_fish | sudo tee -a /etc/shells
-  chsh -s $local_fish
-elif [ -n $CODESPACES ]
-then
-  # https://github.com/djensenius/dotfiles/blob/1d25e46179285f7f8180ffdf8ad4aae53f35323c/install.sh#L22-L24
-  echo 'eval "$($/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> ${HOME}/.profile
-  eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-
-  sleep 5
-
-  # These are a pain to install manually.
-  brew install diff-so-fancy fzf lazygit nodenv
-
-  # Replace previously installed versions of Fish and NodeJS
-  sudo apt-get remove nodejs -y
-  sudo apt autoremove -y
-
-  sudo apt-get install universal-ctags -y
-
-  # Install and set global Node version
-  nodenv install 16.13.0
-  nodenv global 16.13.0
-
-  # Some codespaces may already install Neovim via Homebrew.
-  if ! brew list neovim &>/dev/null; then
-    gh release download --repo neovim/neovim --pattern "nvim-linux64.deb" --dir /tmp
-    sudo apt-get install /tmp/nvim-linux64.deb
-  fi
-
-  gh release download --repo BurntSushi/ripgrep --pattern "ripgrep_*_amd64.deb" --dir /tmp --skip-existing
-  sudo dpkg -i "/tmp/ripgrep_$(package_version 'ripgrep')_amd64.deb"
-fi
-
-# Install fisher plugins
-echo "curl -sL https://git.io/fisher | source && fisher update" | $local_fish
-
-# Set fish as the default shell
-sudo chsh -s $local_fish vscode
-
-# Set the theme
-echo "base16-ocean" | $local_fish
-
-# Install Neovim packages via lazy.nvim
-nvim --headless "+Lazy! sync" +qa
-
-echo "All set!"

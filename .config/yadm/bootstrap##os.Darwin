@@ -1,0 +1,35 @@
+#!/bin/bash
+
+set -e
+
+if [[ "$(uname -m)" == "arm64" ]]
+then
+  homebrew_prefix_default=/opt/homebrew
+else
+  homebrew_prefix_default=/usr/local
+fi
+
+# Install homebrew if it doesn't exist
+if [[ ! -d "${homebrew_prefix_default}" ]]
+then
+  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+fi
+
+brew bundle --global
+
+local_fish="${homebrew_prefix_default}/bin/fish"
+
+echo "$local_fish" | sudo tee -a /etc/shells
+
+chsh -s "$local_fish"
+
+# Install fisher plugins
+echo "curl -sL https://git.io/fisher | source && fisher update" | $local_fish
+
+# Set the theme
+echo "base16-ocean" | $local_fish
+
+# Install Neovim packages via lazy.nvim
+nvim --headless "+Lazy! sync" +qa
+
+echo "All set!"
