@@ -28,8 +28,3 @@ echo "curl -sL https://git.io/fisher | source && fisher update" | $local_fish
 
 # Set the theme
 echo "base16-ocean" | $local_fish
-
-# Install Neovim packages via lazy.nvim
-nvim --headless "+Lazy! sync" +qa
-
-echo "All set!"
