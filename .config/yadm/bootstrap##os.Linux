@@ -55,6 +55,7 @@ fi
 if ! command -v nvim &> /dev/null
 then
   gh release download --clobber --dir /tmp/ --repo neovim/neovim --pattern "nvim.appimage"
+  chmod u+x /tmp/nvim.appimage
 
   /tmp/nvim.appimage --appimage-extract
   squashfs-root/AppRun --version
