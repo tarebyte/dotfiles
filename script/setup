@@ -8,5 +8,7 @@ sudo curl -fLo /usr/local/bin/yadm https://github.com/TheLocehiliosan/yadm/raw/m
 # Bootstrap the dotfiles
 yadm clone --bootstrap https://github.com/tarebyte/dotfiles.git
 
+cd ~
+
 yadm submodule update --init --recursive || true
 yadm submodule foreach --recursive git reset --hard
