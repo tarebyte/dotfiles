@@ -2,6 +2,10 @@
 
 set -e
 
+sudo apt-get update
+
+sudo apt-get install -y autoconf build-essential jq pkg-config
+
 # Ensure GitHub CLI is available first as we rely on it for everything else.
 # https://github.com/cli/cli/blob/trunk/docs/install_linux.md#debian-ubuntu-linux-raspberry-pi-os-apt
 if ! command -v gh &> /dev/null
@@ -26,6 +30,7 @@ then
 
   gh release download --clobber --repo so-fancy/diff-so-fancy --output /tmp/diff-so-fancy.tar.gz --archive tar.gz
   tar xf /tmp/diff-so-fancy.tar.gz -C "$local_share"
+  rm /tmp/diff-so-fancy.tar.gz
 
   diff_so_fancy_dir=$(find ~/.local/share -type d -name "diff-so-fancy*")
   sudo ln -s "${diff_so_fancy_dir}/diff-so-fancy" /usr/local/bin/
@@ -34,12 +39,9 @@ fi
 # https://github.com/junegunn/fzf
 if ! command -v fzf &> /dev/null
 then
-  gh repo clone junegunn/fzf "${HOME}.fzf" -- --depth 1
+  gh repo clone junegunn/fzf "${HOME}/.fzf" -- --depth 1
   eval "${HOME}/.fzf/install --key-bindings --completion --no-zsh --no-fish --no-update-rc"
 fi
-
-# https://github.com/stedolan/jq
-sudo apt-get install -y jq
 
 # https://github.com/jesseduffield/lazygit
 if ! command -v lazygit &> /dev/null
@@ -53,10 +55,9 @@ fi
 if ! command -v nvim &> /dev/null
 then
   gh release download --clobber --dir /tmp/ --repo neovim/neovim --pattern "nvim.appimage"
-  chmod u+x /tmp/nvim.appimage
 
-  ./tmp/nvim.appimage --appimage-extract
-  ./squashfs-root/AppRun --version
+  /tmp/nvim.appimage --appimage-extract
+  squashfs-root/AppRun --version
 
   sudo mv squashfs-root /
   sudo ln -s /squashfs-root/AppRun /usr/local/bin/nvim
@@ -74,4 +75,10 @@ if ! command -v ctags &> /dev/null
 then
   gh release download --clobber --repo universal-ctags/ctags --output /tmp/universal-ctags.tar.gz --archive tar.gz
   tar xf /tmp/universal-ctags.tar.gz -C /tmp/
+  ctags_dir=$(find /tmp -type d -name "ctags-*")
+  cd "${ctags_dir}"
+  ./autogen.sh
+  ./configure
+  make
+  sudo make install
 fi
