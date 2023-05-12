@@ -2,21 +2,8 @@
 
 set -e
 
-if [[ -n $CODESPACES ]]
-then
-  dotfiles_dir="/workspaces/.codespaces/.persistedshare/dotfiles"
+# https://yadm.io/docs/install#download
+sudo curl -fLo /usr/local/bin/yadm https://github.com/TheLocehiliosan/yadm/raw/master/yadm && sudo chmod a+x /usr/local/bin/yadm
 
-  # Symlink yadm configuration
-  ln -s "${dotfiles_dir}/.config/yadm" "${HOME}/.config/"
-
-  # Bootstrap!
-  eval "${dotfiles_dir}/.yadm-project/bin/yadm bootstrap"
-else
-  # Temporarily clone yadm
-  git clone https://github.com/TheLocehiliosan/yadm.git /tmp/yadm-project
-
-  eval "/tmp/yadm-project/yadm clone --bootstrap https://github.com/tarebyte/dotfiles.git"
-
-  # Cleanup
-  rm -rf /tmp/yadm-project
-fi
+# Bootstrap the dotfiles
+yadm clone --bootstrap https://github.com/tarebyte/dotfiles.git
