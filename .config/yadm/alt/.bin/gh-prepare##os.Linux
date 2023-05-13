@@ -1,0 +1,62 @@
+#!/bin/bash
+
+set -e
+
+__message () {
+  message=$(printf "\n%s %+5s %s %+5s %s" "${1}" " " "${2}" " " "${1}")
+  echo -e "${message}"
+
+  for _ in $(seq -1 ${#message})
+  do
+    echo -n "="
+  done
+
+  printf "\n"
+}
+
+error  () { __message 🚨 "${1}" ; }
+notice () { __message 🚧 "${1}" ; }
+
+###
+
+notice "Jumping to GitHub!"
+
+github_path=/workspaces/github/github
+
+if [ ! -d "$github_path" ]
+then
+  error "Project not found..."
+  exit 1
+fi
+
+if [ ! -e "${github_path}/config/projections.json" ]
+then
+  notice "Setting config/projections.json..."
+
+  gist_id=d7625fa8f22eb48c25937f890064b63a
+  gh gist clone "$gist_id", "/tmp/${gist_id}"
+
+  cp "/tmp/${gist_id}/projections.json" "${github_path}/config/"
+fi
+
+if [ ! -e "${github_path}/config/projections.json" ]
+then
+  notice "Settings ~/.rgignore..."
+
+  gist_id=c0bac52be3c6ab5cd920bde93738f9e2
+  gh gist clone "$gist_id", "/tmp/${gist_id}"
+
+  cp "/tmp/${gist_id}/.rgignore" "${github_path}/"
+fi
+
+notice "Gitting ready..."
+git up
+
+notice "Bootstrapping..."
+./script/bootstrap
+
+notice "Migrating the databases..."
+./bin/rake db:migrate db:test:prepare
+
+notice "Updating CTags..."
+./bin/build-ctags
