@@ -22,6 +22,16 @@ return {
 						},
 					},
 				},
+				pickers = {
+					buffers = {
+						prompt_prefix = "❯ ",
+						theme = "ivy",
+					},
+					find_files = {
+						prompt_prefix = "❯ ",
+						theme = "ivy",
+					}
+				}
 			})
 
 			telescope.load_extension("ctags_plus")

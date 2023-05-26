@@ -16,7 +16,7 @@ return {
 		end
 
 		base16_colorscheme.with_config({
-			telescope = false,
+			telescope_borders = true,
 		})
 
 		local colorscheme = Base16.theme()
@@ -133,7 +133,9 @@ return {
 		local darker_black = colors.darken(vim.g.base16_gui00, 0.06)
 
 		vim.api.nvim_set_hl(0, "TelescopeBorder", { fg = darker_black, bg = darker_black })
+		vim.api.nvim_set_hl(0, "TelescopePromptBorder", { fg = darker_black, bg = darker_black })
 		vim.api.nvim_set_hl(0, "TelescopeNormal", { bg = darker_black })
 		vim.api.nvim_set_hl(0, "TelescopePromptNormal", { bg = darker_black })
+		vim.api.nvim_set_hl(0, "TelescopeResultsTitle", { bg = vim.g.base16_gui0A })
 	end,
 }
