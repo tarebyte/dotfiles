@@ -136,6 +136,9 @@ return {
 		vim.api.nvim_set_hl(0, "TelescopePromptBorder", { fg = darker_black, bg = darker_black })
 		vim.api.nvim_set_hl(0, "TelescopeNormal", { bg = darker_black })
 		vim.api.nvim_set_hl(0, "TelescopePromptNormal", { bg = darker_black })
-		vim.api.nvim_set_hl(0, "TelescopeResultsTitle", { bg = vim.g.base16_gui0A })
+
+		vim.api.nvim_set_hl(0, "TelescopePreviewTitle", { fg = vim.g.base16_gui0B, bg = darker_black })
+		vim.api.nvim_set_hl(0, "TelescopePromptTitle", { fg = vim.g.base16_gui08, bg = darker_black })
+		vim.api.nvim_set_hl(0, "TelescopeResultsTitle", { fg = vim.g.base16_gui0A, bg = darker_black })
 	end,
 }
