@@ -1,13 +1,14 @@
-# vim: ft=bash
-# shellcheck shell=bash
+# vim: ft=zsh
+# shellcheck shell=zsh
 
 #########################################################################################
-# This is a hack to not overwrite the ~/.bashrc file created by the Codespaces          #
+# This is a hack to not overwrite the ~/.zshrc file created by the Codespaces and uses  #
+# the cutomization framework by Oh My ZSH.                                              #
+#                                                                                       #
+# See https://github.com/ohmyzsh/ohmyzsh/wiki/Customization for more details.           #
+#                                                                                       #
 # Be sure to update ~/.config/fish/config.fish as well with any changes for consitency! #
 #########################################################################################
-
-# shellcheck source=/dev/null
-[ -f ~/.fzf.bash ] && source ~/.fzf.bash
 
 # https://superuser.com/a/39995
 pathadd() {
@@ -28,7 +29,6 @@ export FZF_TMUX=1
 export RUBY_DEBUG=1
 
 alias ":e"=nvim
-alias "+x"="chmod u+x"
 alias gp="git push"
 alias lg=lazygit
 alias tn="tmux new-session -A -s"

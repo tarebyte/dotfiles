@@ -83,3 +83,10 @@ then
   make
   sudo make install
 fi
+
+# Enable OH My ZSH plugins
+zsh -i -c "omz plugin enable brew"
+zsh -i -c "omz plugin enable fzf"
+
+# Set zsh as the default shell
+sudo chsh -s /bin/zsh "$(whoami)"
