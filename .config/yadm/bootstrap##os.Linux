@@ -89,6 +89,6 @@ sudo chsh -s /bin/zsh "$(whoami)"
 
 # Enable OH My ZSH plugins
 zsh -c "
-. $ZSH/lib/cli.zsh
+. /home/$(whoami)/.oh-my-zsh/lib/cli.zsh
 omz plugin enable brew
 omz plugin enable fzf"
