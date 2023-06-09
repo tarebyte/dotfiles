@@ -84,6 +84,9 @@ return {
 				.. vim.g.base16_gui05
 		)
 
+		-- nvim-cmp
+		vim.api.nvim_set_hl(0, "CmpItemKindCopilot", { fg = vim.g.base16_gui0B })
+
 		-- Conoline
 		vim.g.conoline_color_normal_dark = string.format("guibg=%s", vim.g.base16_gui01)
 		vim.g.conoline_color_normal_nr_dark = string.format(

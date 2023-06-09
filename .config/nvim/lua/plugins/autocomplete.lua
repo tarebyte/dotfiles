@@ -16,6 +16,23 @@ return {
 			},
 		},
 		{
+			"zbirenbaum/copilot-cmp",
+			dependencies = {
+				"zbirenbaum/copilot.lua",
+				cmd = "Copilot",
+				event = "InsertEnter",
+				config = function()
+					require("copilot").setup({
+						suggestion = { enabled = false },
+						panel = { enabled = false },
+					})
+				end,
+			},
+			config = function ()
+				require("copilot_cmp").setup()
+			end
+		},
+		{
 			"L3MON4D3/LuaSnip",
 			dependencies = {
 				{
@@ -35,6 +52,13 @@ return {
 			return col == 0 or vim.fn.getline("."):sub(col, col):match("%s")
 		end
 
+		-- https://github.com/zbirenbaum/copilot-cmp#tab-completion-configuration-highly-recommended
+		local has_words_before = function()
+			if vim.api.nvim_buf_get_option(0, "buftype") == "prompt" then return false end
+			local line, col = unpack(vim.api.nvim_win_get_cursor(0))
+			return col ~= 0 and vim.api.nvim_buf_get_text(0, line-1, 0, line-1, col, {})[1]:match("^%s*$") == nil
+		end
+
 		local cmp = require("cmp")
 		local luasnip = require("luasnip")
 
@@ -45,7 +69,38 @@ return {
 				end,
 			},
 			formatting = {
-				format = require("lspkind").cmp_format({ preset = "codicons" }),
+				format = require("lspkind").cmp_format({
+					-- https://github.com/onsails/lspkind.nvim/blob/57610d5ab560c073c465d6faf0c19f200cb67e6e/lua/lspkind/init.lua#L34-L60
+					-- Plus Copilot
+					symbol_map = {
+						Text = "",
+						Method = "",
+						Function = "",
+						Constructor = "",
+						Field = "",
+						Variable = "",
+						Class = "",
+						Interface = "",
+						Module = "",
+						Property = "",
+						Unit = "",
+						Value = "",
+						Enum = "",
+						Keyword = "",
+						Snippet = "",
+						Color = "",
+						File = "",
+						Reference = "",
+						Folder = "",
+						EnumMember = "",
+						Constant = "",
+						Struct = "",
+						Event = "",
+						Operator = "",
+						TypeParameter = "",
+						Copilot = "",
+					},
+				}),
 			},
 			mapping = cmp.mapping.preset.insert({
 				["<C-b>"] = cmp.mapping.scroll_docs(-4),
@@ -53,8 +108,10 @@ return {
 				["<C-Space>"] = cmp.mapping.complete(),
 				["<C-y>"] = cmp.config.disable,
 				["<CR>"] = cmp.mapping.confirm({ select = true }), -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items.
-				["<Tab>"] = function(fallback)
-					if cmp.visible() then
+				["<Tab>"] = vim.schedule_wrap(function(fallback)
+					if cmp.visible() and has_words_before() then
+						cmp.select_next_item({ behavior = cmp.SelectBehavior.Select })
+					elseif cmp.visible() then
 						cmp.select_next_item()
 					elseif luasnip.expandable() then
 						luasnip.expand()
@@ -65,8 +122,8 @@ return {
 					else
 						fallback()
 					end
-				end,
-				["<S-Tab>"] = function(fallback)
+				end),
+				["<S-Tab>"] = vim.schedule_wrap(function(fallback)
 					if cmp.visible() then
 						cmp.select_prev_item()
 					elseif luasnip.jumpable(-1) then
@@ -74,11 +131,31 @@ return {
 					else
 						fallback()
 					end
-				end,
+				end),
 			}),
+			-- https://github.com/hrsh7th/nvim-cmp/blob/09ff53ff579cfa3368f8051b0dbe88406891aabe/lua/cmp/config/default.lua#L62-L74
+			sorting = {
+				priority_weight = 2,
+				comparators = {
+					-- Give Copilot priority and then use the default comparators
+					require("copilot_cmp.comparators").prioritize,
+
+					cmp.config.compare.offset,
+					cmp.config.compare.exact,
+					-- cmp.config.compare.scopes,
+					cmp.config.compare.score,
+					cmp.config.compare.recently_used,
+					cmp.config.compare.locality,
+					cmp.config.compare.kind,
+					-- cmp.config.compare.sort_text,
+					cmp.config.compare.length,
+					cmp.config.compare.order,
+				},
+			},
 			sources = {
-				{ name = "luasnip" },
+				{ name = "copilot" },
 				{ name = "nvim_lsp" },
+				{ name = "luasnip" },
 				{ name = "buffer" },
 				{ name = "nvim_lua" },
 				{ name = "cmp_git" },
