@@ -101,7 +101,7 @@ then
 
     # Enable OH My ZSH plugins
     zsh -c "
-    . ${oh_my_zsh_dir}/cli.zsh
+    . ${oh_my_zsh_dir}/lib/cli.zsh
     omz plugin enable brew
     omz plugin enable fzf
     omz plugin enable zsh-autosuggestions"
