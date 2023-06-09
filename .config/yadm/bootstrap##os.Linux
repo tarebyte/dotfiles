@@ -84,11 +84,26 @@ then
   sudo make install
 fi
 
-# Set zsh as the default shell
-sudo chsh -s /bin/zsh "$(whoami)"
+if command -v zsh &> /dev/null
+then
+  # Set zsh as the default shell
+  sudo chsh -s /bin/zsh "$(whoami)"
 
-# Enable OH My ZSH plugins
-zsh -c "
-. /home/$(whoami)/.oh-my-zsh/lib/cli.zsh
-omz plugin enable brew
-omz plugin enable fzf"
+  oh_my_zsh_dir="/home/$(whoami)/.oh-my-zsh"
+
+  # Install custom plugins for Oh My ZSH
+  if [ -d "$oh_my_zsh_dir" ]
+  then
+    if [ ! -d "${oh_my_zsh_dir}/custom/plugins/zsh-autosuggestions" ]
+    then
+      gh repo clone zsh-users/zsh-autosuggestions "${oh_my_zsh_dir}/custom/plugins/zsh-autosuggestions"
+    fi
+
+    # Enable OH My ZSH plugins
+    zsh -c "
+    . ${oh_my_zsh_dir}/cli.zsh
+    omz plugin enable brew
+    omz plugin enable fzf
+    omz plugin enable zsh-autosuggestions"
+  fi
+fi
