@@ -7,7 +7,6 @@ return {
 		"hrsh7th/cmp-cmdline",
 		"hrsh7th/cmp-path",
 		"hrsh7th/cmp-nvim-lua",
-		"onsails/lspkind-nvim",
 		"saadparwaiz1/cmp_luasnip",
 		{
 			"petertriho/cmp-git",
@@ -69,38 +68,24 @@ return {
 				end,
 			},
 			formatting = {
-				format = require("lspkind").cmp_format({
-					-- https://github.com/onsails/lspkind.nvim/blob/57610d5ab560c073c465d6faf0c19f200cb67e6e/lua/lspkind/init.lua#L34-L60
-					-- Plus Copilot
-					symbol_map = {
-						Text = "",
-						Method = "",
-						Function = "",
-						Constructor = "",
-						Field = "",
-						Variable = "",
-						Class = "",
-						Interface = "",
-						Module = "",
-						Property = "",
-						Unit = "",
-						Value = "",
-						Enum = "",
-						Keyword = "",
-						Snippet = "",
-						Color = "",
-						File = "",
-						Reference = "",
-						Folder = "",
-						EnumMember = "",
-						Constant = "",
-						Struct = "",
-						Event = "",
-						Operator = "",
-						TypeParameter = "",
-						Copilot = "",
-					},
-				}),
+				fields = { "kind", "abbr" },
+				format = function(_, vim_item)
+					-- https://github.com/hrsh7th/nvim-cmp/wiki/Menu-Appearance#how-to-add-visual-studio-code-codicons-to-the-menu
+					local icons = require("user.utils.icons").codicons
+					local icon = icons[vim_item.kind] or "?"
+
+					vim_item.kind = icon .. " "
+
+					-- https://github.com/onsails/lspkind.nvim/blob/57610d5ab560c073c465d6faf0c19f200cb67e6e/lua/lspkind/init.lua#L203-L207
+					local label = vim_item.abbr
+					local truncated_label = vim.fn.strcharpart(label, 0, 100)
+
+					if truncated_label ~= label then
+						vim_item.abbr = truncated_label .. "..."
+					end
+
+					return vim_item
+				end,
 			},
 			mapping = cmp.mapping.preset.insert({
 				["<C-b>"] = cmp.mapping.scroll_docs(-4),
@@ -161,7 +146,14 @@ return {
 				{ name = "cmp_git" },
 				{ name = "path" },
 			},
+			view = {
+				entries = { name = "custom", selection_order = "near_cursor" },
+			},
 			window = {
+				completion = {
+					border = { "╭", "─", "╮", "│", "╯", "─", "╰", "│" },
+					winhighlight = "Normal:Normal,FloatBorder:NormalFloat,CursorLine:PmenuSel,Search:None",
+				},
 				documentation = {
 					border = { "╭", "─", "╮", "│", "╯", "─", "╰", "│" },
 				},

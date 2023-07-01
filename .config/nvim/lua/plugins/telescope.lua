@@ -30,8 +30,8 @@ return {
 					find_files = {
 						prompt_prefix = "❯ ",
 						theme = "ivy",
-					}
-				}
+					},
+				},
 			})
 
 			telescope.load_extension("ctags_plus")

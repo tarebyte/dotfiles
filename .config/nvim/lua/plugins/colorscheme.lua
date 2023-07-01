@@ -75,6 +75,9 @@ return {
 		-------------
 		-- Plugins --
 		-------------
+		--
+		local colors = require("user.utils.colors")
+		local darker_black = colors.darken(vim.g.base16_gui00, 0.06)
 
 		-- Better whitespace
 		vim.cmd(
@@ -85,6 +88,7 @@ return {
 		)
 
 		-- nvim-cmp
+		vim.api.nvim_set_hl(0, "CmpItemAbbr", { fg = vim.g.base16_gui05, bg = vim.g.base16_gui00 })
 		vim.api.nvim_set_hl(0, "CmpItemKindCopilot", { fg = vim.g.base16_gui0B })
 
 		-- Conoline
@@ -132,9 +136,6 @@ return {
 		})
 
 		-- Telescope
-		local colors = require("user.utils.colors")
-		local darker_black = colors.darken(vim.g.base16_gui00, 0.06)
-
 		vim.api.nvim_set_hl(0, "TelescopeBorder", { fg = darker_black, bg = darker_black })
 		vim.api.nvim_set_hl(0, "TelescopePromptBorder", { fg = darker_black, bg = darker_black })
 		vim.api.nvim_set_hl(0, "TelescopeNormal", { bg = darker_black })
