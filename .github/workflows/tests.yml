@@ -4,19 +4,22 @@ on:
     branches: main
   pull_request: []
 jobs:
-  syntax:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os:
-          - ubuntu-latest
-          - macos-latest
+  fish:
+    runs-on: ubuntu-latest
     steps:
-    - name: Set up Git repository
-      uses: actions/checkout@master
-
-    - name: fish-actions/install-fish
-      uses: fish-actions/install-fish@v1.1.0
-
-    - name: Validate syntax
+    - uses: actions/checkout@v3
+    - uses: fish-actions/install-fish@v1
+    - name: Validate fish syntax
       run: fish -n .config/fish/**/*.fish
+  lua:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+    - uses: actions/checkout@v3
+    - uses: JohnnyMorganz/stylua-action@v3
+    with:
+      token: ${{ secrets.GITHUB_TOKEN }}
+      version: v0.18.0
+        # CLI arguments
+      args: --check .config/nvim/
