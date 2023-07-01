@@ -67,10 +67,10 @@ return {
 		-----------------------
 
 		-- HTML
-		vim.api.nvim_set_hl(0, '@tag.delimiter.html', { link = "Normal" })
+		vim.api.nvim_set_hl(0, "@tag.delimiter.html", { link = "Normal" })
 
 		-- Ruby
-		vim.api.nvim_set_hl(0, '@punctuation.special.ruby', { link = "Boolean" })
+		vim.api.nvim_set_hl(0, "@punctuation.special.ruby", { link = "Boolean" })
 
 		-------------
 		-- Plugins --
