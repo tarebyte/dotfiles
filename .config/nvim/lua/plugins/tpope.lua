@@ -6,8 +6,8 @@ return {
 	{
 		"tpope/vim-rails",
 		dependencies = {
-			"tpope/vim-projectionist"
-		}
+			"tpope/vim-projectionist",
+		},
 	},
 	{
 		"tpope/vim-surround",

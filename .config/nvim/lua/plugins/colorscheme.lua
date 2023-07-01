@@ -23,7 +23,7 @@ return {
 		if colorscheme ~= nil then
 			vim.cmd("colorscheme " .. colorscheme)
 		else
-			vim.cmd [[colorscheme base16-ocean]]
+			vim.cmd([[colorscheme base16-ocean]])
 		end
 
 		vim.api.nvim_set_hl(0, "@function.builtin", { fg = vim.g.base16_gui0C, italic = true })
@@ -93,19 +93,11 @@ return {
 
 		-- Conoline
 		vim.g.conoline_color_normal_dark = string.format("guibg=%s", vim.g.base16_gui01)
-		vim.g.conoline_color_normal_nr_dark = string.format(
-			"guibg=%s guifg=%s",
-			vim.g.base16_gui00,
-			vim.g.base16_gui07
-		)
+		vim.g.conoline_color_normal_nr_dark = string.format("guibg=%s guifg=%s", vim.g.base16_gui00, vim.g.base16_gui07)
 
 		-- Hide away on insert.
 		vim.g.conoline_color_insert_dark = string.format("guibg=%s", vim.g.base16_gui00)
-		vim.g.conoline_color_insert_nr_dark = string.format(
-			"guibg=%s guifg=%s",
-			vim.g.base16_gui00,
-			vim.g.base16_gui07
-		)
+		vim.g.conoline_color_insert_nr_dark = string.format("guibg=%s guifg=%s", vim.g.base16_gui00, vim.g.base16_gui07)
 
 		-- Lualine
 		vim.api.nvim_set_hl(0, "SLBranch", {
