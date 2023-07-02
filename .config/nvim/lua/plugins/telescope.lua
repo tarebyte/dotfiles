@@ -28,6 +28,7 @@ return {
 						theme = "ivy",
 					},
 					find_files = {
+						find_command = { "rg", "--files", "--hidden", "--no-messages", "--glob", "!{node_modules,.git}" },
 						prompt_prefix = "❯ ",
 						theme = "ivy",
 					},
