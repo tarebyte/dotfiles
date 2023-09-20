@@ -1,12 +1,6 @@
 return {
-	{
-		"folke/neoconf.nvim",
-		lazy = false,
-		opts = {}
-	},
-	{
-		"folke/neodev.nvim", opts = {}
-	},
+	{ "folke/neoconf.nvim", cmd = "Neoconf", config = false, dependencies = { "nvim-lspconfig" } },
+	{ "folke/neodev.nvim", opts = {} },
 	{
 		"neovim/nvim-lspconfig",
 		event = { "BufReadPre", "BufNewFile" },
