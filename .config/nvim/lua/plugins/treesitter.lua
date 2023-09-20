@@ -30,6 +30,7 @@ return {
 			"scheme",
 			"typescript",
 			"vim",
+			"yaml",
 		},
 		endwise = {
 			enable = true,
