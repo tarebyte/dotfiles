@@ -27,3 +27,6 @@ vim.keymap.set("n", "<LEADER><SPACE>", ":noh<CR>")
 
 -- fast access to the :
 vim.keymap.set("n", "<Space>", ":")
+
+-- Make Neotree work like vim-dirvish
+vim.keymap.set("n", "-", ":Neotree position=current %:p:h<CR>", { silent = true, noremap = true })
