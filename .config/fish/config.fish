@@ -1,9 +1,9 @@
 # https://github.com/Homebrew/install/blob/abe5c4fe830cf6c36d1916b9eaac3ee818c949b8/uninstall.sh#L68-L73
 switch (uname -m)
     case arm64
-    set -gx HOMEBREW_PREFIX /opt/homebrew
+        set -gx HOMEBREW_PREFIX /opt/homebrew
     case "*"
-    set -gx HOMEBREW_PREFIX /usr/local
+        set -gx HOMEBREW_PREFIX /usr/local
 end
 
 ############
