@@ -1,55 +1,35 @@
+local Util = require("lazyvim.util")
+
 return {
-	{
-		"nvim-telescope/telescope.nvim",
-		version = "0.1.1",
-		cmd = "Telescope",
-		dependencies = {
-			"nvim-lua/plenary.nvim",
-			"gnfisher/nvim-telescope-ctags-plus",
-			{
-				"nvim-telescope/telescope-fzf-native.nvim",
-				build = "make",
-			},
-		},
-		config = function()
-			local telescope = require("telescope")
+  {
+    "telescope.nvim",
+    dependencies = {
+      "gnfisher/nvim-telescope-ctags-plus",
+      "nvim-telescope/telescope-fzf-native.nvim",
+      build = "make",
+      config = function()
+        require("telescope").load_extension("ctags_plus")
+        require("telescope").load_extension("fzf")
+      end,
+    },
+    opts = {
+      -- https://github.com/nvim-telescope/telescope.nvim/issues/848#issuecomment-1584291014
+      defaults = vim.tbl_extend("force", require("telescope.themes").get_ivy(), {
+        mappings = {
+          i = {
+            ["<esc>"] = require("telescope.actions").close,
+          },
+        },
+      }),
+    },
+    keys = {
+      -- disable the keymap to grep files
+      -- https://github.com/LazyVim/LazyVim/blob/6f9adbd4fba4132bd4f12404bd2b90c4a28ff136/lua/lazyvim/plugins/editor.lua
+      { "<leader><space>", false },
 
-			telescope.setup({
-				defaults = {
-					mappings = {
-						i = {
-							["<esc>"] = require("telescope.actions").close,
-						},
-					},
-				},
-				pickers = {
-					buffers = {
-						prompt_prefix = "❯ ",
-						theme = "ivy",
-					},
-					find_files = {
-						find_command = {
-							"rg",
-							"--files",
-							"--hidden",
-							"--no-messages",
-							"--glob",
-							"!{node_modules,.git}",
-						},
-						prompt_prefix = "❯ ",
-						theme = "ivy",
-					},
-				},
-			})
-
-			telescope.load_extension("ctags_plus")
-			telescope.load_extension("fzf")
-		end,
-		keys = {
-			{ "<C-p>", "<cmd>Telescope find_files<cr>", desc = "Ctrl-P replacement" },
-			{ "<Leader>t", "<cmd>Telescope find_files<cr>", desc = "Find files" },
-			{ "<Leader>b", "<cmd>Telescope buffers<cr>", desc = "Buffers" },
-			{ "<C-]>", "<cmd>lua require('telescope').extensions.ctags_plus.jump_to_tag()<cr>", desc = "CTags" },
-		},
-	},
+      { "<C-p>", Util.telescope("files"), desc = "Find Files (root dir)" },
+      { "<leader>t", Util.telescope("files"), desc = "Find Files (root dir)" },
+      { "<C-]>", "<cmd>lua require('telescope').extensions.ctags_plus.jump_to_tag()<cr>", desc = "CTags" },
+    },
+  },
 }

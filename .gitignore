@@ -10,3 +10,13 @@
 .config/nvim/plugin/
 
 .homebrew/Brewfile.lock.json
+
+# LazyVim
+tt.*
+.tests
+doc/tags
+debug
+.repro
+foo.*
+*.log
+data
