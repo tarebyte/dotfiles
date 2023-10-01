@@ -5,7 +5,7 @@ return {
       filesystem = {
         hide_dotfiles = false,
       },
-    }
+    },
   },
   {
     "tpope/vim-eunuch",
