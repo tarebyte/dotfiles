@@ -7,43 +7,20 @@ return {
         "nvim-treesitter/playground",
       },
     },
-    opts = {
-      endwise = {
-        enable = true,
-      },
-      -- Also lists pre-installed languages from LazyVim
-      ensure_installed = {
-        -- "bash",
-        -- "c",
+    opts = function(_, opts)
+      opts.endwise = { enable = true }
+      opts.playground = { enable = true }
+
+      vim.list_extend(opts.ensure_installed, {
         "comment",
         "css",
-        -- "dockerfile",
+        "dockerfile",
         "elixir",
         "fish",
-        -- "html",
-        -- "javascript",
-        -- "jsdoc",
-        -- "json",
-        -- "lua",
-        -- "luadoc",
-        -- "luap",
-        -- "markdown",
-        -- "markdown_inline",
-        -- "python",
-        -- "query",
-        -- "regex",
         "ruby",
-        -- "tsx"
-        -- "typescript"
         "scss",
         "scheme",
-        -- "vim",
-        -- "vimdoc",
-        -- "yaml",
-      },
-      playground = {
-        enable = true,
-      },
-    },
+      })
+    end,
   },
 }
