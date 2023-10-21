@@ -9,7 +9,7 @@ return {
       telescope_borders = true,
     })
 
-    base16_colorscheme.load_from_shell()
+    vim.cmd("colorscheme base16-ocean")
 
     vim.api.nvim_set_hl(0, "@function.builtin", { fg = vim.g.base16_gui0C, italic = true })
     vim.api.nvim_set_hl(0, "@keyword.return", { fg = vim.g.base16_gui0E, italic = true })
