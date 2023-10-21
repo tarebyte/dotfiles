@@ -1,48 +1,50 @@
 return {
   {
     "nvim-tree/nvim-web-devicons",
-    lazy = true,
-    config = function()
-      require("nvim-web-devicons").setup({
-        override = {
-          ["config.ru"] = {
-            icon = "",
-            color = vim.g.base16_gui08,
-            cterm_color = "52",
-            name = "ConfigRu",
-          },
-          erb = {
-            icon = "",
-            color = vim.g.base16_gui08,
-            cterm_color = "52",
-            name = "Erb",
-          },
-          fish = {
-            icon = "󰈺",
-            color = "#4d5a5e",
-            cterm_color = "59",
-            name = "Fish",
-          },
-          rake = {
-            icon = "",
-            color = vim.g.base16_gui08,
-            cterm_color = "52",
-            name = "Rake",
-          },
-          rb = {
-            icon = "",
-            color = vim.g.base16_gui08,
-            cterm_color = "52",
-            name = "Rb",
-          },
-          scm = {
-            icon = "󰅲",
-            color = "#62B132",
-            cterm_color = "34",
-            name = "Scm",
-          },
+    opts = function(_, opts)
+      local ruby_icon = ""
+      local ruby_color = vim.g.base16_gui08
+
+      opts.override = {
+        ["config.ru"] = {
+          icon = ruby_icon,
+          color = ruby_color,
+          cterm_color = "52",
+          name = "ConfigRu",
         },
-      })
+        erb = {
+          icon = "",
+          color = vim.g.base16_gui08,
+          cterm_color = "52",
+          name = "Erb",
+        },
+        fish = {
+          icon = "󰈺",
+          color = "#4d5a5e",
+          cterm_color = "59",
+          name = "Fish",
+        },
+        rake = {
+          icon = ruby_icon,
+          color = ruby_color,
+          cterm_color = "52",
+          name = "Rake",
+        },
+        rb = {
+          icon = ruby_icon,
+          color = ruby_color,
+          cterm_color = "52",
+          name = "Rb",
+        },
+        scm = {
+          icon = "󰅲",
+          color = "#62B132",
+          cterm_color = "34",
+          name = "Scm",
+        },
+      }
+
+      return opts
     end,
   },
   {
