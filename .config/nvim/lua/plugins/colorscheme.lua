@@ -66,9 +66,9 @@ return {
     local colors = require("user.utils.colors")
     local darker_black = colors.darken(vim.g.base16_gui00, 0.06)
 
-    -- alpha-nvim
-    vim.api.nvim_set_hl(0, "AlphaButtons", { fg = vim.g.base16_gui0C })
-    vim.api.nvim_set_hl(0, "AlphaShortcut", { fg = vim.g.base16_gui09 })
+    -- dashboard-nvim
+    vim.api.nvim_set_hl(0, "DashboardIcon", { fg = vim.g.base16_gui0C })
+    vim.api.nvim_set_hl(0, "DashboardKey", { fg = vim.g.base16_gui09 })
 
     -- Better whitespace
     vim.cmd(
