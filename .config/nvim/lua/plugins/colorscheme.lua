@@ -46,7 +46,6 @@ return {
 
     vim.api.nvim_set_hl(0, "VertSplit", {
       fg = vim.g.base16_gui02,
-      bg = vim.g.base16_gui02,
     })
 
     -----------------------
