@@ -124,14 +124,3 @@ return {
     vim.api.nvim_set_hl(0, "TelescopeResultsTitle", { fg = vim.g.base16_gui0A, bg = darker_black })
   end,
 }
--- return {
---   {
---     "projekt0n/github-nvim-theme",
---   },
---   {
---     "LazyVim/LazyVim",
---     opts = {
---       colorscheme = "github_dark_dimmed",
---     },
---   },
--- }
