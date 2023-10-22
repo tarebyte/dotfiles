@@ -2,41 +2,9 @@ return {
   {
     "hrsh7th/nvim-cmp",
     dependencies = {
-      {
-        "petertriho/cmp-git",
-        dependencies = {
-          "nvim-lua/plenary.nvim",
-        },
-      },
-      {
-        {
-          "zbirenbaum/copilot-cmp",
-          dependencies = {
-            "zbirenbaum/copilot.lua",
-            cmd = "Copilot",
-            build = ":Copilot auth",
-            opts = {
-              suggestion = { enabled = false },
-              panel = { enabled = false },
-              filetypes = {
-                markdown = true,
-                help = true,
-              },
-            },
-          },
-          opts = {},
-          config = function(_, opts)
-            local copilot_cmp = require("copilot_cmp")
-            copilot_cmp.setup(opts)
-            -- attach cmp source whenever copilot attaches
-            -- fixes lazy-loading issues with the copilot cmp source
-            require("lazyvim.util").on_attach(function(client)
-              if client.name == "copilot" then
-                copilot_cmp._on_insert_enter({})
-              end
-            end)
-          end,
-        },
+      "petertriho/cmp-git",
+      dependencies = {
+        "nvim-lua/plenary.nvim",
       },
     },
     ---@param opts cmp.ConfigSchema
@@ -69,11 +37,6 @@ return {
           -- https://github.com/hrsh7th/nvim-cmp/wiki/Menu-Appearance#how-to-add-visual-studio-code-codicons-to-the-menu
           local icons = require("lazyvim.config").icons.kinds
           local icon = icons[item.kind] .. " " or "? "
-
-          -- Override the icon for Copilot
-          if item.kind == "Copilot" then
-            icon = " "
-          end
 
           item.kind = icon
 
@@ -116,12 +79,8 @@ return {
         end, { "i", "s" }),
       })
 
-      table.insert(opts.sources, 1, { name = "copilot", group_index = 2 })
-      opts.sorting = opts.sorting or require("cmp.config.default")().sorting
-      table.insert(opts.sorting.comparators, 1, require("copilot_cmp.comparators").prioritize)
-
       -- Add cmp-git as a source
-      table.insert(opts.sources, { name = "cmp_git" })
+      table.insert(opts.sources, { name = "git" })
 
       opts.view = vim.tbl_deep_extend("force", {}, {
         entries = {
