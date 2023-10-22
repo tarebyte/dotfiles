@@ -85,34 +85,6 @@ return {
     vim.g.conoline_color_insert_dark = string.format("guibg=%s", vim.g.base16_gui00)
     vim.g.conoline_color_insert_nr_dark = string.format("guibg=%s guifg=%s", vim.g.base16_gui00, vim.g.base16_gui07)
 
-    -- Lualine
-    vim.api.nvim_set_hl(0, "SLBranch", {
-      fg = vim.g.base16_gui04,
-      bg = vim.g.base16_gui01,
-      bold = true,
-    })
-
-    vim.api.nvim_set_hl(0, "SLDiagnostics", {
-      fg = vim.g.base16_gui04,
-      bg = vim.g.base16_gui01,
-    })
-
-    vim.api.nvim_set_hl(0, "SLFilename", {
-      fg = vim.g.base16_gui04,
-      bg = vim.g.base16_gui01,
-    })
-
-    vim.api.nvim_set_hl(0, "SLProgress", {
-      fg = vim.g.base16_gui0A,
-      bg = vim.g.base16_gui01,
-    })
-
-    -- Pretty fold
-    vim.api.nvim_set_hl(0, "Folded", {
-      fg = vim.g.base16_gui03,
-      ctermfg = 14,
-    })
-
     -- Telescope
     vim.api.nvim_set_hl(0, "TelescopeBorder", { fg = darker_black, bg = darker_black })
     vim.api.nvim_set_hl(0, "TelescopePromptBorder", { fg = darker_black, bg = darker_black })
