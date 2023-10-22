@@ -49,10 +49,7 @@ return {
   },
   {
     "nvim-lualine/lualine.nvim",
-    event = "VeryLazy",
     opts = function(_, opts)
-      local icons = require("lazyvim.config").icons
-
       opts.options.component_separators = { left = "", right = "" }
       opts.options.section_separators = { left = "", right = "" }
 
@@ -62,7 +59,6 @@ return {
           fmt = function(str)
             return str:sub(1, 1)
           end,
-          padding = 1,
         },
       }
 
@@ -73,25 +69,13 @@ return {
         },
       }
 
-      opts.sections.lualine_c = {
-        {
-          "diagnostics",
-          symbols = {
-            error = icons.diagnostics.Error,
-            warn = icons.diagnostics.Warn,
-            info = icons.diagnostics.Info,
-            hint = icons.diagnostics.Hint,
-          },
-          colored = false,
-          always_visible = true,
-        },
-        {
-          "filename",
-          path = 1,
-          symbols = { modified = "", readonly = "", unnamed = "" },
-          padding = 1,
-        },
-      }
+      -- Disable colors for "diagnostics" section
+      -- https://github.com/LazyVim/LazyVim/blob/fa3170d422f3c661d0411472c96f92e5324dc281/lua/lazyvim/plugins/ui.lua#L144-L152
+      opts.sections.lualine_c[2].colored = false
+
+      -- Remove file type icon
+      -- https://github.com/LazyVim/LazyVim/blob/fa3170d422f3c661d0411472c96f92e5324dc281/lua/lazyvim/plugins/ui.lua#L153
+      table.remove(opts.sections.lualine_c, 3)
 
       opts.sections.lualine_y = {
         {
@@ -99,6 +83,7 @@ return {
           fmt = function()
             return "Ln %l, Col %-2v"
           end,
+          padding = { left = 1 },
           color = { bg = vim.g.base16_gui01 },
         },
         {
@@ -107,70 +92,61 @@ return {
         },
       }
 
-      opts.sections.lualine_z = {
-        {
-          function()
-            local icon = ""
-            local status = require("copilot.api").status.data
+      -- Remove Copilot status
+      local copilot = table.remove(opts.sections.lualine_x, 2)
 
-            if status.status == "Warning" then
-              icon = ""
-            end
+      copilot[1] = function()
+        local kinds = require("lazyvim.config").icons.kinds
 
-            return icon .. (status.message or "")
-          end,
-          cond = function()
-            local ok, clients = pcall(vim.lsp.get_active_clients, { name = "copilot", bufnr = 0 })
-            return ok and #clients > 0
-          end,
-          color = function()
-            if not package.loaded["copilot"] then
-              return
-            end
+        local icon = kinds.Copilot
+        local status = require("copilot.api").status.data
 
-            local status = require("copilot.api").status.data
+        if status.status == "Warning" then
+          icon = kinds.CopilotWarning
+        end
 
-            if status.status == "InProgress" then
-              return { fg = vim.g.base16_gui0D, bg = vim.g.base16_gui01 }
-            elseif status.status == "Normal" then
-              return { fg = vim.g.base16_gui05, bg = vim.g.base16_gui01 }
-            elseif status.status == "Warning" then
-              return { fg = vim.g.base16_gui0A, bg = vim.g.base16_gui01 }
-            else
-              return { fg = vim.g.base16_gui02, bg = vim.g.base16_gui01 }
-            end
-          end,
-          padding = { left = 1, right = 2 },
-        },
+        return icon .. (status.message or "")
+      end
+
+      copilot.color = {
+        fg = (copilot.color() or vim.g.base16_gui05),
+        bg = vim.g.base16_gui01,
       }
+      copilot.padding = { left = 1, right = 1 }
+
+      opts.sections.lualine_z = { copilot }
+
+      return opts
     end,
   },
   {
-    "goolord/alpha-nvim",
-    opts = function()
-      local dashboard = require("alpha.themes.dashboard")
+    "nvimdev/dashboard-nvim",
+    opts = function(_, opts)
       local logo = [[
-           .          .
-         ';;,.        ::'
-       ,:::;,,        :ccc,
-      ,::c::,,,,.     :cccc,
-      ,cccc:;;;;;.    cllll,
-      ,cccc;.;;;;;,   cllll;
-      :cccc; .;;;;;;. coooo;
-      ;llll;   ,:::::'loooo;
-      ;llll:    ':::::loooo:
-      :oooo:     .::::llodd:
-      .;ooo:       ;cclooo:.
-        .;oc        'coo;.
-          .'         .,.
+    .        .
+    ';;,.       ::'
+    ,:::;,,       :ccc,
+  ,::c::,,,,.     :cccc,
+  ,cccc:;;;;;.    cllll,
+  ,cccc;.;;;;;,   cllll;
+  :cccc; .;;;;;;. coooo;
+  ;llll;   ,:::::'loooo;
+  ;llll:    ':::::loooo:
+  :oooo:     .::::llodd:
+  .;ooo:       ;cclooo:.
+  .;oc        'coo;.
+  .'         .,.
       ]]
 
-      dashboard.section.header.val = vim.split(logo, "\n")
+      logo = string.rep("\n", 8) .. logo .. "\n\n"
 
-      local find_file = dashboard.section.buttons.val[1]
-      find_file.val = " " .. " Find file"
+      -- Replace the Dashboard logo
+      opts.config.header = vim.split(logo, "\n")
 
-      return dashboard
+      -- Change the "Find file" icon
+      opts.config.center[1].icon = " "
+
+      return opts
     end,
   },
 }
