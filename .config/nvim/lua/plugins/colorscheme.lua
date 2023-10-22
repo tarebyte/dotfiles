@@ -81,10 +81,6 @@ return {
     vim.api.nvim_set_hl(0, "CmpItemAbbr", { fg = vim.g.base16_gui05, bg = vim.g.base16_gui00 })
     vim.api.nvim_set_hl(0, "CmpItemKindCopilot", { fg = vim.g.base16_gui0B })
 
-    -- Hide away on insert.
-    vim.g.conoline_color_insert_dark = string.format("guibg=%s", vim.g.base16_gui00)
-    vim.g.conoline_color_insert_nr_dark = string.format("guibg=%s guifg=%s", vim.g.base16_gui00, vim.g.base16_gui07)
-
     -- Telescope
     vim.api.nvim_set_hl(0, "TelescopeBorder", { fg = darker_black, bg = darker_black })
     vim.api.nvim_set_hl(0, "TelescopePromptBorder", { fg = darker_black, bg = darker_black })
