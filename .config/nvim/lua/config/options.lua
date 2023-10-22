@@ -4,7 +4,6 @@
 
 -- The one true leader key
 vim.g.mapleader = [[,]]
-vim.g.maplocalleader = [[,]]
 
 -- assume the /g flag on substitutions to replace all matches in a line
 vim.o.gdefault = true
