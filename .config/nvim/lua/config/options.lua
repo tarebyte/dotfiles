@@ -6,10 +6,10 @@
 vim.g.mapleader = [[,]]
 
 -- assume the /g flag on substitutions to replace all matches in a line
-vim.o.gdefault = true
+vim.opt.gdefault = true
 
 -- highlight trailing whitespace
-vim.o.listchars = "tab:> ,trail:-,extends:>,precedes:<,nbsp:+"
+vim.opt.listchars = "tab:> ,trail:-,extends:>,precedes:<,nbsp:+"
 
 -- don't use relative line numbers
 vim.wo.relativenumber = false
