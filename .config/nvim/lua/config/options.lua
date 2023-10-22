@@ -13,4 +13,6 @@ vim.opt.listchars = "tab:> ,trail:-,extends:>,precedes:<,nbsp:+"
 
 -- don't use relative line numbers
 vim.wo.relativenumber = false
-vim.o.numberwidth = 2
+
+-- No Popup blend
+vim.opt.pumblend = 0
