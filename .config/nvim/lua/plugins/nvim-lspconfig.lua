@@ -5,6 +5,7 @@ return {
     "neovim/nvim-lspconfig",
     opts = {
       servers = {
+        -- Custom Sorbet setup for internal work.
         vscode_sorbet = {},
       },
       setup = {
@@ -23,8 +24,7 @@ return {
                 filetypes = {
                   "ruby",
                 },
-                -- root_dir = util.root_pattern("Gemfile", ".git", ".vscode/run-sorbet.sh"),
-                root_dir = util.root_pattern(".vscode/run-sorbet.sh"),
+                root_dir = util.root_pattern(".vscode/run-sorbet"),
               },
             }
           end
