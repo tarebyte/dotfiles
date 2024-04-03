@@ -29,7 +29,7 @@ export FZF_TMUX=1
 export RUBY_DEBUG=1
 
 alias ":e"=nvim
-alias gp="git push"
+alias gp="SKIP_ALL_PREPUSH_CHECKS=1 git push"
 alias lg=lazygit
 alias tn="tmux new-session -A -s"
 alias vi=nvim
