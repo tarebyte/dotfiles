@@ -31,7 +31,7 @@ return {
       }
     end,
     keys = {
-      { "<Leader>cs", "<cmd>StripWhitespace<cr>", "", desc = { "Clean up trailing whitespace" } },
+      { "<Leader>cs", "<cmd>StripWhitespace<cr>", "", desc = "Clean up trailing whitespace" },
     },
   },
 }
