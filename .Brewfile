@@ -25,7 +25,6 @@ tap "universal-ctags/universal-ctags"
 brew "universal-ctags/universal-ctags/universal-ctags", args: ["HEAD"]
 
 cask "1password-cli"
-cask "cleanmymac"
 cask "dash"
 cask "docker"
 cask "gpg-suite"
