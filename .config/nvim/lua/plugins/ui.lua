@@ -95,15 +95,16 @@ return {
       -- Remove Copilot status
       local copilot = table.remove(opts.sections.lualine_x, 2)
 
+      local copilotIcons = {
+        [""] = require("lazyvim.config").icons.kinds.Copilot,
+        ["Normal"] = require("lazyvim.config").icons.kinds.Copilot,
+        ["Warning"] = " ",
+        ["InProgress"] = " ",
+      }
+
       copilot[1] = function()
-        local kinds = require("lazyvim.config").icons.kinds
-
-        local icon = kinds.Copilot
         local status = require("copilot.api").status.data
-
-        if status.status == "Warning" then
-          icon = kinds.CopilotWarning
-        end
+        local icon = copilotIcons[status.status] or copilotIcons[""]
 
         return icon .. (status.message or "")
       end
