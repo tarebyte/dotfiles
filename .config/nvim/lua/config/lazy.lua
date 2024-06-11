@@ -18,6 +18,12 @@ require("lazy").setup({
     lazy = false,
     version = false, -- always use the latest git commit
   },
+  icons = {
+    kinds = {
+      CopilotError = " ",
+      CopilotWarning = " ",
+    },
+  },
   checker = { enabled = false }, -- do not automatically check for plugin updates
   performance = {
     rtp = {
