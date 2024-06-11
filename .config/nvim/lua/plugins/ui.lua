@@ -79,12 +79,29 @@ return {
 
       opts.sections.lualine_y = {
         {
-          "location",
-          fmt = function()
-            return "Ln %l, Col %-2v"
+          function()
+            local cur = vim.fn.line(".")
+            local total = vim.fn.line("$")
+
+            local chars = {
+              "   ",
+              "▁▁▁",
+              "▂▂▂",
+              "▂▂▂",
+              "▃▃▃",
+              "▄▄▄",
+              "▅▅▅",
+              "▆▆▆",
+              "▇▇▇",
+              "███",
+            }
+
+            local line_ratio = cur / total
+            local index = math.ceil(line_ratio * #chars)
+
+            return chars[index]
           end,
-          padding = { left = 1 },
-          color = { bg = vim.g.base16_gui01 },
+          padding = { left = 0, right = 0 },
         },
         {
           "filetype",
