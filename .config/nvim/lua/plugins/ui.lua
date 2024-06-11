@@ -103,36 +103,9 @@ return {
           end,
           padding = { left = 0, right = 0 },
         },
-        {
-          "filetype",
-          color = { bg = vim.g.base16_gui01 },
-        },
       }
 
-      -- Remove Copilot status
-      local copilot = table.remove(opts.sections.lualine_x, 2)
-
-      local copilotIcons = {
-        [""] = require("lazyvim.config").icons.kinds.Copilot,
-        ["Normal"] = require("lazyvim.config").icons.kinds.Copilot,
-        ["Warning"] = " ",
-        ["InProgress"] = " ",
-      }
-
-      copilot[1] = function()
-        local status = require("copilot.api").status.data
-        local icon = copilotIcons[status.status] or copilotIcons[""]
-
-        return icon .. (status.message or "")
-      end
-
-      copilot.color = {
-        fg = (copilot.color() or vim.g.base16_gui05),
-        bg = vim.g.base16_gui01,
-      }
-      copilot.padding = { left = 1, right = 1 }
-
-      opts.sections.lualine_z = { copilot }
+      opts.sections.lualine_z = { "location" }
 
       return opts
     end,
