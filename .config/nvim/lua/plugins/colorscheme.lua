@@ -17,8 +17,6 @@ return {
     vim.api.nvim_set_hl(0, "@tag", { fg = vim.g.base16_gui08 })
     vim.api.nvim_set_hl(0, "@tag.attribute", { fg = vim.g.base16_gui0A, italic = true })
 
-    vim.api.nvim_set_hl(0, "Italic", { italic = true })
-
     vim.api.nvim_set_hl(0, "LineNr", {
       fg = vim.g.base16_gui03,
       bg = vim.g.base16_gui00,
