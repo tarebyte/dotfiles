@@ -1,12 +1,6 @@
 return {
   {
     "hrsh7th/nvim-cmp",
-    dependencies = {
-      "petertriho/cmp-git",
-      dependencies = {
-        "nvim-lua/plenary.nvim",
-      },
-    },
     ---@param opts cmp.ConfigSchema
     opts = function(_, opts)
       -- https://github.com/LunarVim/Neovim-from-scratch/blob/2683495c3df5ee7d3682897e0d47b0facb3cedc9/lua/user/cmp.lua#L13-L16
@@ -79,9 +73,6 @@ return {
           end
         end, { "i", "s" }),
       })
-
-      -- Add cmp-git as a source
-      table.insert(opts.sources, { name = "git" })
 
       opts.view = vim.tbl_deep_extend("force", {}, {
         entries = {
