@@ -24,7 +24,6 @@ return {
         return col ~= 0 and vim.api.nvim_buf_get_text(0, line - 1, 0, line - 1, col, {})[1]:match("^%s*$") == nil
       end
 
-      local luasnip = require("luasnip")
       local cmp = require("cmp")
 
       -- https://github.com/hrsh7th/nvim-cmp/wiki/Advanced-techniques#nvim-autopairs
@@ -58,10 +57,10 @@ return {
             cmp.select_next_item({ behavior = cmp.SelectBehavior.Select })
           elseif cmp.visible() then
             cmp.select_next_item()
-          elseif luasnip.expandable() then
-            luasnip.expand()
-          elseif luasnip.expand_or_jumpable() then
-            luasnip.expand_or_jump()
+          elseif vim.snippet.active({ direction = 1 }) then
+            vim.schedule(function()
+              vim.snippet.jump(1)
+            end)
           elseif check_backspace() then
             fallback()
           else
@@ -71,8 +70,10 @@ return {
         ["<S-Tab>"] = cmp.mapping(function(fallback)
           if cmp.visible() then
             cmp.select_prev_item()
-          elseif luasnip.jumpable(-1) then
-            luasnip.jump(-1)
+          elseif vim.snippet.active({ direction = -1 }) then
+            vim.schedule(function()
+              vim.snippet.jump(-1)
+            end)
           else
             fallback()
           end
