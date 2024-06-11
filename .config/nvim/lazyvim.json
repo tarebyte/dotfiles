@@ -1,6 +1,11 @@
 {
   "extras": [
-    "lazyvim.plugins.extras.coding.copilot"
+    "lazyvim.plugins.extras.coding.copilot",
+    "lazyvim.plugins.extras.editor.inc-rename",
+    "lazyvim.plugins.extras.editor.navic",
+    "lazyvim.plugins.extras.lang.git",
+    "lazyvim.plugins.extras.util.dot",
+    "lazyvim.plugins.extras.util.mini-hipatterns"
   ],
   "news": {
     "NEWS.md": "4964"
