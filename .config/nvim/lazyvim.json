@@ -1,6 +1,9 @@
 {
   "extras": [
     "lazyvim.plugins.extras.coding.copilot",
+    "lazyvim.plugins.extras.coding.copilot-chat",
+    "lazyvim.plugins.extras.dap.core",
+    "lazyvim.plugins.extras.editor.aerial",
     "lazyvim.plugins.extras.editor.inc-rename",
     "lazyvim.plugins.extras.editor.navic",
     "lazyvim.plugins.extras.lang.git",
