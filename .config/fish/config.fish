@@ -21,7 +21,6 @@ if test -d $HOMEBREW_PREFIX
     set -q INFOPATH; or set INFOPATH ''
     set -gx INFOPATH "$HOMEBREW_PREFIX/share/info" $INFOPATH
 
-    set -gx RUBY_CONFIGURE_OPTS "--with-openssl-dir="$HOMEBREW_PREFIX"/opt/openssl@1.1"
     set -gx TREE_SITTER_PARSER_DIR $HOMEBREW_PREFIX/bin/
 
     # Autojump
