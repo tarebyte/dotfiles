@@ -63,9 +63,11 @@ return {
     end,
   },
   {
-    "nvimdev/dashboard-nvim",
-    opts = function(_, opts)
-      local logo = [[
+    "folke/snacks.nvim",
+    opts = {
+      dashboard = {
+        preset = {
+          header = [[
     .        .
     ';;,.       ::'
     ,:::;,,       :ccc,
@@ -79,17 +81,9 @@ return {
   .;ooo:       ;cclooo:.
   .;oc        'coo;.
   .'         .,.
-      ]]
-
-      logo = string.rep("\n", 8) .. logo .. "\n\n"
-
-      -- Replace the Dashboard logo
-      opts.config.header = vim.split(logo, "\n")
-
-      -- Change the "Find file" icon
-      opts.config.center[1].icon = " "
-
-      return opts
-    end,
+]],
+        },
+      },
+    },
   },
 }
