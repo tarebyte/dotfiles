@@ -60,9 +60,6 @@ return {
     -- Plugins --
     -------------
 
-    local colors = require("user.utils.colors")
-    local darker_black = colors.darken(vim.g.base16_gui00, 0.06)
-
     -- dashboard-nvim
     vim.api.nvim_set_hl(0, "DashboardIcon", { fg = vim.g.base16_gui0C })
     vim.api.nvim_set_hl(0, "DashboardKey", { fg = vim.g.base16_gui09 })
@@ -74,19 +71,5 @@ return {
         .. [[ guifg=]]
         .. vim.g.base16_gui05
     )
-
-    -- nvim-cmp
-    vim.api.nvim_set_hl(0, "CmpItemAbbr", { fg = vim.g.base16_gui05, bg = vim.g.base16_gui00 })
-    vim.api.nvim_set_hl(0, "CmpItemKindCopilot", { fg = vim.g.base16_gui0B })
-
-    -- Telescope
-    vim.api.nvim_set_hl(0, "TelescopeBorder", { fg = darker_black, bg = darker_black })
-    vim.api.nvim_set_hl(0, "TelescopePromptBorder", { fg = darker_black, bg = darker_black })
-    vim.api.nvim_set_hl(0, "TelescopeNormal", { bg = darker_black })
-    vim.api.nvim_set_hl(0, "TelescopePromptNormal", { bg = darker_black })
-
-    vim.api.nvim_set_hl(0, "TelescopePreviewTitle", { fg = vim.g.base16_gui0B, bg = darker_black })
-    vim.api.nvim_set_hl(0, "TelescopePromptTitle", { fg = vim.g.base16_gui08, bg = darker_black })
-    vim.api.nvim_set_hl(0, "TelescopeResultsTitle", { fg = vim.g.base16_gui0A, bg = darker_black })
   end,
 }
