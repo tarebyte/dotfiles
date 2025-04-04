@@ -2,12 +2,10 @@
   "extras": [
     "lazyvim.plugins.extras.ai.copilot",
     "lazyvim.plugins.extras.ai.copilot-chat",
-    "lazyvim.plugins.extras.coding.nvim-cmp",
     "lazyvim.plugins.extras.dap.core",
     "lazyvim.plugins.extras.editor.aerial",
     "lazyvim.plugins.extras.editor.inc-rename",
     "lazyvim.plugins.extras.editor.navic",
-    "lazyvim.plugins.extras.editor.telescope",
     "lazyvim.plugins.extras.lang.git",
     "lazyvim.plugins.extras.ui.treesitter-context",
     "lazyvim.plugins.extras.util.dot",
