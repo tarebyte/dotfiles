@@ -84,6 +84,7 @@ return {
 ]],
         },
       },
+      scroll = { enabled = false },
     },
   },
 }
