@@ -8,23 +8,20 @@ sudo apt-get install -y autoconf build-essential jq pkg-config
 
 # Ensure GitHub CLI is available first as we rely on it for everything else.
 # https://github.com/cli/cli/blob/trunk/docs/install_linux.md#debian-ubuntu-linux-raspberry-pi-os-apt
-if ! command -v gh &> /dev/null
-then
+if ! command -v gh &>/dev/null; then
   type -p curl >/dev/null || (sudo apt update && sudo apt install curl -y)
-  curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg \
-    && sudo chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg \
-    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
-    && sudo apt update \
-    && sudo apt install gh -y
+  curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg &&
+    sudo chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg &&
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list >/dev/null &&
+    sudo apt update &&
+    sudo apt install gh -y
 fi
 
 # https://github.com/so-fancy/diff-so-fancy
-if ! command -v diff-so-fancy &> /dev/null
-then
+if ! command -v diff-so-fancy &>/dev/null; then
   local_share="${HOME}/.local/share"
 
-  if [ ! -d "$local_share" ]
-  then
+  if [ ! -d "$local_share" ]; then
     mkdir -p "$local_share"
   fi
 
@@ -37,23 +34,20 @@ then
 fi
 
 # https://github.com/junegunn/fzf
-if ! command -v fzf &> /dev/null
-then
+if ! command -v fzf &>/dev/null; then
   gh repo clone junegunn/fzf "${HOME}/.fzf" -- --depth 1
   eval "${HOME}/.fzf/install --key-bindings --completion --no-zsh --no-fish --no-update-rc"
 fi
 
 # https://github.com/jesseduffield/lazygit
-if ! command -v lazygit &> /dev/null
-then
-  gh release download --clobber --output /tmp/lazygit.tar.gz --repo jesseduffield/lazygit --pattern "*_Linux_x86_64.tar.gz"
+if ! command -v lazygit &>/dev/null; then
+  gh release download --clobber --output /tmp/lazygit.tar.gz --repo jesseduffield/lazygit --pattern "*_linux_x86_64.tar.gz"
   tar xf /tmp/lazygit.tar.gz -C /tmp/
   sudo install /tmp/lazygit /usr/local/bin
 fi
 
 # https://github.com/neovim/neovim
-if ! command -v nvim &> /dev/null
-then
+if ! command -v nvim &>/dev/null; then
   gh release download --clobber --dir /tmp/ --repo neovim/neovim --pattern "nvim.appimage"
   chmod u+x /tmp/nvim.appimage
 
@@ -65,15 +59,13 @@ then
 fi
 
 # https://github.com/BurntSushi/ripgrep
-if ! command -v rg &> /dev/null
-then
+if ! command -v rg &>/dev/null; then
   gh release download --clobber --output /tmp/ripgrep.deb --repo BurntSushi/ripgrep --pattern "ripgrep_*_amd64.deb"
   sudo dpkg -i /tmp/ripgrep.deb
 fi
 
 # https://github.com/universal-ctags/ctags
-if ! command -v ctags &> /dev/null
-then
+if ! command -v ctags &>/dev/null; then
   gh release download --clobber --repo universal-ctags/ctags --output /tmp/universal-ctags.tar.gz --archive tar.gz
   tar xf /tmp/universal-ctags.tar.gz -C /tmp/
   ctags_dir=$(find /tmp -type d -name "ctags-*")
@@ -84,18 +76,15 @@ then
   sudo make install
 fi
 
-if command -v zsh &> /dev/null
-then
+if command -v zsh &>/dev/null; then
   # Set zsh as the default shell
   sudo chsh -s /bin/zsh "$(whoami)"
 
   oh_my_zsh_dir="/home/$(whoami)/.oh-my-zsh"
 
   # Install custom plugins for Oh My ZSH
-  if [ -d "$oh_my_zsh_dir" ]
-  then
-    if [ ! -d "${oh_my_zsh_dir}/custom/plugins/zsh-autosuggestions" ]
-    then
+  if [ -d "$oh_my_zsh_dir" ]; then
+    if [ ! -d "${oh_my_zsh_dir}/custom/plugins/zsh-autosuggestions" ]; then
       gh repo clone zsh-users/zsh-autosuggestions "${oh_my_zsh_dir}/custom/plugins/zsh-autosuggestions"
     fi
 
