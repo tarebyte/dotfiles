@@ -1,3 +1,6 @@
+[submodule ".tmux/plugins/minimal-tmux-status"]
+	path = .tmux/plugins/minimal-tmux-status
+	url = https://github.com/niksingh710/minimal-tmux-status
 [submodule ".tmux/plugins/tmux-pain-control"]
 	path = .tmux/plugins/tmux-pain-control
 	url = https://github.com/tmux-plugins/tmux-pain-control
