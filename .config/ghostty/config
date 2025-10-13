@@ -1,0 +1,5 @@
+cursor-style = block
+font-family = "OperatorMonoSSm Nerd Font"
+font-size = 14
+macos-non-native-fullscreen = false
+theme = TokyoNight Moon
