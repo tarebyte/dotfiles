@@ -1,6 +1,7 @@
 cursor-style = block
-font-family = "OperatorMonoSSm Nerd Font"
+font-family = "SF Mono"
 font-size = 14
 macos-non-native-fullscreen = false
 shell-integration-features = no-cursor
-theme = TokyoNight Moon
+theme = primer-primitives-dark-dimmed
+

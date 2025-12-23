@@ -1,0 +1,40 @@
+# Primer Primitive Dark Dimmed
+# AKA GitHub Dark Dimmed
+background = #212830
+foreground = #d1d7e0
+cursor-color = #d1d7e0
+cursor-text = #2f3742
+selection-background = #f0f6fc
+selection-foreground = #2f3742
+
+# black
+palette = 0=#2f3742
+palette = 8=#656c76
+
+# red
+palette = 1=#f47067
+palette = 9=#ff938a
+
+#green
+palette = 2=#57ab5a
+palette = 10=#6bc46d
+
+# yellow
+palette = 3=#c69026
+palette = 11=#daaa3f
+
+#blue
+palette = 4=#539bf5
+palette = 12=#6cb6ff
+
+#magenta
+palette = 5=#b083f0
+palette = 13=#dcbdfb
+
+#cyan
+palette = 6=#39c5cf
+palette = 14=#56d4dd
+
+#white
+palette = 7=#f0f6fc
+palette = 15=#cdd9e5
