@@ -3,5 +3,5 @@ font-family = "SF Mono"
 font-size = 14
 macos-non-native-fullscreen = false
 shell-integration-features = no-cursor
-theme = tokyonight_moon
+theme = TokyoNight Moon
 
