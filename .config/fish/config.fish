@@ -27,20 +27,6 @@ if test -d $HOMEBREW_PREFIX
     [ -f "$HOMEBREW_PREFIX/share/autojump/autojump.fish" ]; and source $HOMEBREW_PREFIX/share/autojump/autojump.fish
 end
 
-################
-# Language ENV #
-################
-
-if status --is-interactive
-    if command -q nodenv
-        source (nodenv init - | psub)
-    end
-
-    if command -q rbenv
-        rbenv init - fish | source
-    end
-end
-
 #######
 # ENV #
 #######
@@ -49,8 +35,7 @@ set -g async_prompt_functions _pure_prompt_git
 set -gx BAT_THEME base16-256
 set -gx EDITOR nvim
 
-# Be sure to update ~/.bash_aliases as well.
-set -gx FZF_DEFAULT_OPTS "--height 40% --border"
+set -gx FZF_DEFAULT_OPTS_FILE $HOME/.config/fzf/config
 set -gx FZF_DEFAULT_COMMAND "rg --files --hidden --follow --no-messages --glob '!.git/*'"
 set -gx FZF_CTRL_T_COMMAND $FZF_DEFAULT_COMMAND
 set -gx FZF_TMUX 1
