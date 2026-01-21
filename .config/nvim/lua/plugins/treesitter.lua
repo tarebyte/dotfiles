@@ -4,7 +4,6 @@ return {
     dependencies = {
       {
         "RRethy/nvim-treesitter-endwise",
-        "nvim-treesitter/playground",
       },
     },
     opts = function(_, opts)
