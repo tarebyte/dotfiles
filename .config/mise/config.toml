@@ -1,0 +1,9 @@
+[settings]
+idiomatic_version_file_enable_tools = ["ruby", "node", "python"]
+
+[tools]
+dotnet = "latest"
+go = "latest"
+node = "lts"
+ruby = "latest"
+rust = "latest"
