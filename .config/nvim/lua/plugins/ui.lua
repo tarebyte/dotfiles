@@ -1,5 +1,13 @@
 return {
   {
+    "tarebyte/primer-primitives.nvim",
+    lazy = false,
+    priority = 1000,
+    config = function()
+      vim.cmd("colorscheme primer_dark_dimmed")
+    end,
+  },
+  {
     "nvim-lualine/lualine.nvim",
     opts = function(_, opts)
       opts.options.component_separators = { left = "", right = "" }
@@ -20,10 +28,6 @@ return {
           icon = "",
         },
       }
-
-      -- Disable colors for "diagnostics" section
-      -- https://github.com/LazyVim/LazyVim/blob/fa3170d422f3c661d0411472c96f92e5324dc281/lua/lazyvim/plugins/ui.lua#L144-L152
-      opts.sections.lualine_c[2].colored = false
 
       -- Remove file type icon
       -- https://github.com/LazyVim/LazyVim/blob/fa3170d422f3c661d0411472c96f92e5324dc281/lua/lazyvim/plugins/ui.lua#L153
