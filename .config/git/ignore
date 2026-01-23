@@ -41,3 +41,5 @@ tags*
 projections.json
 .projections.json
 .rgignore
+
+**/.claude/settings.local.json
