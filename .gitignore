@@ -4,6 +4,7 @@
 .config/fish/functions/base16-*
 .config/fish/functions/__*
 .config/fish/functions/fisher.fish
+.config/fish/local_env.fish
 
 .config/git/personal
 
