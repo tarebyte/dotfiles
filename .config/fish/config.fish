@@ -47,6 +47,8 @@ set -gx PROJECTS $HOME/src
 set -gx DOTFILES $PROJECTS/(whoami)/dotfiles
 set -gx GOPATH $PROJECTS/go
 
+test -f "$HOME/.config/fish/local_env.fish"; and source $HOME/.config/fish/local_env.fish
+
 ####################
 # Additional Paths #
 ####################
@@ -75,3 +77,7 @@ alias ls "ls -GpF"
 alias vi $EDITOR
 alias vim $EDITOR
 alias whereami pwd
+
+if type -q starship
+    starship init fish | source
+end
