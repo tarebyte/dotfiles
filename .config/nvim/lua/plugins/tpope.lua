@@ -10,6 +10,10 @@ return {
     },
   },
   {
+    "tpope/vim-eunuch",
+    event = "VeryLazy",
+  },
+  {
     "tpope/vim-surround",
     event = { "BufReadPost", "BufNewFile" },
     dependencies = {

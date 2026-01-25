@@ -13,4 +13,4 @@ vim.keymap.set("n", "gO", "O<esc>")
 vim.keymap.set("n", "Y", "y$")
 
 -- map spacebar to clear search highlight
-vim.keymap.set("n", "<leader><space>", ":noh<CR>", { desc = "Clear search highlight" })
+vim.keymap.set("n", "<leader>cn", ":noh<CR>", { desc = "Clear search highlight" })
