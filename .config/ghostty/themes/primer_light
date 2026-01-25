@@ -1,0 +1,32 @@
+# Primer Light
+# Auto-generated from @primer/primitives
+# https://github.com/primer/primitives
+#
+# Installation:
+#   Copy this file to ~/.config/ghostty/themes/primer_light
+#   Then add to your config: theme = primer_light
+
+background = #ffffff
+foreground = #1f2328
+cursor-color = #1f2328
+cursor-text = #ffffff
+selection-background = #ddf4ff
+selection-foreground = #1f2328
+
+# ANSI Colors (0-7: normal, 8-15: bright)
+palette = 0=#1f2328
+palette = 1=#cf222e
+palette = 2=#116329
+palette = 3=#4d2d00
+palette = 4=#0969da
+palette = 5=#8250df
+palette = 6=#1b7c83
+palette = 7=#59636e
+palette = 8=#393f46
+palette = 9=#a40e26
+palette = 10=#1a7f37
+palette = 11=#633c01
+palette = 12=#218bff
+palette = 13=#a475f9
+palette = 14=#3192aa
+palette = 15=#818b98

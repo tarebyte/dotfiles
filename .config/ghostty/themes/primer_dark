@@ -1,0 +1,32 @@
+# Primer Dark
+# Auto-generated from @primer/primitives
+# https://github.com/primer/primitives
+#
+# Installation:
+#   Copy this file to ~/.config/ghostty/themes/primer_dark
+#   Then add to your config: theme = primer_dark
+
+background = #0d1117
+foreground = #f0f6fc
+cursor-color = #f0f6fc
+cursor-text = #0d1117
+selection-background = #111d2e
+selection-foreground = #f0f6fc
+
+# ANSI Colors (0-7: normal, 8-15: bright)
+palette = 0=#2f3742
+palette = 1=#ff7b72
+palette = 2=#3fb950
+palette = 3=#d29922
+palette = 4=#58a6ff
+palette = 5=#be8fff
+palette = 6=#39c5cf
+palette = 7=#f0f6fc
+palette = 8=#656c76
+palette = 9=#ffa198
+palette = 10=#56d364
+palette = 11=#e3b341
+palette = 12=#79c0ff
+palette = 13=#d2a8ff
+palette = 14=#56d4dd
+palette = 15=#ffffff

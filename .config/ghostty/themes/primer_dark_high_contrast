@@ -1,0 +1,32 @@
+# Primer Dark High Contrast
+# Auto-generated from @primer/primitives
+# https://github.com/primer/primitives
+#
+# Installation:
+#   Copy this file to ~/.config/ghostty/themes/primer_dark_high_contrast
+#   Then add to your config: theme = primer_dark_high_contrast
+
+background = #010409
+foreground = #ffffff
+cursor-color = #ffffff
+cursor-text = #010409
+selection-background = #0a1522
+selection-foreground = #ffffff
+
+# ANSI Colors (0-7: normal, 8-15: bright)
+palette = 0=#2f3742
+palette = 1=#ff9492
+palette = 2=#28d751
+palette = 3=#f0b72f
+palette = 4=#71b7ff
+palette = 5=#cb9eff
+palette = 6=#39c5cf
+palette = 7=#f0f6fc
+palette = 8=#656c76
+palette = 9=#ffb1af
+palette = 10=#4ae168
+palette = 11=#f7c843
+palette = 12=#91cbff
+palette = 13=#dbb7ff
+palette = 14=#56d4dd
+palette = 15=#ffffff

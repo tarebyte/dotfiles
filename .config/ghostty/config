@@ -1,7 +1,35 @@
-cursor-style = block
+# ====================
+# Font
+# ====================
 font-family = "SF Mono"
 font-size = 14
-macos-non-native-fullscreen = false
-shell-integration-features = no-cursor
-theme = TokyoNight Moon
 
+# ====================
+# Appearance
+# ====================
+theme = primer_dark_dimmed
+cursor-style = block
+window-padding-x = 10
+window-padding-y = 10
+window-decoration = true
+
+# ====================
+# macOS
+# ====================
+macos-non-native-fullscreen = false
+macos-option-as-alt = true
+
+# ====================
+# Behavior
+# ====================
+shell-integration-features = no-cursor
+confirm-close-surface = false
+copy-on-select = true
+clipboard-paste-protection = false
+mouse-hide-while-typing = true
+focus-follows-mouse = false
+
+# ====================
+# Performance
+# ====================
+window-vsync = true
