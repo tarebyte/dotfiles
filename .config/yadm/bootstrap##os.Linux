@@ -35,8 +35,9 @@ fi
 
 # https://github.com/junegunn/fzf
 if ! command -v fzf &>/dev/null; then
-  gh repo clone junegunn/fzf "${HOME}/.fzf" -- --depth 1
-  eval "${HOME}/.fzf/install --key-bindings --completion --no-zsh --no-fish --no-update-rc"
+  gh release download --clobber --output /tmp/fzf.tar.gz --repo junegunn/fzf --pattern "*-linux_amd64.tar.gz"
+  tar xf /tmp/fzf.tar.gz -C /tmp/
+  sudo install /tmp/fzf /usr/local/bin
 fi
 
 # https://github.com/jesseduffield/lazygit
@@ -74,6 +75,12 @@ if ! command -v ctags &>/dev/null; then
   ./configure
   make
   sudo make install
+fi
+
+if ! command -v treesitter &>/dev/null; then
+  gh release download --clobber --output /tmp/tree-sitter.tar.gz --repo tree-sitter/tree-sitter --pattern "tree-sitter-linux-x64.gz"
+  tar -xzf /tmp/tree-sitter.tar.gz -C /tmp/
+  sudo install /tmp/tree-sitter /usr/local/bin/tree-sitter
 fi
 
 if command -v zsh &>/dev/null; then
