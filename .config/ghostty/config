@@ -7,7 +7,7 @@ font-size = 14
 # ====================
 # Appearance
 # ====================
-theme = primer_dark_dimmed
+theme = TokyoNight Moon
 cursor-style = block
 window-padding-x = 10
 window-padding-y = 10

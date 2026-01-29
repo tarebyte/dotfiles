@@ -1,11 +1,7 @@
 return {
   {
     "tarebyte/primer-primitives.nvim",
-    lazy = false,
-    priority = 1000,
-    config = function()
-      vim.cmd("colorscheme primer_dark_dimmed")
-    end,
+    lazy = true,
   },
   {
     "nvim-lualine/lualine.nvim",
