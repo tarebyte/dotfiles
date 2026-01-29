@@ -53,8 +53,8 @@ link_file "$DOTFILES_DIR/.tmux.conf" "$HOME/.tmux.conf"
 # -------------------------
 ARCH=$(dpkg --print-architecture 2>/dev/null || echo "amd64")
 case "$ARCH" in
-  amd64) ARCH_ALT="x86_64" ; ARCH_GO="amd64" ;;
-  arm64) ARCH_ALT="aarch64" ; ARCH_GO="arm64" ;;
+  amd64) ARCH_ALT="x86_64" ; ARCH_GO="amd64" ; ARCH_TS="x64" ; ARCH_RG="x86_64" ;;
+  arm64) ARCH_ALT="arm64" ; ARCH_GO="arm64" ; ARCH_TS="arm64" ; ARCH_RG="aarch64" ;;
   *) echo "Unsupported architecture: $ARCH" && exit 1 ;;
 esac
 
@@ -76,9 +76,10 @@ fi
 # -------------------------
 if ! command -v rg &>/dev/null; then
   echo "  Installing ripgrep..."
-  gh release download --clobber --output /tmp/ripgrep.deb --repo BurntSushi/ripgrep --pattern "ripgrep_*_${ARCH}.deb"
-  sudo dpkg -i /tmp/ripgrep.deb
-  rm -f /tmp/ripgrep.deb
+  gh release download --clobber --output /tmp/ripgrep.tar.gz --repo BurntSushi/ripgrep --pattern "ripgrep-*-${ARCH_RG}-unknown-linux-gnu.tar.gz"
+  tar -xzf /tmp/ripgrep.tar.gz -C /tmp/
+  sudo install /tmp/ripgrep-*/rg /usr/local/bin/rg
+  rm -rf /tmp/ripgrep.tar.gz /tmp/ripgrep-*
 fi
 
 # -------------------------
@@ -107,7 +108,7 @@ fi
 # -------------------------
 if ! command -v lazygit &>/dev/null; then
   echo "  Installing lazygit..."
-  gh release download --clobber --output /tmp/lazygit.tar.gz --repo jesseduffield/lazygit --pattern "lazygit_*_Linux_${ARCH_ALT}.tar.gz"
+  gh release download --clobber --output /tmp/lazygit.tar.gz --repo jesseduffield/lazygit --pattern "lazygit_*_linux_${ARCH_ALT}.tar.gz"
   tar -xzf /tmp/lazygit.tar.gz -C /tmp/
   sudo install /tmp/lazygit /usr/local/bin/lazygit
   rm -f /tmp/lazygit.tar.gz /tmp/lazygit
@@ -135,7 +136,7 @@ fi
 # -------------------------
 if ! command -v tree-sitter &>/dev/null; then
   echo "  Installing tree-sitter..."
-  gh release download --clobber --output /tmp/tree-sitter.gz --repo tree-sitter/tree-sitter --pattern "tree-sitter-linux-${ARCH_ALT}.gz"
+  gh release download --clobber --output /tmp/tree-sitter.gz --repo tree-sitter/tree-sitter --pattern "tree-sitter-linux-${ARCH_TS}.gz"
   gunzip -f /tmp/tree-sitter.gz
   sudo install /tmp/tree-sitter /usr/local/bin/tree-sitter
   rm -f /tmp/tree-sitter
