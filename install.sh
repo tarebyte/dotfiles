@@ -53,8 +53,8 @@ link_file "$DOTFILES_DIR/.tmux.conf" "$HOME/.tmux.conf"
 # -------------------------
 ARCH=$(dpkg --print-architecture 2>/dev/null || echo "amd64")
 case "$ARCH" in
-  amd64) ARCH_ALT="x86_64" ; ARCH_GO="amd64" ; ARCH_TS="x64" ; ARCH_RG="x86_64" ;;
-  arm64) ARCH_ALT="arm64" ; ARCH_GO="arm64" ; ARCH_TS="arm64" ; ARCH_RG="aarch64" ;;
+  amd64) ARCH_ALT="x86_64" ; ARCH_GO="amd64" ; ARCH_RG="x86_64" ;;
+  arm64) ARCH_ALT="arm64" ; ARCH_GO="arm64" ; ARCH_RG="aarch64" ;;
   *) echo "Unsupported architecture: $ARCH" && exit 1 ;;
 esac
 
@@ -131,16 +131,9 @@ if ! command -v mise &>/dev/null; then
   curl -fsSL https://mise.run | sh
 fi
 
-# -------------------------
-# tree-sitter
-# -------------------------
-if ! command -v tree-sitter &>/dev/null; then
-  echo "  Installing tree-sitter..."
-  gh release download --clobber --output /tmp/tree-sitter.gz --repo tree-sitter/tree-sitter --pattern "tree-sitter-linux-${ARCH_TS}.gz"
-  gunzip -f /tmp/tree-sitter.gz
-  sudo install /tmp/tree-sitter /usr/local/bin/tree-sitter
-  rm -f /tmp/tree-sitter
-fi
+# Install mise-managed tools (node, tree-sitter-cli, etc.)
+echo "  Installing mise tools..."
+~/.local/bin/mise install
 
 # -------------------------
 # Done
