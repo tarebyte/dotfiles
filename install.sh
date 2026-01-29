@@ -134,7 +134,11 @@ fi
 # Install mise-managed npm tools (Codespaces has runtimes pre-installed)
 echo "  Installing mise tools..."
 ~/.local/bin/mise trust
-~/.local/bin/mise install node npm:@github/copilot-language-server npm:tree-sitter-cli
+~/.local/bin/mise install node npm:@github/copilot-language-server
+
+# Install tree-sitter-cli via cargo (npm version has glibc issues)
+echo "  Installing tree-sitter-cli..."
+cargo install tree-sitter-cli
 
 # -------------------------
 # Done
