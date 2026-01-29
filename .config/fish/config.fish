@@ -21,8 +21,6 @@ if test -d $HOMEBREW_PREFIX
     set -q INFOPATH; or set INFOPATH ''
     set -gx INFOPATH "$HOMEBREW_PREFIX/share/info" $INFOPATH
 
-    set -gx TREE_SITTER_PARSER_DIR $HOMEBREW_PREFIX/bin/
-
     # Autojump
     [ -f "$HOMEBREW_PREFIX/share/autojump/autojump.fish" ]; and source $HOMEBREW_PREFIX/share/autojump/autojump.fish
 end
