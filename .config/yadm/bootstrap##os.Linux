@@ -115,7 +115,7 @@ fi
 echo "  Setting up mise..."
 ~/.local/bin/mise trust
 ~/.local/bin/mise install node
-~/.local/bin/mise exec npm install -g @github/copilot-language-server
+~/.local/bin/mise exec -- npm install -g @github/copilot-language-server
 
 # -------------------------
 # Done
