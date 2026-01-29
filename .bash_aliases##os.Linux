@@ -33,6 +33,10 @@ alias ll="ls -la"
 alias la="ls -A"
 alias ..="cd .."
 alias ...="cd ../.."
+alias tn="tmux new-session -A -s"
+alias ':e'="$EDITOR"
+alias '+x'="chmod u+x"
+alias whereami="pwd"
 
 # -------------------------
 # Tool initialization
