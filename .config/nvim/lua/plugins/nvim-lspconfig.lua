@@ -4,6 +4,8 @@ return {
   {
     "neovim/nvim-lspconfig",
     opts = {
+      -- Bypass mason-lspconfig automatic server setup
+      setup_handlers = false,
       servers = {
         -- Custom Sorbet setup for internal work.
         vscode_sorbet = {},
