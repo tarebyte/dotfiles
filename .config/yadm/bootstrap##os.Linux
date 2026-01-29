@@ -84,8 +84,9 @@ fi
 if ! command -v diff-so-fancy &>/dev/null; then
   echo "  Installing diff-so-fancy..."
   git clone --depth 1 https://github.com/so-fancy/diff-so-fancy.git /tmp/diff-so-fancy
-  sudo cp -r /tmp/diff-so-fancy /usr/local/share/diff-so-fancy
-  sudo ln -sf /usr/local/share/diff-so-fancy/diff-so-fancy /usr/local/bin/diff-so-fancy
+  sudo mkdir /usr/local/bin/lib/
+  sudo install /tmp/diff-so-fancy/diff-so-fancy /usr/local/bin/diff-so-fancy
+  sudo install /tmp/diff-so-fancy/lib/DiffHighlight.pm /usr/local/bin/lib/DiffHighlight.pm
   rm -rf /tmp/diff-so-fancy
 fi
 
