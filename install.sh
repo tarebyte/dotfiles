@@ -133,6 +133,7 @@ fi
 
 # Install mise-managed tools (node, tree-sitter-cli, etc.)
 echo "  Installing mise tools..."
+~/.local/bin/mise trust
 ~/.local/bin/mise install
 
 # -------------------------
