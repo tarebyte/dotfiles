@@ -138,10 +138,23 @@ if ! command -v mise &>/dev/null; then
   curl -fsSL https://mise.run | sh
 fi
 
+# -------------------------
+# tree-sitter-cli
+# -------------------------
+if ! command -v tree-sitter &>/dev/null; then
+  if command -v cargo &>/dev/null; then
+    echo "  Installing tree-sitter-cli..."
+    cargo install tree-sitter-cli
+  else
+    echo "  Faild to install tree-sitter-cli, cargo not available..."
+  fi
+fi
+
 # Install mise-managed tools (Codespaces has runtimes pre-installed)
 echo "  Installing mise tools..."
 ~/.local/bin/mise trust
-~/.local/bin/mise install node npm:@github/copilot-language-server cargo:tree-sitter-cli
+~/.local/bin/mise install node
+~/.local/bin/mise exec npm install -g @github/copilot-language-server
 
 # -------------------------
 # Done
