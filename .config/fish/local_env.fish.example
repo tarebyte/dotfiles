@@ -1,0 +1,31 @@
+# Machine-specific environment configuration
+# Copy this file to local_env.fish and customize for your machine.
+# This file is sourced by config.fish but NOT tracked in git.
+#
+# Example usage:
+#   cp local_env.fish.example local_env.fish
+#   nvim local_env.fish
+
+# Work-specific paths
+# set -gx WORK_DIR $HOME/work
+
+# API keys and tokens (prefer 1Password CLI when possible)
+# set -gx OPENAI_API_KEY "your-key-here"
+# set -gx ANTHROPIC_API_KEY "your-key-here"
+
+# Database connections
+# set -gx DATABASE_URL "postgres://localhost/mydb"
+
+# Cloud provider credentials
+# set -gx AWS_PROFILE "default"
+# set -gx AWS_REGION "us-east-1"
+
+# Custom tool paths
+# fish_add_path $HOME/custom-tools/bin
+
+# Work VPN or proxy settings
+# set -gx HTTP_PROXY "http://proxy.example.com:8080"
+# set -gx HTTPS_PROXY "http://proxy.example.com:8080"
+
+# Machine-specific aliases
+# alias work-vpn "sudo openvpn /etc/openvpn/work.conf"

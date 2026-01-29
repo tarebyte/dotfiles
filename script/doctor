@@ -1,0 +1,163 @@
+#!/bin/bash
+#
+# script/doctor
+# Check dotfiles health and report any issues
+
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+NC='\033[0m' # No Color
+
+passed=0
+failed=0
+warned=0
+
+ok() {
+    printf "  ${GREEN}[OK]${NC}      %s\n" "$1"
+    passed=$((passed + 1))
+}
+
+missing() {
+    printf "  ${RED}[MISSING]${NC} %s\n" "$1"
+    failed=$((failed + 1))
+}
+
+warn() {
+    printf "  ${YELLOW}[WARN]${NC}    %s\n" "$1"
+    warned=$((warned + 1))
+}
+
+check_cmd() {
+    if command -v "$1" &>/dev/null; then
+        ok "$1"
+        return 0
+    else
+        missing "$1"
+        return 1
+    fi
+}
+
+echo "=== Dotfiles Health Check ==="
+echo
+
+# -------------------------
+echo "Core tools:"
+check_cmd nvim
+check_cmd fish
+check_cmd tmux
+check_cmd git
+check_cmd starship
+echo
+
+# -------------------------
+echo "Development tools:"
+check_cmd mise
+check_cmd fzf
+check_cmd rg
+check_cmd bat
+check_cmd lazygit
+check_cmd jq
+check_cmd gh
+echo
+
+# -------------------------
+echo "Language servers:"
+check_cmd lua-language-server
+echo
+
+# -------------------------
+echo "Shell configuration:"
+if [[ "$SHELL" == *"fish"* ]]; then
+    ok "Default shell is Fish"
+else
+    warn "Default shell is not Fish ($SHELL)"
+fi
+
+if [[ -f "$HOME/.config/fish/local_env.fish" ]]; then
+    ok "local_env.fish exists"
+else
+    warn "local_env.fish not found (copy from local_env.fish.example)"
+fi
+echo
+
+# -------------------------
+echo "Git configuration:"
+if git config user.name &>/dev/null; then
+    ok "user.name: $(git config user.name)"
+else
+    missing "git user.name not set"
+fi
+
+if git config user.email &>/dev/null; then
+    ok "user.email: $(git config user.email)"
+else
+    missing "git user.email not set"
+fi
+
+if [[ "$(git config commit.gpgsign)" == "true" ]]; then
+    ok "GPG signing enabled"
+else
+    warn "GPG signing not enabled"
+fi
+echo
+
+# -------------------------
+echo "Runtime versions (mise):"
+if command -v mise &>/dev/null; then
+    mise list 2>/dev/null | while read -r line; do
+        echo "  $line"
+    done
+    if [[ -z "$(mise list 2>/dev/null)" ]]; then
+        warn "No runtimes installed (run: mise install)"
+    fi
+else
+    warn "mise not available"
+fi
+echo
+
+# -------------------------
+echo "Neovim:"
+if command -v nvim &>/dev/null; then
+    nvim_version=$(nvim --version | head -1)
+    ok "$nvim_version"
+
+    # Check if LazyVim is bootstrapped
+    if [[ -d "$HOME/.local/share/nvim/lazy/LazyVim" ]]; then
+        ok "LazyVim installed"
+    else
+        warn "LazyVim not installed (open nvim to bootstrap)"
+    fi
+fi
+echo
+
+# -------------------------
+echo "Tmux:"
+if command -v tmux &>/dev/null; then
+    tmux_version=$(tmux -V)
+    ok "$tmux_version"
+
+    if [[ -d "$HOME/.tmux/plugins/tpm" ]]; then
+        ok "TPM installed"
+    else
+        warn "TPM not installed (run: git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm)"
+    fi
+fi
+echo
+
+# -------------------------
+echo "=== Summary ==="
+printf "  ${GREEN}Passed:${NC}  %d\n" "$passed"
+printf "  ${YELLOW}Warnings:${NC} %d\n" "$warned"
+printf "  ${RED}Failed:${NC}  %d\n" "$failed"
+echo
+
+if [[ $failed -gt 0 ]]; then
+    echo "Run 'brew bundle --global' to install missing tools."
+    exit 1
+elif [[ $warned -gt 0 ]]; then
+    echo "Some optional items need attention."
+    exit 0
+else
+    echo "Everything looks good!"
+    exit 0
+fi

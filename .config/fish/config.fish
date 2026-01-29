@@ -61,10 +61,9 @@ fish_add_path -aP $HOME/.bin
 
 set -U fish_greeting
 
-#############################################
-# Aliases and abbreviations                 #
-# Be sure to update ~/.bash_aliases as well #
-#############################################
+##########################
+# Aliases & Abbreviations #
+##########################
 
 abbr -ag gp git push
 abbr -ag tn tmux new-session -A -s

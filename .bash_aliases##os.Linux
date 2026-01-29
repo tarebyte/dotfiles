@@ -1,0 +1,46 @@
+# ~/.bash_aliases##os.Linux
+# Bash customizations for Linux/Codespaces (sourced automatically)
+
+# -------------------------
+# Environment
+# -------------------------
+export EDITOR="nvim"
+export VISUAL="nvim"
+export BAT_THEME="base16-256"
+export PROJECTS="$HOME/src"
+
+export FZF_DEFAULT_COMMAND="rg --files --hidden --follow --no-messages --glob '!.git/*'"
+export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+
+# -------------------------
+# Path
+# -------------------------
+[[ -d "$HOME/.local/bin" ]] && export PATH="$HOME/.local/bin:$PATH"
+[[ -d "$HOME/.bin" ]] && export PATH="$HOME/.bin:$PATH"
+
+# -------------------------
+# Aliases
+# -------------------------
+alias gp="git push"
+alias gs="git status -sb"
+alias gd="git diff"
+alias gco="git checkout"
+alias vi="nvim"
+alias vim="nvim"
+alias lg="lazygit"
+alias ls="ls --color=auto -pF"
+alias ll="ls -la"
+alias la="ls -A"
+alias ..="cd .."
+alias ...="cd ../.."
+
+# -------------------------
+# Tool initialization
+# -------------------------
+command -v mise &>/dev/null && eval "$(mise activate bash)"
+command -v fzf &>/dev/null && eval "$(fzf --bash 2>/dev/null)" || true
+
+# -------------------------
+# Local overrides
+# -------------------------
+[[ -f "$HOME/.bash_aliases.local" ]] && source "$HOME/.bash_aliases.local"
