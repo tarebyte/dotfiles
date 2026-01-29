@@ -41,7 +41,6 @@ alias whereami="pwd"
 # -------------------------
 # Tool initialization
 # -------------------------
-command -v mise &>/dev/null && eval "$(mise activate bash)"
 command -v fzf &>/dev/null && eval "$(fzf --bash 2>/dev/null)" || true
 
 # -------------------------

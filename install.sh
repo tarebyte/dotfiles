@@ -124,8 +124,10 @@ fi
 # -------------------------
 if ! command -v diff-so-fancy &>/dev/null; then
   echo "  Installing diff-so-fancy..."
-  sudo curl -fsSL https://raw.githubusercontent.com/so-fancy/diff-so-fancy/master/diff-so-fancy -o /usr/local/bin/diff-so-fancy
-  sudo chmod +x /usr/local/bin/diff-so-fancy
+  git clone --depth 1 https://github.com/so-fancy/diff-so-fancy.git /tmp/diff-so-fancy
+  sudo cp -r /tmp/diff-so-fancy /usr/local/share/diff-so-fancy
+  sudo ln -sf /usr/local/share/diff-so-fancy/diff-so-fancy /usr/local/bin/diff-so-fancy
+  rm -rf /tmp/diff-so-fancy
 fi
 
 # -------------------------
