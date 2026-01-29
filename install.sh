@@ -36,6 +36,9 @@ link_file "$DOTFILES_DIR/.config/nvim" "$HOME/.config/nvim"
 # Mise
 link_file "$DOTFILES_DIR/.config/mise" "$HOME/.config/mise"
 
+# fzf
+link_file "$DOTFILES_DIR/.config/fzf" "$HOME/.config/fzf"
+
 # Bash aliases (Codespaces sources this automatically)
 link_file "$DOTFILES_DIR/.bash_aliases##os.Linux" "$HOME/.bash_aliases"
 
