@@ -7,6 +7,11 @@
 
 set -e
 
+# Log all output to file while still displaying to terminal
+mkdir -p "$HOME/.local/state/dotfiles"
+exec > >(tee -i "$HOME/.local/state/dotfiles/install.log")
+exec 2>&1
+
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 echo "==> Installing dotfiles from $DOTFILES_DIR"
