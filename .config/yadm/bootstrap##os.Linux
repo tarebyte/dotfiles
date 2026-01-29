@@ -1,57 +1,16 @@
 #!/bin/bash
 #
-# install.sh
-# Dotfiles installation for GitHub Codespaces
-# https://docs.github.com/en/codespaces/setting-your-user-preferences/personalizing-github-codespaces-for-your-account#dotfiles
+# YADM bootstrap for Linux (GitHub Codespaces)
 #
 
 set -e
 
 # Log all output to file while still displaying to terminal
 mkdir -p "$HOME/.local/state/dotfiles"
-exec > >(tee -i "$HOME/.local/state/dotfiles/install.log")
+exec > >(tee -i "$HOME/.local/state/dotfiles/bootstrap.log")
 exec 2>&1
 
-DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-
-echo "==> Installing dotfiles from $DOTFILES_DIR"
-
-# -------------------------
-# Symlink configurations
-# -------------------------
-link_file() {
-  local src="$1"
-  local dest="$2"
-
-  if [[ -e "$src" ]]; then
-    mkdir -p "$(dirname "$dest")"
-    ln -sf "$src" "$dest"
-    echo "  Linked: $dest"
-  fi
-}
-
-echo "==> Linking config files..."
-
-# Git
-link_file "$DOTFILES_DIR/.config/git" "$HOME/.config/git"
-
-# Neovim
-link_file "$DOTFILES_DIR/.config/nvim" "$HOME/.config/nvim"
-
-# Mise
-link_file "$DOTFILES_DIR/.config/mise" "$HOME/.config/mise"
-
-# fzf
-link_file "$DOTFILES_DIR/.config/fzf" "$HOME/.config/fzf"
-
-# Bash aliases (Codespaces sources this automatically)
-link_file "$DOTFILES_DIR/.bash_aliases##os.Linux" "$HOME/.bash_aliases"
-
-# Other dotfiles
-link_file "$DOTFILES_DIR/.gemrc" "$HOME/.gemrc"
-link_file "$DOTFILES_DIR/.pryrc" "$HOME/.pryrc"
-link_file "$DOTFILES_DIR/.rubocop.yml" "$HOME/.rubocop.yml"
-link_file "$DOTFILES_DIR/.tmux.conf" "$HOME/.tmux.conf"
+echo "==> Running Linux bootstrap..."
 
 # -------------------------
 # Detect architecture
@@ -146,12 +105,14 @@ if ! command -v tree-sitter &>/dev/null; then
     echo "  Installing tree-sitter-cli..."
     cargo install tree-sitter-cli
   else
-    echo "  Faild to install tree-sitter-cli, cargo not available..."
+    echo "  Skipping tree-sitter-cli (cargo not available)..."
   fi
 fi
 
-# Install mise-managed tools (Codespaces has runtimes pre-installed)
-echo "  Installing mise tools..."
+# -------------------------
+# mise tools
+# -------------------------
+echo "  Setting up mise..."
 ~/.local/bin/mise trust
 ~/.local/bin/mise install node
 ~/.local/bin/mise exec npm install -g @github/copilot-language-server
@@ -160,4 +121,4 @@ echo "  Installing mise tools..."
 # Done
 # -------------------------
 echo ""
-echo "==> Done! Restart your terminal or run: source ~/.bash_aliases"
+echo "==> Bootstrap complete! Restart your terminal or run: source ~/.bash_aliases"
