@@ -1,0 +1,9 @@
+# vi: ft=toml
+[tools]
+dotnet = "latest"
+go = "latest"
+node = "lts"
+ruby = "latest"
+rust = "latest"
+"npm:@github/copilot-language-server" = "latest"
+"cargo:tree-sitter-cli" = "latest"
