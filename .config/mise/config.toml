@@ -1,5 +1,5 @@
 [settings]
-idiomatic_version_file_enable_tools = ["ruby", "node", "python"]
+idiomatic_version_file_enable_tools = ["ruby", "node", "python", "rust"]
 
 [tools]
 dotnet = "latest"
@@ -7,3 +7,4 @@ go = "latest"
 node = "lts"
 ruby = "latest"
 rust = "latest"
+"npm:@github/copilot-language-server" = "latest"
