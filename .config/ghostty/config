@@ -2,16 +2,14 @@
 # Font
 # ====================
 font-family = "SF Mono"
+font-style = Regular
 font-size = 14
 
 # ====================
 # Appearance
 # ====================
-theme = TokyoNight Moon
+theme = Catppuccin Mocha
 cursor-style = block
-window-padding-x = 10
-window-padding-y = 10
-window-decoration = true
 
 # ====================
 # macOS
