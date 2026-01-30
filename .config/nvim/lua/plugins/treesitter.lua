@@ -22,12 +22,4 @@ return {
       })
     end,
   },
-  {
-    "tarebyte/treesitter-rails",
-    dependencies = { "nvim-treesitter/nvim-treesitter" },
-    ft = "ruby",
-    config = function()
-      require("treesitter-rails").setup()
-    end,
-  },
 }

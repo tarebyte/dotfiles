@@ -4,6 +4,12 @@ return {
     lazy = true,
   },
   {
+    "LazyVim/LazyVim",
+    opts = {
+      colorscheme = "catppuccin",
+    },
+  },
+  {
     "nvim-lualine/lualine.nvim",
     opts = function(_, opts)
       opts.options.component_separators = { left = "", right = "" }
@@ -30,34 +36,42 @@ return {
       table.remove(opts.sections.lualine_c, 3)
 
       opts.sections.lualine_y = {
-        {
-          function()
-            local cur = vim.fn.line(".")
-            local total = vim.fn.line("$")
-
-            local chars = {
-              "   ",
-              "▁▁▁",
-              "▂▂▂",
-              "▂▂▂",
-              "▃▃▃",
-              "▄▄▄",
-              "▅▅▅",
-              "▆▆▆",
-              "▇▇▇",
-              "███",
-            }
-
-            local line_ratio = cur / total
-            local index = math.ceil(line_ratio * #chars)
-
-            return chars[index]
-          end,
-          padding = { left = 0, right = 0 },
-        },
+        { "progress", separator = " ", padding = { left = 1, right = 1 } },
       }
 
-      opts.sections.lualine_z = { "location" }
+      opts.sections.lualine_z = {
+        { "location", padding = { left = 0, right = 1 } },
+      }
+
+      -- opts.sections.lualine_y = {
+      --   {
+      --     function()
+      --       local cur = vim.fn.line(".")
+      --       local total = vim.fn.line("$")
+      --
+      --       local chars = {
+      --         "   ",
+      --         "▁▁▁",
+      --         "▂▂▂",
+      --         "▂▂▂",
+      --         "▃▃▃",
+      --         "▄▄▄",
+      --         "▅▅▅",
+      --         "▆▆▆",
+      --         "▇▇▇",
+      --         "███",
+      --       }
+      --
+      --       local line_ratio = cur / total
+      --       local index = math.ceil(line_ratio * #chars)
+      --
+      --       return chars[index]
+      --     end,
+      --     padding = { left = 0, right = 0 },
+      --   },
+      -- }
+
+      -- opts.sections.lualine_z = { "location" }
 
       return opts
     end,
