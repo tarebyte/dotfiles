@@ -40,10 +40,9 @@ fi
 # -------------------------
 if ! command -v rg &>/dev/null; then
   echo "  Installing ripgrep..."
-  gh release download --clobber --output /tmp/ripgrep.tar.gz --repo BurntSushi/ripgrep --pattern "ripgrep-*-${ARCH_RG}-unknown-linux-gnu.tar.gz"
-  tar -xzf /tmp/ripgrep.tar.gz -C /tmp/
-  sudo install /tmp/ripgrep-*/rg /usr/local/bin/rg
-  rm -rf /tmp/ripgrep.tar.gz /tmp/ripgrep-*
+  gh release download --clobber --output /tmp/ripgrep.deb --repo BurntSushi/ripgrep --pattern "ripgrep_*_${ARCH_GO}.deb"
+  sudo dpkg -i /tmp/ripgrep.deb
+  rm -f /tmp/ripgrep.deb
 fi
 
 # -------------------------
