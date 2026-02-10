@@ -1,3 +1,0 @@
-[submodule ".config/fonts"]
-	path = .config/fonts
-	url = https://github.com/tarebyte/dotfiles-fonts
