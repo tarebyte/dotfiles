@@ -13,6 +13,7 @@ Personal dotfiles managed with YADM (Yet Another Dotfiles Manager) for macOS and
 | Starship | `.config/starship.toml` | Shell prompt |
 | Ghostty | `.config/ghostty/` | Terminal emulator |
 | Mise | `.config/mise/` | Runtime version manager |
+| FZF | `.config/fzf/` | Fuzzy finder |
 
 ## Installation
 
@@ -23,10 +24,11 @@ curl -fsSL https://raw.githubusercontent.com/tarebyte/dotfiles/main/script/setup
 
 ### GitHub Codespaces
 Set this repository as your dotfiles in [GitHub Codespaces settings](https://github.com/settings/codespaces).
-Codespaces automatically runs `install.sh` which:
-1. Symlinks configs to proper locations (`~/.config/nvim`, `~/.config/git`, etc.)
-2. Installs tools: Neovim, ripgrep, bat, fzf, lazygit, mise, diff-so-fancy
-3. Supports both amd64 and arm64 architectures
+YADM runs `bootstrap##os.Linux` which:
+1. Downloads and installs tools: Neovim, ripgrep, bat, fzf, lazygit, mise, diff-so-fancy
+2. Supports both amd64 and arm64 architectures
+3. Installs mise-managed runtimes (node, copilot-language-server)
+4. Keeps default Bash shell
 
 ### What Bootstrap Does
 
@@ -36,9 +38,9 @@ Codespaces automatically runs `install.sh` which:
 3. Sets Fish as default shell
 4. Installs Fisher plugins
 
-**Codespaces** (`install.sh`):
-1. Symlinks config files to `$HOME`
-2. Downloads latest tool releases via `gh`
+**Codespaces** (`bootstrap##os.Linux`):
+1. Downloads latest tool releases via `gh` with architecture detection
+2. Installs mise and configures runtimes
 3. Keeps default Bash shell
 
 ## Architecture
@@ -57,8 +59,6 @@ Both platforms are configured with:
 
 macOS additionally has Starship prompt.
 
-## Architecture
-
 ### Directory Structure
 
 ```
@@ -68,6 +68,7 @@ macOS additionally has Starship prompt.
 │   ├── fish/           # Fish shell + functions
 │   ├── git/            # Git config + ignore
 │   ├── ghostty/        # Terminal emulator
+│   ├── fzf/            # Fuzzy finder config
 │   ├── mise/           # Runtime versions
 │   ├── starship.toml   # Prompt config
 │   └── yadm/           # Bootstrap scripts
@@ -77,7 +78,8 @@ macOS additionally has Starship prompt.
 ├── .gemrc              # RubyGems config
 ├── .rubocop.yml        # Ruby linter
 └── script/
-    └── setup           # Initial setup script
+    ├── setup           # Initial setup script
+    └── doctor          # Health check script
 ```
 
 ### OS-Specific Files
@@ -92,21 +94,25 @@ YADM uses alternate files with `##os.<OS>` suffix:
 
 - **Framework**: LazyVim
 - **Leader key**: `,` (comma)
-- **Colorscheme**: primer-primitives (primer_dark_dimmed)
-- **Disabled plugins**: bufferline, catppuccin, mason
+- **Colorscheme**: Catppuccin (Mocha)
+- **Theme consistency**: Catppuccin Mocha across Neovim, Tmux, and Ghostty
+- **Disabled plugins**: bufferline, mason, mason-lspconfig
 
 Notable customizations:
 - `gdefault = true` - substitutions replace all matches by default
 - `relativenumber = false` - absolute line numbers only
-- Custom Sorbet LSP configuration for Ruby
+- Custom Sorbet LSP configuration for Ruby (vscode_sorbet)
+- Copilot language server via mise
 
 Plugin categories in `lua/plugins/`:
-- `ui.lua` - colorscheme, statusline
+- `ui.lua` - Catppuccin colorscheme, lualine statusline
 - `editor.lua` - autopairs, gitsigns, whitespace
-- `treesitter.lua` - language parsing
-- `nvim-lspconfig.lua` - LSP servers
-- `tpope.lua` - vim-rails, vim-surround, etc.
+- `treesitter.lua` - language parsing with endwise
+- `nvim-lspconfig.lua` - LSP servers (Sorbet, Copilot)
+- `tpope.lua` - vim-rails, vim-surround, vim-eunuch
 - `snacks.lua` - dashboard, explorer, picker
+- `linting.lua` - rubocop via nvim-lint
+- `noice.lua` - UI improvements
 - `disabled.lua` - explicitly disabled plugins
 
 ### Fish Shell
@@ -122,6 +128,7 @@ Abbreviations:
 - `tn` → `tmux new-session -A -s`
 - `lg` → `lazygit`
 - `:e` → `$EDITOR`
+- `+x` → `chmod u+x`
 - `y` → `yadm`
 
 Custom functions in `.config/fish/functions/`:
@@ -136,6 +143,7 @@ Machine-specific settings go in `.config/fish/local_env.fish` (not tracked).
 - GPG signing enabled by default
 - Pager: diff-so-fancy
 - Pull strategy: rebase
+- Default branch: main
 - Key aliases: `co` (checkout with fzf), `cs` (commit --sign), `up` (pull --rebase)
 
 ### Tmux
@@ -143,7 +151,8 @@ Machine-specific settings go in `.config/fish/local_env.fish` (not tracked).
 - Prefix: `Ctrl-f`
 - Base index: 1
 - Copy mode: vim keybindings
-- Plugins via TPM: pain-control, sensible, yank, minimal-tmux-status
+- Theme: Catppuccin Mocha
+- Plugins via TPM: pain-control, sensible, yank, catppuccin/tmux
 
 ## Development Focus
 
