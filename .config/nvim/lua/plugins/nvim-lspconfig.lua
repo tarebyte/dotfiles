@@ -9,10 +9,6 @@ return {
       servers = {
         -- Custom Sorbet setup for internal work.
         vscode_sorbet = {},
-        -- Copilot language server via mise
-        copilot = {
-          cmd = { "mise", "exec", "--", "copilot-language-server", "--stdio" },
-        },
       },
       setup = {
         vscode_sorbet = function(_, opts)
