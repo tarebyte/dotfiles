@@ -51,7 +51,13 @@ test -f "$HOME/.config/fish/local_env.fish"; and source $HOME/.config/fish/local
 # Additional Paths #
 ####################
 
-fish_add_path -aP $HOME/.bin
+if test -d $HOME/.bin
+    fish_add_path -aP $HOME/.bin
+end
+
+if test -d $HOME/.local/bin
+    fish_add_path -aP $HOME/.local/bin
+end
 
 #####################
 # Other adjustments #
