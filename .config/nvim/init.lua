@@ -2,12 +2,13 @@
 -- Plugin Loader --
 -------------------
 
-local gh = function(x)
+local function gh(x)
   return "https://github.com/" .. x
 end
 
 -- Must be registered before vim.pack.add() so install hooks fire on first run.
 vim.api.nvim_create_autocmd("PackChanged", {
+  group = vim.api.nvim_create_augroup("pack_install", { clear = true }),
   callback = function(ev)
     if ev.data.spec.name == "nvim-treesitter" and ev.data.kind == "install" then
       vim.cmd.packadd("nvim-treesitter")
@@ -262,6 +263,7 @@ require("which-key").setup({
 -------------
 
 vim.api.nvim_create_autocmd("LspProgress", {
+  group = vim.api.nvim_create_augroup("lualine_lsp_progress", { clear = true }),
   callback = function()
     require("lualine").refresh()
   end,

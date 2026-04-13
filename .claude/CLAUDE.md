@@ -41,7 +41,7 @@ Machine-specific secrets/overrides go in `.config/fish/local_env.fish` (gitignor
 **No LazyVim, no lazy.nvim, no Mason.** Built directly on native Neovim using `vim.pack.add()` for plugin management. Layout under `.config/nvim/`:
 
 - `init.lua` — the whole config. Declares plugins via `vim.pack.add()` at the top, then configures each one inline below. Read this file first when changing anything plugin-related.
-- `plugin/` — auto-sourced runtime files: `options.lua`, `keymaps.lua`, `autocmds.lua`, `commands.lua`. These load before `init.lua` finishes, so they should not depend on plugin state.
+- `plugin/` — auto-sourced runtime files: `options.lua`, `keymaps.lua`, `autocmds.lua`, `commands.lua`. These load *after* `init.lua` finishes (see `:h load-plugins`, step 11 of startup), so they can safely `require()` plugins that were set up in `init.lua`.
 - `lsp/` — per-server config files (`gopls.lua`, `lua_ls.lua`, `ruby_lsp.lua`, `vscode_sorbet.lua`) loaded via `vim.lsp.enable()` from `init.lua`. To add a server, drop a `<name>.lua` here and add it to the `vim.lsp.enable({...})` call.
 - `ftplugin/`, `ftdetect/`, `after/` — standard Neovim filetype config and overrides.
 - `nvim-pack-lock.json` — pinned plugin versions managed by `vim.pack`. Commit changes after updating plugins.

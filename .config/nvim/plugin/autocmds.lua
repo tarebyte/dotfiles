@@ -1,6 +1,12 @@
+local pack = vim.api.nvim_create_augroup("pack_update", { clear = true })
+local ts = vim.api.nvim_create_augroup("treesitter", { clear = true })
+local lsp = vim.api.nvim_create_augroup("lsp", { clear = true })
+local diag = vim.api.nvim_create_augroup("diagnostics", { clear = true })
+
 -- Paired with the install-time PackChanged in init.lua: that one runs TSSync
 -- on first install, this one runs TSUpdate + TSSync on subsequent updates.
 vim.api.nvim_create_autocmd("PackChanged", {
+  group = pack,
   callback = function(ev)
     local name, kind = ev.data.spec.name, ev.data.kind
     if name == "nvim-treesitter" and kind == "update" then
@@ -56,6 +62,7 @@ vim.api.nvim_create_user_command("TSSync", function()
 end, { desc = "Install missing treesitter parsers" })
 
 vim.api.nvim_create_autocmd("FileType", {
+  group = ts,
   pattern = parsers,
   callback = function()
     vim.treesitter.start()
@@ -67,7 +74,16 @@ vim.api.nvim_create_autocmd("FileType", {
   end,
 })
 
+-- Diagnostic float on hover; paired with updatetime = 250 in plugin/options.lua.
+vim.api.nvim_create_autocmd("CursorHold", {
+  group = diag,
+  callback = function()
+    vim.diagnostic.open_float(nil, { focus = false, scope = "cursor" })
+  end,
+})
+
 vim.api.nvim_create_autocmd("LspAttach", {
+  group = lsp,
   callback = function(ev)
     local client = vim.lsp.get_client_by_id(ev.data.client_id)
     if not client then

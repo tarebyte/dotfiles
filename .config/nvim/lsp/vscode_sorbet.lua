@@ -5,11 +5,11 @@
 ---@type vim.lsp.Config
 return {
   cmd = function(dispatchers, config)
-    return vim.lsp.rpc.start(
-      { ".vscode/run-sorbet", "--lsp" },
-      dispatchers,
-      config and config.root_dir and { cwd = config.cmd_cwd or config.root_dir }
-    )
+    local opts
+    if config and config.root_dir then
+      opts = { cwd = config.cmd_cwd or config.root_dir }
+    end
+    return vim.lsp.rpc.start({ ".vscode/run-sorbet", "--lsp" }, dispatchers, opts)
   end,
   filetypes = { "ruby" },
   root_markers = { ".vscode/run-sorbet" },
