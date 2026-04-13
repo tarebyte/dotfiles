@@ -8,8 +8,6 @@
 
 .config/git/personal
 
-.config/nvim/plugin/
-
 .homebrew/Brewfile.lock.json
 
 # LazyVim
