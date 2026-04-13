@@ -1,3 +1,7 @@
+# Preferences
+
+- Sprinkle in a dad joke every now and then to keep things fun. Don't overdo it — just occasionally when the moment feels right.
+
 # Dotfiles Repository
 
 Personal dotfiles managed with YADM (Yet Another Dotfiles Manager) for macOS and Linux.
@@ -92,28 +96,33 @@ YADM uses alternate files with `##os.<OS>` suffix:
 
 ### Neovim
 
-- **Framework**: LazyVim
+- **Framework**: None — built directly on native Neovim using `vim.pack.add()` for plugin management (no LazyVim, no lazy.nvim)
 - **Leader key**: `,` (comma)
 - **Colorscheme**: Catppuccin (Mocha)
 - **Theme consistency**: Catppuccin Mocha across Neovim, Tmux, and Ghostty
-- **Disabled plugins**: bufferline, mason, mason-lspconfig
 
-Notable customizations:
-- `gdefault = true` - substitutions replace all matches by default
-- `relativenumber = false` - absolute line numbers only
-- Custom Sorbet LSP configuration for Ruby (vscode_sorbet)
-- Copilot language server via mise
+Layout:
+- `init.lua` — declares all plugins via `vim.pack.add()` and configures them inline
+- `plugin/` — auto-sourced runtime files (`options.lua`, `keymaps.lua`, `autocmds.lua`)
+- `lsp/` — per-server config files loaded by `vim.lsp.enable()` (`gopls.lua`, `ruby_lsp.lua`, `vscode_sorbet.lua`)
+- `ftplugin/`, `ftdetect/`, `after/` — filetype config and overrides
+- `nvim-pack-lock.json` — pinned plugin versions managed by `vim.pack`
 
-Plugin categories in `lua/plugins/`:
-- `ui.lua` - Catppuccin colorscheme, lualine statusline
-- `editor.lua` - autopairs, gitsigns, whitespace
-- `treesitter.lua` - language parsing with endwise
-- `nvim-lspconfig.lua` - LSP servers (Sorbet, Copilot)
-- `tpope.lua` - vim-rails, vim-surround, vim-eunuch
-- `snacks.lua` - dashboard, explorer, picker
-- `linting.lua` - rubocop via nvim-lint
-- `noice.lua` - UI improvements
-- `disabled.lua` - explicitly disabled plugins
+Notable options (`plugin/options.lua`):
+- `number = true`, no relative numbers
+- `gdefault = true` — substitutions replace all matches by default
+- `clipboard = unnamedplus`, `laststatus = 3` (global statusline), `cmdheight = 0`
+- Custom diagnostic signs/icons and a `CursorHold` autocmd that opens a focusless diagnostic float
+
+Plugin set (all configured in `init.lua`):
+- UI: `catppuccin/nvim`, `nvim-lualine/lualine.nvim`, `nvim-tree/nvim-web-devicons`, `folke/snacks.nvim` (notifier, statuscolumn, picker with vscode layout), `folke/which-key.nvim` (helix preset)
+- Editing: `nvim-mini/mini.pairs`, `tpope/vim-surround`, `tpope/vim-repeat`, `tpope/vim-eunuch`, `gbprod/yanky.nvim` (shada-backed yank ring)
+- Files: `justinmk/vim-dirvish` + `kristijanhusak/vim-dirvish-git`
+- Treesitter: `nvim-treesitter/nvim-treesitter`, `rrethy/nvim-treesitter-endwise`
+- LSP / completion: `neovim/nvim-lspconfig`, `folke/lazydev.nvim`, `saghen/blink.cmp` (1.x, enter preset, Tab/S-Tab navigation)
+- Formatting: `stevearc/conform.nvim` — `format_on_save` with LSP fallback; `goimports`+`gofumpt` for Go, `stylua` for Lua
+
+LSP servers enabled: `gopls`, `lua_ls`, `ruby_lsp`, `vscode_sorbet` (configs live in `lsp/`).
 
 ### Fish Shell
 
