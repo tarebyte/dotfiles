@@ -1,219 +1,79 @@
-# Preferences
+# CLAUDE.md
 
-- Sprinkle in a dad joke every now and then to keep things fun. Don't overdo it — just occasionally when the moment feels right.
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-# Dotfiles Repository
+## Repository Purpose
 
-Personal dotfiles managed with YADM (Yet Another Dotfiles Manager) for macOS and Linux.
+Personal dotfiles managed with **YADM** (Yet Another Dotfiles Manager). The repo is the home directory layout — files live at the paths they will be installed to (`.config/...`, `.tmux.conf`, `.Brewfile`, etc.). There is no build step; "deploying" a change means committing it and letting YADM sync it on the target machine.
 
-## Quick Reference
+YADM uses `##os.<OS>` suffixes to pick alternate files per platform. The two bootstrap scripts live at `.config/yadm/bootstrap##os.Darwin` (macOS) and `.config/yadm/bootstrap##os.Linux` (Codespaces / Linux), and YADM picks the right one automatically.
 
-| Tool | Config Location | Purpose |
-|------|-----------------|---------|
-| Neovim | `.config/nvim/` | Editor (LazyVim-based) |
-| Fish | `.config/fish/` | Shell |
-| Tmux | `.tmux.conf` | Terminal multiplexer |
-| Git | `.config/git/` | Version control |
-| Starship | `.config/starship.toml` | Shell prompt |
-| Ghostty | `.config/ghostty/` | Terminal emulator |
-| Mise | `.config/mise/` | Runtime version manager |
-| FZF | `.config/fzf/` | Fuzzy finder |
+## Commands
 
-## Installation
+There is no test suite, build, or linter for this repo. The relevant commands are:
 
-### macOS
-```bash
-curl -fsSL https://raw.githubusercontent.com/tarebyte/dotfiles/main/script/setup | bash
-```
+| Command | Purpose |
+|---------|---------|
+| `script/setup` | First-time macOS setup: installs Homebrew, runs `brew bundle --global`, sets Fish as login shell, installs Fisher plugins. |
+| `script/doctor` | Health check — verifies core tools, shell, git config, mise runtimes, Neovim, and tmux/TPM are present. Use this to validate changes. |
+| `brew bundle --global` | Re-sync Homebrew packages after editing `.Brewfile`. |
+| `yadm bootstrap` | Re-run the platform's bootstrap script. |
+| `fisher update` | Update Fish plugins listed in `.config/fish/fish_plugins`. |
+| `:h vim.pack` then `:lua vim.pack.update()` | Update Neovim plugins; commit the resulting `nvim-pack-lock.json`. |
 
-### GitHub Codespaces
-Set this repository as your dotfiles in [GitHub Codespaces settings](https://github.com/settings/codespaces).
-YADM runs `bootstrap##os.Linux` which:
-1. Downloads and installs tools: Neovim, ripgrep, bat, fzf, lazygit, mise, diff-so-fancy
-2. Supports both amd64 and arm64 architectures
-3. Installs mise-managed runtimes (node, copilot-language-server)
-4. Keeps default Bash shell
-
-### What Bootstrap Does
-
-**macOS** (`bootstrap##os.Darwin`):
-1. Installs Homebrew (if missing)
-2. Runs `brew bundle --global` from `.Brewfile`
-3. Sets Fish as default shell
-4. Installs Fisher plugins
-
-**Codespaces** (`bootstrap##os.Linux`):
-1. Downloads latest tool releases via `gh` with architecture detection
-2. Installs mise and configures runtimes
-3. Keeps default Bash shell
+When making changes that touch tooling, run `script/doctor` afterwards as the closest thing to a test.
 
 ## Architecture
 
-### Shell Configuration
+### Two-platform split
 
-| Platform | Shell | Config File | Local Overrides |
-|----------|-------|-------------|-----------------|
-| macOS | Fish | `.config/fish/config.fish` | `.config/fish/local_env.fish` |
-| Codespaces | Bash | `.bash_aliases##os.Linux` | `.bash_aliases.local` |
+The repo configures **two distinct shell environments** that share as much as possible:
 
-Both platforms are configured with:
-- mise for runtime versions
-- Same core aliases (`lg`, `gp`, `vi`, `vim`)
-- `EDITOR=nvim`
+- **macOS** → Fish (`.config/fish/config.fish`) + Starship prompt + Homebrew. Bootstrap installs Homebrew and a curated package set from `.Brewfile`.
+- **Codespaces / Linux** → Bash (`.bash_aliases##os.Linux`) without Starship. Bootstrap downloads tool releases directly via `gh` (architecture-aware: amd64/arm64), since Homebrew isn't used there.
 
-macOS additionally has Starship prompt.
+Both platforms share: `mise` for runtime versions, `EDITOR=nvim`, and the same core aliases (`lg`, `gp`, `vi`, `vim`). When adding a shell-level feature, consider whether it needs to be replicated in both `config.fish` and `.bash_aliases##os.Linux`.
 
-### Directory Structure
+Machine-specific secrets/overrides go in `.config/fish/local_env.fish` (gitignored; an `.example` file is checked in) or `.bash_aliases.local`.
 
-```
-.
-├── .config/
-│   ├── nvim/           # Neovim (LazyVim)
-│   ├── fish/           # Fish shell + functions
-│   ├── git/            # Git config + ignore
-│   ├── ghostty/        # Terminal emulator
-│   ├── fzf/            # Fuzzy finder config
-│   ├── mise/           # Runtime versions
-│   ├── starship.toml   # Prompt config
-│   └── yadm/           # Bootstrap scripts
-├── .Brewfile           # Homebrew packages
-├── .tmux.conf          # Tmux configuration
-├── .pryrc              # Ruby REPL config
-├── .gemrc              # RubyGems config
-├── .rubocop.yml        # Ruby linter
-└── script/
-    ├── setup           # Initial setup script
-    └── doctor          # Health check script
-```
+### Neovim — native, no framework
 
-### OS-Specific Files
+**No LazyVim, no lazy.nvim, no Mason.** Built directly on native Neovim using `vim.pack.add()` for plugin management. Layout under `.config/nvim/`:
 
-YADM uses alternate files with `##os.<OS>` suffix:
-- `bootstrap##os.Darwin` - macOS bootstrap
-- `bootstrap##os.Linux` - Linux bootstrap
+- `init.lua` — the whole config. Declares plugins via `vim.pack.add()` at the top, then configures each one inline below. Read this file first when changing anything plugin-related.
+- `plugin/` — auto-sourced runtime files: `options.lua`, `keymaps.lua`, `autocmds.lua`, `commands.lua`. These load before `init.lua` finishes, so they should not depend on plugin state.
+- `lsp/` — per-server config files (`gopls.lua`, `lua_ls.lua`, `ruby_lsp.lua`, `vscode_sorbet.lua`) loaded via `vim.lsp.enable()` from `init.lua`. To add a server, drop a `<name>.lua` here and add it to the `vim.lsp.enable({...})` call.
+- `ftplugin/`, `ftdetect/`, `after/` — standard Neovim filetype config and overrides.
+- `nvim-pack-lock.json` — pinned plugin versions managed by `vim.pack`. Commit changes after updating plugins.
 
-## Key Configuration Details
+Key conventions:
+- **Leader**: `,` (comma).
+- `gdefault = true` and absolute (not relative) line numbers are intentional — don't "fix" them.
+- `cmdheight = 0`, `laststatus = 3` (global statusline), `clipboard = unnamedplus`.
+- Custom diagnostic float on `CursorHold` (focusless).
+- Theme: Catppuccin Mocha, kept consistent with tmux.
 
-### Neovim
+Plugin set (all configured inline in `init.lua`):
+- **UI**: `catppuccin/nvim`, `nvim-lualine/lualine.nvim`, `nvim-tree/nvim-web-devicons`, `folke/snacks.nvim` (notifier, statuscolumn, picker), `folke/which-key.nvim`.
+- **Editing**: `nvim-mini/mini.pairs`, `tpope/vim-surround`, `tpope/vim-repeat`, `tpope/vim-eunuch`, `gbprod/yanky.nvim`, `ntpeters/vim-better-whitespace`.
+- **Files / nav**: `justinmk/vim-dirvish` + `kristijanhusak/vim-dirvish-git`.
+- **Treesitter**: `nvim-treesitter/nvim-treesitter` (+ `-context`, `-textobjects`, `rrethy/nvim-treesitter-endwise`).
+- **LSP / completion**: `neovim/nvim-lspconfig`, `folke/lazydev.nvim`, `saghen/blink.cmp` (1.x).
+- **Formatting**: `stevearc/conform.nvim` with `format_on_save` and LSP fallback (`goimports`+`gofumpt` for Go, `stylua` for Lua).
+- **Rails**: `tpope/vim-rails`, `tpope/vim-projectionist`, `lewis6991/gitsigns.nvim`.
 
-- **Framework**: None — built directly on native Neovim using `vim.pack.add()` for plugin management (no LazyVim, no lazy.nvim)
-- **Leader key**: `,` (comma)
-- **Colorscheme**: Catppuccin (Mocha)
-- **Theme consistency**: Catppuccin Mocha across Neovim, Tmux, and Ghostty
+When adding a plugin: append a `gh("owner/repo")` entry to the `vim.pack.add({...})` block in `init.lua`, then add its `require(...).setup(...)` block further down. Run `:lua vim.pack.update()` and commit `nvim-pack-lock.json`.
 
-Layout:
-- `init.lua` — declares all plugins via `vim.pack.add()` and configures them inline
-- `plugin/` — auto-sourced runtime files (`options.lua`, `keymaps.lua`, `autocmds.lua`)
-- `lsp/` — per-server config files loaded by `vim.lsp.enable()` (`gopls.lua`, `ruby_lsp.lua`, `vscode_sorbet.lua`)
-- `ftplugin/`, `ftdetect/`, `after/` — filetype config and overrides
-- `nvim-pack-lock.json` — pinned plugin versions managed by `vim.pack`
+### Fish shell
 
-Notable options (`plugin/options.lua`):
-- `number = true`, no relative numbers
-- `gdefault = true` — substitutions replace all matches by default
-- `clipboard = unnamedplus`, `laststatus = 3` (global statusline), `cmdheight = 0`
-- Custom diagnostic signs/icons and a `CursorHold` autocmd that opens a focusless diagnostic float
+`.config/fish/` holds `config.fish`, `fish_plugins` (Fisher), and `functions/` (one function per file, filename must match function name). Notable functions: `gloan` (clones into `~/src/{owner}/{repo}`), `brewup`, `github_token` (pulls from 1Password). Key env vars set in `config.fish`: `PROJECTS=$HOME/src`, `DOTFILES=$PROJECTS/(whoami)/dotfiles`, `GOPATH=$PROJECTS/go`.
 
-Plugin set (all configured in `init.lua`):
-- UI: `catppuccin/nvim`, `nvim-lualine/lualine.nvim`, `nvim-tree/nvim-web-devicons`, `folke/snacks.nvim` (notifier, statuscolumn, picker with vscode layout), `folke/which-key.nvim` (helix preset)
-- Editing: `nvim-mini/mini.pairs`, `tpope/vim-surround`, `tpope/vim-repeat`, `tpope/vim-eunuch`, `gbprod/yanky.nvim` (shada-backed yank ring)
-- Files: `justinmk/vim-dirvish` + `kristijanhusak/vim-dirvish-git`
-- Treesitter: `nvim-treesitter/nvim-treesitter`, `rrethy/nvim-treesitter-endwise`
-- LSP / completion: `neovim/nvim-lspconfig`, `folke/lazydev.nvim`, `saghen/blink.cmp` (1.x, enter preset, Tab/S-Tab navigation)
-- Formatting: `stevearc/conform.nvim` — `format_on_save` with LSP fallback; `goimports`+`gofumpt` for Go, `stylua` for Lua
+### Git, Tmux, terminal
 
-LSP servers enabled: `gopls`, `lua_ls`, `ruby_lsp`, `vscode_sorbet` (configs live in `lsp/`).
-
-### Fish Shell
-
-Key environment variables:
-- `EDITOR=nvim`
-- `PROJECTS=$HOME/src`
-- `DOTFILES=$PROJECTS/(whoami)/dotfiles`
-- `GOPATH=$PROJECTS/go`
-
-Abbreviations:
-- `gp` → `git push`
-- `tn` → `tmux new-session -A -s`
-- `lg` → `lazygit`
-- `:e` → `$EDITOR`
-- `+x` → `chmod u+x`
-- `y` → `yadm`
-
-Custom functions in `.config/fish/functions/`:
-- `gloan` - Clone repos to `~/src/{owner}/{repo}`
-- `brewup` - Update all Homebrew packages
-- `github_token` - Get GitHub token from 1Password
-
-Machine-specific settings go in `.config/fish/local_env.fish` (not tracked).
-
-### Git
-
-- GPG signing enabled by default
-- Pager: diff-so-fancy
-- Pull strategy: rebase
-- Default branch: main
-- Key aliases: `co` (checkout with fzf), `cs` (commit --sign), `up` (pull --rebase)
-
-### Tmux
-
-- Prefix: `Ctrl-f`
-- Base index: 1
-- Copy mode: vim keybindings
-- Theme: Catppuccin Mocha
-- Plugins via TPM: pain-control, sensible, yank, catppuccin/tmux
+- **Git** (`.config/git/config`): GPG signing on by default, `diff-so-fancy` pager, `pull.rebase`, default branch `main`. Aliases of note: `co` (fzf checkout), `cs` (signed commit), `up` (pull --rebase).
+- **Tmux** (`.tmux.conf`): prefix `Ctrl-f`, base index 1, vim copy-mode keys, Catppuccin Mocha. Plugins managed by TPM (`prefix + I` to install).
+- **Terminal emulator**: iTerm2 on macOS. Its config is **not tracked in this repo** — it changes too often to be worth maintaining. Don't try to edit iTerm2 settings here.
 
 ## Development Focus
 
-This configuration is optimized for **Ruby/Rails development** with:
-- Sorbet LSP integration
-- Rubocop linting
-- vim-rails, vim-bundler plugins
-- Pry debugging aliases
-
-Also supports: Go, Node.js, Rust, Python, .NET (via Mise)
-
-## Common Tasks
-
-### Adding a new Homebrew package
-1. Add to `.Brewfile`
-2. Run `brew bundle --global`
-
-### Adding a Neovim plugin
-1. Create or edit file in `.config/nvim/lua/plugins/`
-2. Follow LazyVim plugin spec format
-
-### Adding a Fish function
-1. Create `.config/fish/functions/{name}.fish`
-2. Function name must match filename
-
-### Machine-specific configuration
-1. Copy `.config/fish/local_env.fish.example` to `.config/fish/local_env.fish`
-2. Add environment variables and settings (file is gitignored)
-
-## Troubleshooting
-
-### Run health check
-```bash
-script/doctor
-```
-
-### Neovim health check
-```vim
-:checkhealth
-```
-
-### Rebuild Neovim plugins
-```vim
-:Lazy sync
-```
-
-### Fish plugin update
-```fish
-fisher update
-```
-
-### Tmux plugin install
-```
-prefix + I  (Ctrl-f + I)
-```
+Optimized primarily for **Ruby/Rails** work — Sorbet LSP (`vscode_sorbet`), ruby-lsp, Rubocop (`.rubocop.yml`), vim-rails, and pry aliases (`.pryrc`). Also configured for Go (gopls, gofumpt, goimports), Lua (lua_ls, stylua), Node, Rust, Python, and .NET via mise.
