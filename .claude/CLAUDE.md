@@ -51,6 +51,7 @@ Key conventions:
 - `gdefault = true` and absolute (not relative) line numbers are intentional — don't "fix" them.
 - `cmdheight = 0`, `laststatus = 3` (global statusline), `clipboard = unnamedplus`.
 - Custom diagnostic float on `CursorHold` (focusless).
+- All autocmds are wrapped in a named `augroup` with `clear = true` so re-sourcing any file is idempotent. New autocmds should follow the same pattern.
 - Theme: Catppuccin Mocha, kept consistent with tmux.
 
 Plugin set (all configured inline in `init.lua`):
