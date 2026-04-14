@@ -1,0 +1,13 @@
+#!/bin/sh
+{{ if eq .chezmoi.os "darwin" -}}
+set -e
+
+if [ "$(uname -m)" = "arm64" ]; then
+	fish_path=/opt/homebrew/bin/fish
+else
+	fish_path=/usr/local/bin/fish
+fi
+
+echo "$fish_path" | sudo tee -a /etc/shells
+chsh -s "$fish_path"
+{{- end }}

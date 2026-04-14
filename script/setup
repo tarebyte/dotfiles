@@ -1,9 +1,22 @@
-#!/bin/bash
+#!/bin/sh
+#
+# Bootstrap entry point. Auto-run by GitHub Codespaces from within the
+# pre-cloned dotfiles directory; run manually on a fresh macOS machine
+# after `git clone`.
+#
+# Fresh machine with no clone yet, one-liner:
+#   sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply tarebyte
 
 set -e
 
-# https://yadm.io/docs/install#download
-sudo curl -fLo /usr/local/bin/yadm https://github.com/TheLocehiliosan/yadm/raw/master/yadm && sudo chmod a+x /usr/local/bin/yadm
+REPO="$(cd "$(dirname "$0")/.." && pwd)"
 
-# Bootstrap the dotfiles
-yadm clone --bootstrap https://github.com/tarebyte/dotfiles.git
+if ! command -v chezmoi >/dev/null 2>&1; then
+	BINDIR="$HOME/.local/bin"
+	mkdir -p "$BINDIR"
+	sh -c "$(curl -fsLS get.chezmoi.io)" -- -b "$BINDIR"
+	PATH="$BINDIR:$PATH"
+	export PATH
+fi
+
+chezmoi init --apply --source "$REPO"

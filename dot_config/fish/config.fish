@@ -74,7 +74,7 @@ abbr -ag tn tmux new-session -A -s
 abbr -ag lg lazygit
 abbr -ag ":e" $EDITOR
 abbr -ag "+x" "chmod u+x"
-abbr -ag y yadm
+abbr -ag y chezmoi
 
 alias ls "ls -GpF"
 alias vi $EDITOR

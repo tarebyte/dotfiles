@@ -2,6 +2,7 @@
 
 brew "autojump"
 brew "bat"
+brew "chezmoi"
 brew "curl"
 brew "diff-so-fancy"
 brew "fish"

@@ -1,0 +1,19 @@
+{{- /* Per-machine chezmoi config template.
+
+On `chezmoi init`, chezmoi prompts for the values below and writes the
+result to ~/.config/chezmoi/chezmoi.toml, which is NOT tracked in the
+repo. Templates (e.g. dot_config/git/config.tmpl) reference the data
+via {{ .git.name }} etc., so identity never appears in git history and
+a forker gets prompted for their own values.
+*/ -}}
+
+{{- $name := promptStringOnce . "git.name" "Full name" -}}
+{{- $email := promptStringOnce . "git.email" "Email" -}}
+{{- $signingkey := promptStringOnce . "git.signingkey" "GPG signing key ID (empty for none)" -}}
+{{- $githubUser := promptStringOnce . "git.github_user" "GitHub username" -}}
+
+[data.git]
+    name = {{ $name | quote }}
+    email = {{ $email | quote }}
+    signingkey = {{ $signingkey | quote }}
+    github_user = {{ $githubUser | quote }}

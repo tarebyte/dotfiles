@@ -27,7 +27,7 @@
 	newHighlight = green bold 22
 
 [commit]
-    gpgsign = true
+	gpgsign = true
 	verbose = true
 
 [core]
@@ -55,8 +55,8 @@
 [gc]
 	auto = 0
 
-[include]
-	path = ~/.config/git/personal
+[github]
+	user = {{ .git.github_user }}
 
 [init]
 	defaultBranch = main
@@ -72,3 +72,17 @@
 
 [push]
 	default = current
+
+[user]
+	name = {{ .git.name }}
+	email = {{ .git.email }}
+{{- if ne .git.signingkey "" }}
+	signingkey = {{ .git.signingkey }}
+{{- end }}
+{{ if eq .chezmoi.os "darwin" -}}
+[credential]
+	helper = osxkeychain
+
+[gpg]
+	program = /usr/local/MacGPG2/bin/gpg
+{{- end }}
