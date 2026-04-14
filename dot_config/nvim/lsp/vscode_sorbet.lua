@@ -18,7 +18,7 @@ return {
     if not root then
       return
     end
-    on_dir(root)
+    on_dir(vim.fs.dirname(root))
   end,
   reuse_client = function(client, config)
     config.cmd_cwd = config.root_dir
