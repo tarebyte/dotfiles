@@ -30,7 +30,7 @@ end
 #######
 
 set -g async_prompt_functions _pure_prompt_git
-set -gx BAT_THEME base16-256
+set -gx BAT_THEME ansi
 set -gx EDITOR nvim
 
 set -gx FZF_DEFAULT_OPTS_FILE $HOME/.config/fzf/config

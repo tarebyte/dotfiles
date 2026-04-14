@@ -9,5 +9,5 @@ else
 	fish_path=/usr/local/bin/fish
 fi
 
-echo "curl -sL https://git.io/fisher | source && fisher update && base16-ocean" | "$fish_path"
+echo "curl -sL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source && fisher install jorgebucaran/fisher && fisher update" | "$fish_path"
 {{- end }}

@@ -6,7 +6,7 @@
 # -------------------------
 export EDITOR="nvim"
 export VISUAL="nvim"
-export BAT_THEME="base16-256"
+export BAT_THEME="ansi"
 export PROJECTS="$HOME/src"
 
 export FZF_DEFAULT_COMMAND="rg --files --hidden --follow --no-messages --glob '!.git/*'"
