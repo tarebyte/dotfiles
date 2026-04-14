@@ -1,5 +1,5 @@
 #!/bin/sh
-# mise config hash: {{ include "dot_config/mise/config.toml.tmpl" | sha256sum }}
+# mise config hash: {{ include "dot_config/mise/config.toml" | sha256sum }}
 set -e
 
 if ! command -v mise >/dev/null 2>&1; then
