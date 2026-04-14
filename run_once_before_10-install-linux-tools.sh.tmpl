@@ -64,7 +64,7 @@ if ! command -v diff-so-fancy &>/dev/null; then
   rm -rf /tmp/diff-so-fancy
 fi
 
-if ! command -v mise &>/dev/null; then
+if [ -z "$CODESPACES" ] && ! command -v mise &>/dev/null; then
   echo "  Installing mise..."
   curl -fsSL https://mise.run | sh
 fi
@@ -78,10 +78,12 @@ if ! command -v tree-sitter &>/dev/null; then
   fi
 fi
 
-echo "  Setting up mise..."
-~/.local/bin/mise trust
-~/.local/bin/mise install node
-~/.local/bin/mise exec -- npm install -g @github/copilot-language-server
+if [ -z "$CODESPACES" ]; then
+  echo "  Setting up mise..."
+  ~/.local/bin/mise trust
+  ~/.local/bin/mise install node
+  ~/.local/bin/mise exec -- npm install -g @github/copilot-language-server
+fi
 
 echo ""
 echo "==> Bootstrap complete! Restart your terminal or run: source ~/.bash_aliases"
