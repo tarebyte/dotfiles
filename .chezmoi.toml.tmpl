@@ -7,10 +7,16 @@ via {{ .git.name }} etc., so identity never appears in git history and
 a forker gets prompted for their own values.
 */ -}}
 
-{{- $name := promptStringOnce . "git.name" "Full name" -}}
-{{- $email := promptStringOnce . "git.email" "Email" -}}
-{{- $signingkey := promptStringOnce . "git.signingkey" "GPG signing key ID (empty for none)" -}}
-{{- $githubUser := promptStringOnce . "git.github_user" "GitHub username" -}}
+{{- $name := "" -}}
+{{- $email := "" -}}
+{{- $signingkey := "" -}}
+{{- $githubUser := "" -}}
+{{- if ne (env "CODESPACES") "true" -}}
+{{-   $name = promptStringOnce . "git.name" "Full name" -}}
+{{-   $email = promptStringOnce . "git.email" "Email" -}}
+{{-   $signingkey = promptStringOnce . "git.signingkey" "GPG signing key ID (empty for none)" -}}
+{{-   $githubUser = promptStringOnce . "git.github_user" "GitHub username" -}}
+{{- end -}}
 
 sourceDir = {{ .chezmoi.sourceDir | quote }}
 

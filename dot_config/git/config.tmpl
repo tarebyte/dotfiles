@@ -54,10 +54,10 @@
 
 [gc]
 	auto = 0
-
+{{ if ne (env "CODESPACES") "true" }}
 [github]
 	user = {{ .git.github_user }}
-
+{{ end }}
 [init]
 	defaultBranch = main
 
@@ -73,12 +73,14 @@
 [push]
 	default = current
 
+{{ if ne (env "CODESPACES") "true" -}}
 [user]
 	name = {{ .git.name }}
 	email = {{ .git.email }}
 {{- if ne .git.signingkey "" }}
 	signingkey = {{ .git.signingkey }}
 {{- end }}
+{{ end -}}
 {{ if eq .chezmoi.os "darwin" -}}
 [credential]
 	helper = osxkeychain
