@@ -251,7 +251,7 @@ require("lazydev").setup({
 -- LSP servers --
 -----------------
 
-vim.lsp.enable({ "gopls", "lua_ls", "ruby_lsp", "vscode_sorbet" })
+vim.lsp.enable({ "gopls", "lua_ls", "ruby_lsp", "vscode_sorbet", "vscode_sorbet_rubocop" })
 
 ----------------------------
 -- Completion (blink.cmp) --
@@ -373,6 +373,21 @@ require("yanky").setup({
 --------------
 
 require("gitsigns").setup({
+  signs = {
+    add = { text = "▎" },
+    change = { text = "▎" },
+    delete = { text = "" },
+    topdelete = { text = "" },
+    changedelete = { text = "▎" },
+    untracked = { text = "▎" },
+  },
+  signs_staged = {
+    add = { text = "▎" },
+    change = { text = "▎" },
+    delete = { text = "" },
+    topdelete = { text = "" },
+    changedelete = { text = "▎" },
+  },
   on_attach = function(buf)
     local gs = require("gitsigns")
     require("which-key").add({
