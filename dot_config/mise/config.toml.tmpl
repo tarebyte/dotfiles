@@ -1,5 +1,4 @@
 # vi: ft=toml
-{{- if eq .chezmoi.os "darwin" }}
 [tools]
 dotnet = "latest"
 go = "latest"
@@ -14,10 +13,3 @@ rust = "latest"
 "npm:bash-language-server" = "latest"
 "npm:markdown-toc" = "latest"
 golangci-lint = "v2.11.4"
-{{- else if eq .chezmoi.os "linux" }}
-[settings]
-idiomatic_version_file_enable_tools = ["node"]
-
-[tools]
-node = "lts"
-{{- end }}
