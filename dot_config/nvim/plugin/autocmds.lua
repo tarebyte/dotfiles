@@ -21,6 +21,7 @@ vim.api.nvim_create_autocmd("PackChanged", {
 
 -- Bundled with neovim: c, lua, markdown, markdown_inline, query, vim, vimdoc
 local parsers = {
+  "bash",
   "css",
   "diff",
   "dockerfile",
@@ -28,6 +29,7 @@ local parsers = {
   "go",
   "gomod",
   "gosum",
+  "gotmpl",
   "gowork",
   "html",
   "javascript",
@@ -62,9 +64,24 @@ vim.api.nvim_create_user_command("TSSync", function()
   require("nvim-treesitter").install(missing)
 end, { desc = "Install missing treesitter parsers" })
 
+-- Register the gotmpl parser under per-target aliases so each compound
+-- filetype resolves injection queries from its own directory
+-- (after/queries/gotmpl_<lang>/injections.scm). Skipped silently if the
+-- gotmpl .so isn't installed yet — run :TSSync, then restart.
+local gotmpl_aliases = { "gotmpl_bash", "gotmpl_html" }
+local gotmpl_so = vim.api.nvim_get_runtime_file("parser/gotmpl.so", false)[1]
+if gotmpl_so then
+  for _, alias in ipairs(gotmpl_aliases) do
+    pcall(vim.treesitter.language.add, alias, { path = gotmpl_so, symbol_name = "gotmpl" })
+  end
+end
+
+local ft_parsers = vim.deepcopy(parsers)
+vim.list_extend(ft_parsers, gotmpl_aliases)
+
 vim.api.nvim_create_autocmd("FileType", {
   group = ts,
-  pattern = parsers,
+  pattern = ft_parsers,
   callback = function()
     vim.treesitter.start()
 
@@ -73,6 +90,15 @@ vim.api.nvim_create_autocmd("FileType", {
 
     vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
   end,
+})
+
+vim.filetype.add({
+  pattern = {
+    [".*%.sh%.g?o?tmpl$"] = "gotmpl_bash",
+    [".*%.bash%.g?o?tmpl$"] = "gotmpl_bash",
+    [".*%.html%.g?o?tmpl$"] = "gotmpl_html",
+    [".*%.g?o?tmpl$"] = "gotmpl_html",
+  },
 })
 
 -- Diagnostic float on hover; paired with updatetime = 250 in plugin/options.lua.
