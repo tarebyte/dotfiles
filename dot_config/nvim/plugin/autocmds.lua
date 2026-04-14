@@ -24,6 +24,7 @@ local parsers = {
   "css",
   "diff",
   "dockerfile",
+  "fish",
   "go",
   "gomod",
   "gosum",
