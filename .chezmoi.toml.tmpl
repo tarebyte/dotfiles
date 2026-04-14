@@ -12,6 +12,8 @@ a forker gets prompted for their own values.
 {{- $signingkey := promptStringOnce . "git.signingkey" "GPG signing key ID (empty for none)" -}}
 {{- $githubUser := promptStringOnce . "git.github_user" "GitHub username" -}}
 
+sourceDir = {{ .chezmoi.sourceDir | quote }}
+
 [data.git]
     name = {{ $name | quote }}
     email = {{ $email | quote }}
