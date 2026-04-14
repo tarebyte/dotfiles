@@ -94,17 +94,53 @@ vim.api.nvim_create_autocmd("LspAttach", {
     require("which-key").add({
       buffer = ev.buf,
       { "K", vim.lsp.buf.hover, desc = "Hover" },
-      { "gd", function() Snacks.picker.lsp_definitions() end, desc = "Goto definition" },
+      {
+        "gd",
+        function()
+          Snacks.picker.lsp_definitions()
+        end,
+        desc = "Goto definition",
+      },
       { "gD", vim.lsp.buf.declaration, desc = "Goto declaration" },
-      { "gr", function() Snacks.picker.lsp_references() end, desc = "References" },
-      { "gI", function() Snacks.picker.lsp_implementations() end, desc = "Goto implementation" },
-      { "gy", function() Snacks.picker.lsp_type_definitions() end, desc = "Goto type definition" },
+      {
+        "gr",
+        function()
+          Snacks.picker.lsp_references()
+        end,
+        desc = "References",
+      },
+      {
+        "gI",
+        function()
+          Snacks.picker.lsp_implementations()
+        end,
+        desc = "Goto implementation",
+      },
+      {
+        "gy",
+        function()
+          Snacks.picker.lsp_type_definitions()
+        end,
+        desc = "Goto type definition",
+      },
       { "<C-k>", vim.lsp.buf.signature_help, desc = "Signature help", mode = { "n", "i" } },
       { "<leader>cr", vim.lsp.buf.rename, desc = "Rename symbol" },
       { "<leader>ca", vim.lsp.buf.code_action, desc = "Code action", mode = { "n", "x" } },
       { "<leader>cd", vim.diagnostic.open_float, desc = "Show diagnostic" },
-      { "]d", function() vim.diagnostic.jump({ count = 1, float = true }) end, desc = "Next diagnostic" },
-      { "[d", function() vim.diagnostic.jump({ count = -1, float = true }) end, desc = "Prev diagnostic" },
+      {
+        "]d",
+        function()
+          vim.diagnostic.jump({ count = 1, float = true })
+        end,
+        desc = "Next diagnostic",
+      },
+      {
+        "[d",
+        function()
+          vim.diagnostic.jump({ count = -1, float = true })
+        end,
+        desc = "Prev diagnostic",
+      },
     })
   end,
 })
