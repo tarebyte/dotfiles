@@ -9,10 +9,6 @@ LICENSE
 script
 script/**
 
-# Legacy YADM subtree — safety net until Phase 3g deletes it.
-.config/yadm
-.config/yadm/**
-
 # Per-OS targets (note: patterns match target paths, NOT source paths,
 # so entries use ".bash_aliases" rather than "dot_bash_aliases".)
 {{- if ne .chezmoi.os "linux" }}
