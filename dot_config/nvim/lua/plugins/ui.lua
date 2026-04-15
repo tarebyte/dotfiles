@@ -18,9 +18,21 @@ return {
         { "branch", icon = "" },
       }
 
-      -- Remove file type icon
-      -- https://github.com/LazyVim/LazyVim/blob/fa3170d422f3c661d0411472c96f92e5324dc281/lua/lazyvim/plugins/ui.lua#L153
-      table.remove(opts.sections.lualine_c, 3)
+      local icons = LazyVim.config.icons
+
+      opts.sections.lualine_c = {
+        LazyVim.lualine.root_dir(),
+        {
+          "diagnostics",
+          symbols = {
+            error = icons.diagnostics.Error,
+            warn = icons.diagnostics.Warn,
+            info = icons.diagnostics.Info,
+            hint = icons.diagnostics.Hint,
+          },
+        },
+        { LazyVim.lualine.pretty_path() },
+      }
 
       opts.sections.lualine_y = { "progress" }
       opts.sections.lualine_z = { "location" }
