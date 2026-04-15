@@ -40,7 +40,9 @@ return {
             [vim.diagnostic.severity.HINT] = "▎",
           },
         },
-        inlay_hints = false,
+        inlay_hints = {
+          enabled = false,
+        },
         virtual_text = false,
         float = {
           border = "rounded",
