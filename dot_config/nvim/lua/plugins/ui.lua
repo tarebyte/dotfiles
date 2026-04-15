@@ -16,7 +16,7 @@ return {
         },
       }
       opts.sections.lualine_b = {
-        { "branch", icon = "" },
+        { "branch", icon = "" },
       }
       opts.sections.lualine_x = {
         "diagnostics",
