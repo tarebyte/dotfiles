@@ -43,6 +43,8 @@ set -gx OBJC_DISABLE_INITIALIZE_FORK_SAFETY YES
 
 set -gx PROJECTS $HOME/src
 
+set -gx GOPATH=$HOME/src/go
+
 # DOTFILES resolves from this file's own real path — config.fish is
 # stowed from <repo>/common/.config/fish/config.fish, so four dirname
 # levels above the resolved path is the repo root. Works whether the
