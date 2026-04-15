@@ -2,11 +2,9 @@ return {
   {
     "nvim-lualine/lualine.nvim",
     opts = function(_, opts)
-      opts.options = vim.tbl_extend("force", opts.options or {}, {
-        section_separators = "",
-        component_separators = "",
-        theme = "catppuccin-nvim",
-      })
+      opts.options.component_separators = { left = "", right = "" }
+      opts.options.section_separators = { left = "", right = "" }
+
       opts.sections.lualine_a = {
         {
           "mode",
@@ -15,24 +13,15 @@ return {
           end,
         },
       }
+
       opts.sections.lualine_b = {
-        { "branch", icon = "" },
+        { "branch", icon = "" },
       }
-      opts.sections.lualine_x = {
-        "diagnostics",
-        {
-          "lsp_status",
-          icon = "",
-          symbols = { done = "󰅩" },
-          show_name = false,
-          padding = { left = 1, right = 1 },
-        },
-        {
-          "filetype",
-          icons_enabled = false,
-          padding = { left = 0, right = 1 },
-        },
-      }
+
+      -- Remove file type icon
+      -- https://github.com/LazyVim/LazyVim/blob/fa3170d422f3c661d0411472c96f92e5324dc281/lua/lazyvim/plugins/ui.lua#L153
+      table.remove(opts.sections.lualine_c, 3)
+
       opts.sections.lualine_y = { "progress" }
       opts.sections.lualine_z = { "location" }
     end,
