@@ -31,23 +31,24 @@ Machine-local secrets on Codespaces come from user-defined Codespaces secrets (i
 
 ### Neovim — LazyVim base + manual LSP
 
-Built on **LazyVim** (`lazy.nvim` under the hood). Mason is disabled — LSP servers are installed by mise/system and configured via per-server `lsp/*.lua` files that LazyVim forwards to `vim.lsp.enable()`. No Mason, no `ensure_installed` for language servers.
+Built on **LazyVim** (`lazy.nvim` under the hood). Mason is disabled — LSP servers are installed by mise/system and configured inline in `lua/plugins/lsp.lua` via `opts.servers`. No Mason, no `ensure_installed` for language servers.
 
 Layout under `dot_config/nvim/`:
 - `init.lua` — 3-line stub: sets leader and `require("config.lazy")`.
-- `lua/config/lazy.lua` — bootstraps lazy.nvim and imports `lazyvim.plugins`, the enabled extras (`coding.yanky`, `editor.aerial`, `editor.inc-rename`, `editor.navic`, `lang.go`, `ui.treesitter-context`, `util.mini-hipatterns`, `util.startuptime`), and local `plugins/`.
+- `lua/config/lazy.lua` — bootstraps lazy.nvim and imports `lazyvim.plugins` + local `plugins/`. The enabled LazyVim extras live in `lazyvim.json` (managed by `:LazyExtras`), not in this file.
+- `lazyvim.json` — tracks the enabled extras (`coding.mini-comment`, `coding.yanky`, `editor.aerial`, `editor.inc-rename`, `editor.navic`, `lang.go`, `ui.treesitter-context`, `util.chezmoi`, `util.mini-hipatterns`, `util.startuptime`) and news-read state. Commit changes after toggling extras.
 - `lua/config/options.lua` — only the deltas from LazyVim defaults (`gdefault`, `cmdheight=0`, `listchars`, `updatetime`, `relativenumber=false`, `pumblend=0`).
 - `lua/config/keymaps.lua` — only our custom keymaps on top of LazyVim's (`go`/`gO`, `<leader>O`, treesitter textobjects, projectionist alternate).
 - `lua/config/autocmds.lua` — custom autocmds (CursorHold diagnostic float, gotmpl filetype + parser aliases).
 - `lua/plugins/colorscheme.lua` — LazyVim `colorscheme` opt + catppuccin flavour, highlights, lualine palette integration.
-- `lua/plugins/ui.lua` — lualine sections, snacks dashboard ASCII header + picker/notifier/statuscolumn, nvim-web-devicons (Ruby icon), disables for neo-tree and bufferline.
+- `lua/plugins/ui.lua` — lualine sections (single-letter mode, branch icon, no filetype icon, progress/location), snacks dashboard ASCII header + picker/notifier/statuscolumn/explorer, nvim-web-devicons (Ruby icon).
+- `lua/plugins/disabled.lua` — single place for LazyVim plugins we turn off: `bufferline.nvim`, `mason.nvim`, `mason-lspconfig.nvim`, `neo-tree.nvim`.
 - `lua/plugins/coding.lua` — blink.cmp Tab/S-Tab cycling + sources, disable for mini.surround.
-- `lua/plugins/gitsigns.lua` — gitsigns numhl + current-line blame.
+- `lua/plugins/gitsigns.lua` — gitsigns `numhl` only (no current-line blame).
 - `lua/plugins/noice.lua` — noice routes/presets.
-- `lua/plugins/lsp.lua` — disables Mason plugins, registers the Ruby servers (`ruby_lsp`, `vscode_sorbet`, `vscode_sorbet_rubocop`) via `opts.servers`, and sets `opts.diagnostics` (custom signs + focusless rounded float). `gopls` comes from the `lang.go` extra; `lua_ls` comes from LazyVim core (configured automatically, with `vim` globals + LuaJIT runtime handled by lazydev.nvim).
+- `lua/plugins/lsp.lua` — registers the Ruby servers (`ruby_lsp`, `vscode_sorbet`, `vscode_sorbet_rubocop`) via `opts.servers`, and sets `opts.diagnostics` (custom signs + focusless rounded float). `gopls` comes from the `lang.go` extra; `lua_ls` comes from LazyVim core (configured automatically, with `vim` globals + LuaJIT runtime handled by lazydev.nvim). Mason itself is disabled in `disabled.lua`.
 - `lua/plugins/editing.lua` — vim-surround, vim-repeat, vim-eunuch, vim-projectionist, vim-rails, vim-better-whitespace, vim-dirvish + dirvish-git.
 - `lua/plugins/treesitter.lua` — parser list (only additions beyond LazyVim core), treesitter-context, treesitter-textobjects, endwise.
-- `lsp/<server>.lua` — per-server configs (respected by LazyVim via `opts.servers`).
 - `ftplugin/`, `ftdetect/`, `after/` — standard.
 - `lazy-lock.json` — pinned plugin versions; commit on update.
 
@@ -62,7 +63,7 @@ Conventions (intentional — don't "fix"):
 
 Adding a plugin: create/edit a spec file under `lua/plugins/` returning a lazy.nvim spec table. Run `:Lazy sync`, commit `lazy-lock.json`.
 
-Adding an LSP: drop `lsp/<name>.lua` returning a `vim.lsp.Config` table, and add `<name> = {}` to `opts.servers` in `lua/plugins/lsp.lua`.
+Adding an LSP: add `<name> = { ... }` to `opts.servers` in `lua/plugins/lsp.lua` with the full `vim.lsp.Config` table inline. (No `lsp/<name>.lua` runtime files — everything lives in one place.)
 
 Formatting: LazyVim's default `conform.nvim` wiring, untouched. Format-on-save runs through `LazyVim.format` (toggle with `<leader>uf` / `vim.g.autoformat`), Lua uses `stylua`, Go uses `goimports` + `gofumpt` (from the `lang.go` extra), and everything else falls back to the LSP formatter. No custom conform spec in `lua/plugins/` — adding one to set `format_on_save` will be stripped by LazyVim with a warning.
 
