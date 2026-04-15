@@ -81,6 +81,7 @@
 	signingkey = {{ .git.signingkey }}
 {{- end }}
 {{ end -}}
+
 {{ if eq .chezmoi.os "darwin" -}}
 [credential]
 	helper = osxkeychain
