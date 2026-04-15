@@ -16,10 +16,12 @@ No tests, build, or linter. `script/doctor` is the closest to a test — run aft
 | `make fisher` | Bootstrap fisher if needed and run `fisher update` after editing `common/.config/fish/fish_plugins`. |
 | `make mise` | `mise trust && mise install` after editing `common/.config/mise/config.toml`. |
 | `make clean` | `stow -D` every package — cleanly unlinks everything from `$HOME`. Does NOT delete `~/.config/git/config` or `~/.config/dotfiles/identity.env`. |
-| `stow -R common` | "Restow" — the recovery incantation when symlinks get confused. |
+| `make install` | The recovery incantation — re-runs the full install including `$(STOW) -t $HOME common` etc. Always prefer this over a raw `stow` invocation because the Makefile's `STOW` variable carries the required `--no-folding` flag. |
 | `:Lazy sync` | Update/install Neovim plugins via lazy.nvim; commit `lazy-lock.json`. |
 
-Stow symlinks files from the package into `$HOME`, so editing `~/.config/fish/config.fish` edits `common/.config/fish/config.fish` transparently. `git diff` in the repo shows your change immediately — no `apply`, no `re-add`, no drift. When you create a *new* file directly in a package, run `stow -R <package>` (or `make install` again) so stow picks it up.
+Stow symlinks files from the package into `$HOME`, so editing `~/.config/fish/config.fish` edits `common/.config/fish/config.fish` transparently. `git diff` in the repo shows your change immediately — no `apply`, no `re-add`, no drift. When you add a *new* tracked file inside a package, run `make install` so stow creates its symlink in `$HOME`.
+
+If you ever need to invoke `stow` manually (e.g. for dry-run debugging), always include `--no-folding` — see the paragraph below for why. Dry-run example: `stow -n -v --no-folding -t $HOME common`.
 
 **Why `--no-folding`:** every `stow` invocation in this repo passes `--no-folding` (see the `STOW` variable in the Makefile). With folding enabled, stow creates a single directory-level symlink when a package subtree is new in `$HOME` — e.g. `~/.config/fish` would become a symlink pointing at `common/.config/fish`. That's minimal-symlink-count, but it means any runtime write a tool does inside `~/.config/fish/` (fish writing `fish_variables`, fisher writing `conf.d/` and `completions/`) silently propagates *through the symlink into the repo source*, polluting the stow package with untracked files. `--no-folding` makes every directory in `$HOME` a real directory containing individual per-file symlinks, so:
 
@@ -161,7 +163,14 @@ Formatting: LazyVim's default `conform.nvim` wiring, untouched. Format-on-save r
    - macOS-only → `darwin/`
    - Codespaces-only → `codespaces/`
 2. Use real filenames (no `dot_` prefix). Ensure executables are `chmod +x` in git (`git update-index --chmod=+x path`).
-3. Run `stow -R <package>` (or `make install`) to create the symlink in `$HOME`.
+3. Run `make install` to create the symlink in `$HOME`. (Because `--no-folding` is on, every file needs its own symlink — `make install` is idempotent and will create just the new one.)
+
+If a tool wrote a file into a config directory at runtime (e.g. `funced` created `~/.config/fish/functions/newfunc.fish` as a real file in `$HOME`, not through a symlink), and you decide you *do* want it tracked:
+
+```sh
+mv ~/.config/fish/functions/newfunc.fish ~/.local/share/chezmoi/common/.config/fish/functions/
+make install
+```
 
 (Git config is the one exception — don't add it to a stow package. Edit `templates/git-config.tmpl` and run `make regen-git-config`.)
 
