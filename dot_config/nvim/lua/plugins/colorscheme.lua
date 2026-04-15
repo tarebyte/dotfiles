@@ -2,17 +2,13 @@ return {
   {
     "LazyVim/LazyVim",
     opts = {
-      colorscheme = "catppuccin-mocha",
+      colorscheme = "catppuccin-nvim",
     },
   },
 
   {
     "catppuccin/nvim",
-    name = "catppuccin",
-    lazy = false,
-    priority = 1000,
     opts = {
-      flavour = "mocha",
       dim_inactive = { enabled = true },
       float = { transparent = false, solid = false },
       integrations = {
@@ -56,9 +52,6 @@ return {
             }
           end,
         },
-        snacks = true,
-        treesitter_context = true,
-        which_key = true,
       },
       custom_highlights = function(colors)
         return {
