@@ -36,16 +36,23 @@ fi
 # the diagnostic output either way.
 dryrun=$(stow -n --no-folding -v -t "$HOME" "$pkg" 2>&1 || true)
 
-# Stow emits two conflict diagnostics we care about:
-#   * cannot stow <src> over existing target <target> since neither a link
-#     nor a directory and --adopt not specified
-#       → real file already sitting at the target path (the common case
-#         when migrating off a prior dotfile manager)
-#   * existing target is not owned by stow: <target>
+# Stow emits three conflict diagnostics we care about. The first two
+# are both "real file already at the target" — stow 2.3.x (shipped by
+# Debian/Ubuntu) prints the second, shorter form; stow 2.4+ (current
+# Homebrew) prints the longer "cannot stow" form. Cover both so this
+# script works across CI runners and dev machines.
+#
+#   stow 2.4+:
+#     * cannot stow <src> over existing target <target> since neither
+#       a link nor a directory and --adopt not specified
+#   stow 2.3.x:
+#     * existing target is neither a link nor a directory: <target>
+#   both versions:
+#     * existing target is not owned by stow: <target>
 #       → target is already a symlink, but points outside any stow package
-# Capture <target> from both forms.
 conflicts=$(printf '%s\n' "$dryrun" | sed -n \
     -e 's|.*cannot stow .* over existing target \(.*\) since neither a link nor a directory.*|\1|p' \
+    -e 's|.*existing target is neither a link nor a directory: \(.*\)|\1|p' \
     -e 's|.*existing target is not owned by stow: \(.*\)|\1|p')
 
 if [ -n "$conflicts" ]; then
