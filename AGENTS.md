@@ -17,8 +17,9 @@ Personal dotfiles. **GNU stow**-managed — source tree is organized into packag
 | `make fisher` | Bootstrap fisher if needed and run `fisher update` after editing `common/.config/fish/fish_plugins`. |
 | `make mise` | `mise trust && mise install` after editing `common/.config/mise/config.toml`. |
 | `make clean` | `stow -D` every package — cleanly unlinks everything from `$HOME`. Does NOT delete `~/.config/git/config` or `~/.config/dotfiles/identity.env`. |
-| `make install` | The recovery incantation — re-runs the full install including `$(STOW) -t $HOME common` etc. Always prefer this over a raw `stow` invocation because the Makefile's `STOW` variable carries the required `--no-folding` flag. |
 | `:Lazy sync` | Update/install Neovim plugins via lazy.nvim; commit `lazy-lock.json`. |
+
+`make install` is also the recovery incantation — re-running it after a broken state is safe because `script/stow-package` handles pre-existing files by moving them aside, and every other step is idempotent.
 
 Stow symlinks files from the package into `$HOME`, so editing `~/.config/fish/config.fish` edits `common/.config/fish/config.fish` transparently. `git diff` in the repo shows your change immediately — no `apply`, no `re-add`, no drift. When you add a *new* tracked file inside a package, run `make install` so stow creates its symlink in `$HOME`.
 
@@ -44,7 +45,7 @@ The `Makefile` is a thin dispatcher; real logic lives in `script/` so each piece
 | `script/setup-git-config` | Renders `templates/git-config.tmpl` → `~/.config/git/config` using `~/.config/dotfiles/identity.env`. Prompts on first run (TTY-guarded), atomic temp+mv write, sed-escaped substitution. Bash. |
 | `script/stow-package` | `stow --no-folding` wrapper. Dry-runs first, moves any conflicting real files in `$HOME` to `~/.dotfiles-backup/<timestamp>/<relative-path>/`, then stows. Nothing is ever deleted. Used by `make stow-common`, `make install-codespaces`, and `script/install-darwin` so first-time migrations off a prior dotfile manager don't abort on pre-existing files. Bash. |
 | `script/install-darwin` | macOS bootstrap: installs Homebrew if missing + sources `brew shellenv`, stows `darwin` (via `script/stow-package`), runs `make brew fisher`, registers fish in `/etc/shells` (line-exact match), chsh to fish. Bash. |
-| `script/install-codespace-tools` | Codespaces bootstrap: downloads nvim/rg/bat/fzf/lazygit/diff-so-fancy/tree-sitter via `gh release download --latest`. Bash, `set -euo pipefail`. |
+| `script/install-codespace-tools` | Codespaces bootstrap: downloads nvim/rg/bat/fzf/lazygit/diff-so-fancy/tree-sitter via `gh release download`. Bash, `set -euo pipefail`. |
 | `script/doctor` | Health check. Includes a template-drift check that re-renders `templates/git-config.tmpl` against `identity.env` and `cmp -s`'s against the live file; warns if they differ. Bash. |
 | `script/test` | Functional test suite for the scripts with non-trivial logic (`stow-package` conflict parsing + backup moves, `setup-git-config` template substitution + sed escaping). Each test runs inside its own `mktemp` sandbox with a stubbed `$HOME`; nothing touches the real system. Bash. |
 
