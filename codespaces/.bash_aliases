@@ -1,5 +1,5 @@
 # vim: ft=bash
-# ~/.bash_aliases — Linux/Codespaces only (gated via .chezmoiignore)
+# ~/.bash_aliases — Linux/Codespaces only (stowed from the `codespaces` package).
 # Sourced automatically by bash.
 
 # -------------------------
@@ -9,6 +9,16 @@ export EDITOR="nvim"
 export VISUAL="nvim"
 export BAT_THEME="ansi"
 export PROJECTS="$HOME/src"
+
+# DOTFILES resolves from this file's own real path — .bash_aliases is
+# stowed from <repo>/codespaces/.bash_aliases, so two dirname levels
+# above the resolved path is the repo root. Works whether the repo
+# lives at ~/.dotfiles, ~/src/tarebyte/dotfiles, or wherever Codespaces
+# cloned it.
+_aliases_real=$(readlink -f "${BASH_SOURCE[0]}")
+DOTFILES=$(dirname "$(dirname "$_aliases_real")")
+export DOTFILES
+unset _aliases_real
 
 export FZF_DEFAULT_COMMAND="rg --files --hidden --follow --no-messages --glob '!.git/*'"
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"

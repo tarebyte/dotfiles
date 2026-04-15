@@ -42,7 +42,14 @@ set -gx ITERM_ENABLE_SHELL_INTEGRATION_WITH_TMUX YES
 set -gx OBJC_DISABLE_INITIALIZE_FORK_SAFETY YES
 
 set -gx PROJECTS $HOME/src
-set -gx DOTFILES $HOME/.local/share/chezmoi
+
+# DOTFILES resolves from this file's own real path — config.fish is
+# stowed from <repo>/common/.config/fish/config.fish, so four dirname
+# levels above the resolved path is the repo root. Works whether the
+# repo lives at ~/.dotfiles, ~/src/tarebyte/dotfiles, or anywhere else.
+set -l _config_real (realpath (status filename))
+set -gx DOTFILES (dirname (dirname (dirname (dirname $_config_real))))
+set -e _config_real
 
 test -f "$HOME/.config/fish/local_env.fish"; and source $HOME/.config/fish/local_env.fish
 
