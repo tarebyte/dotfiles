@@ -4,6 +4,7 @@ return {
     opts = {
       ensure_installed = {
         "css",
+        "c_sharp",
         "dockerfile",
         "fish",
         "git_config",
