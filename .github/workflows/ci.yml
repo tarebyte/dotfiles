@@ -3,6 +3,13 @@ on:
   push:
     branches: [main]
   pull_request:
+# Cancel any in-progress run on the same ref when a new commit lands.
+# Groups by workflow + ref so main and each PR branch have independent
+# queues — a new push to PR #42 cancels the old PR #42 run but leaves
+# a concurrent main run alone.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   test:
     runs-on: ubuntu-latest
