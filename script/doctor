@@ -3,10 +3,20 @@
 # script/doctor
 # Check dotfiles health and report any issues
 
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[0;33m'
-NC='\033[0m' # No Color
+# Only emit ANSI color when stdout is a TTY; otherwise a piped or
+# redirected invocation (e.g. `./script/doctor > doctor.log`) would
+# embed raw escape codes.
+if [ -t 1 ]; then
+    RED='\033[0;31m'
+    GREEN='\033[0;32m'
+    YELLOW='\033[0;33m'
+    NC='\033[0m' # No Color
+else
+    RED=''
+    GREEN=''
+    YELLOW=''
+    NC=''
+fi
 
 passed=0
 failed=0
@@ -98,6 +108,41 @@ if [[ "$(git config commit.gpgsign)" == "true" ]]; then
     ok "GPG signing enabled"
 else
     warn "GPG signing not enabled"
+fi
+
+# Drift check: re-render the template against the current identity file
+# and confirm it matches the live ~/.config/git/config. Catches the case
+# where someone edited the live file instead of the template.
+#
+# We parse identity.env via awk (not `.`-sourcing) so a hand-edited file
+# containing shell metacharacters can't execute code. EMAIL and SIGNINGKEY
+# are sed-escaped before substitution so odd characters can't corrupt the
+# comparison.
+REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+TEMPLATE="$REPO_ROOT/templates/git-config.tmpl"
+IDENTITY_FILE="$HOME/.config/dotfiles/identity.env"
+LIVE_CONFIG="$HOME/.config/git/config"
+if [[ -f "$TEMPLATE" && -f "$IDENTITY_FILE" && -f "$LIVE_CONFIG" ]]; then
+    drift_email=$(awk -F= '$1=="EMAIL"{sub(/^EMAIL=/,""); print; exit}' "$IDENTITY_FILE")
+    drift_key=$(awk -F= '$1=="SIGNINGKEY"{sub(/^SIGNINGKEY=/,""); print; exit}' "$IDENTITY_FILE")
+    drift_esc_email=$(printf '%s' "$drift_email" | sed -e 's/[&|\\]/\\&/g')
+    drift_esc_key=$(printf '%s' "$drift_key" | sed -e 's/[&|\\]/\\&/g')
+    # cmp -s on real files avoids command-substitution's trailing-newline
+    # stripping, which would otherwise hide one-newline drifts.
+    expected_file=$(mktemp)
+    trap 'rm -f "$expected_file"' EXIT
+    sed -e "s|{{EMAIL}}|${drift_esc_email}|g" \
+        -e "s|{{SIGNINGKEY}}|${drift_esc_key}|g" \
+        "$TEMPLATE" > "$expected_file"
+    if cmp -s "$expected_file" "$LIVE_CONFIG"; then
+        # shellcheck disable=SC2088  # tilde is intentionally literal in display text
+        ok '~/.config/git/config matches template'
+    else
+        # shellcheck disable=SC2088
+        warn '~/.config/git/config drifted from template (run: make regen-git-config)'
+    fi
+    rm -f "$expected_file"
+    trap - EXIT
 fi
 echo
 

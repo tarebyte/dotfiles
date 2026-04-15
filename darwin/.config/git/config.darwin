@@ -1,0 +1,12 @@
+# vim:ft=gitconfig
+#
+# macOS-only git config. Stowed as ~/.config/git/config.darwin and
+# [include]d from the per-context main config. Never copied into
+# Linux devcontainers, which is correct — osxkeychain doesn't exist
+# there and GPG signing is handled differently.
+
+[credential]
+	helper = osxkeychain
+
+[gpg]
+	program = /usr/local/bin/gpg

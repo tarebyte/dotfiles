@@ -1,4 +1,14 @@
 # vim:ft=gitconfig
+#
+# Git config template. Substituted at install time by `make setup-git-config`
+# with values from ~/.config/dotfiles/identity.env. The output is a real file
+# (not a symlink) at ~/.config/git/config so VS Code devcontainers — which
+# copy the main config file verbatim but do NOT follow [include] directives —
+# see the full config including identity, aliases, and colors.
+#
+# Placeholders: {{EMAIL}} and {{SIGNINGKEY}}. Edit this template, then run
+# `make regen-git-config` to propagate the change. Do NOT edit
+# ~/.config/git/config directly — your edits will be lost on the next regen.
 
 [alias]
 	br  = branch
@@ -27,9 +37,7 @@
 	newHighlight = green bold 22
 
 [commit]
-{{- if ne .git.signingkey "" }}
 	gpgsign = true
-{{- end }}
 	verbose = true
 
 [core]
@@ -56,10 +64,10 @@
 
 [gc]
 	auto = 0
-{{ if not .codespaces }}
+
 [github]
-	user = {{ .git.github_user }}
-{{ end }}
+	user = tarebyte
+
 [init]
 	defaultBranch = main
 
@@ -75,19 +83,13 @@
 [push]
 	default = current
 
-{{ if not .codespaces -}}
 [user]
-	name = {{ .git.name }}
-	email = {{ .git.email }}
-{{- if ne .git.signingkey "" }}
-	signingkey = {{ .git.signingkey }}
-{{- end }}
-{{ end -}}
+	name = Mark Tareshawty
+	email = {{EMAIL}}
+	signingkey = {{SIGNINGKEY}}
 
-{{ if eq .chezmoi.os "darwin" -}}
-[credential]
-	helper = osxkeychain
-
-[gpg]
-	program = /usr/local/MacGPG2/bin/gpg
-{{- end }}
+# macOS-only credential helper and gpg program path. Stowed from the
+# darwin package; absent on Linux and inside Linux devcontainers, where
+# this [include] silently no-ops.
+[include]
+	path = ~/.config/git/config.darwin

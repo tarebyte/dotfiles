@@ -1,0 +1,76 @@
+#!/bin/bash
+#
+# script/setup-git-config
+#
+# Render templates/git-config.tmpl into ~/.config/git/config, substituting
+# the user's email and GPG signing key. On first run, prompts for the values
+# and writes them to ~/.config/dotfiles/identity.env (mode 0600). On later
+# runs, reads the values back from that file with no prompts.
+#
+# No-op on GitHub Codespaces: Codespaces injects its own ~/.gitconfig that
+# takes precedence, so the rendered XDG config wouldn't be consulted anyway.
+#
+# Robustness notes:
+# - identity.env is created under a 077 umask so it's never briefly
+#   world-readable between creation and the 0600 intent.
+# - identity.env is parsed via awk instead of `.`-sourcing, so a hand-edited
+#   file containing shell metacharacters can't execute code.
+# - EMAIL and SIGNINGKEY are escaped for sed metacharacters (& | \) before
+#   substitution, so values with odd characters can't corrupt the output.
+# - The rendered config is written to a temp file and atomically mv'd
+#   into place, so a mid-render failure can't leave ~/.config/git/config
+#   truncated.
+
+set -euo pipefail
+
+if [ -n "${CODESPACES:-}" ]; then
+    echo "Skipping git config setup on Codespaces"
+    exit 0
+fi
+
+REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+GIT_TEMPLATE="$REPO_ROOT/templates/git-config.tmpl"
+GIT_CONFIG="$HOME/.config/git/config"
+IDENTITY_DIR="$HOME/.config/dotfiles"
+IDENTITY_FILE="$IDENTITY_DIR/identity.env"
+
+mkdir -p "$HOME/.config/git"
+mkdir -p "$IDENTITY_DIR"
+chmod 700 "$IDENTITY_DIR"
+
+if [ ! -f "$IDENTITY_FILE" ]; then
+    if [ ! -t 0 ]; then
+        echo "setup-git-config: no identity file and no TTY to prompt on" >&2
+        echo "  create $IDENTITY_FILE manually with EMAIL= and SIGNINGKEY= lines" >&2
+        exit 1
+    fi
+    echo "First-time git identity setup..."
+    printf "Email: "
+    IFS= read -r email
+    [ -n "$email" ] || { echo "email is required" >&2; exit 1; }
+    printf "GPG signing key ID: "
+    IFS= read -r key
+    [ -n "$key" ] || { echo "signing key is required" >&2; exit 1; }
+    (
+        umask 077
+        printf 'EMAIL=%s\nSIGNINGKEY=%s\n' "$email" "$key" > "$IDENTITY_FILE"
+    )
+    echo "Wrote $IDENTITY_FILE"
+fi
+
+email=$(awk -F= '$1=="EMAIL"{sub(/^EMAIL=/,""); print; exit}' "$IDENTITY_FILE")
+key=$(awk -F= '$1=="SIGNINGKEY"{sub(/^SIGNINGKEY=/,""); print; exit}' "$IDENTITY_FILE")
+[ -n "$email" ] || { echo "identity.env missing EMAIL" >&2; exit 1; }
+[ -n "$key" ]   || { echo "identity.env missing SIGNINGKEY" >&2; exit 1; }
+
+esc_email=$(printf '%s' "$email" | sed -e 's/[&|\\]/\\&/g')
+esc_key=$(printf '%s' "$key" | sed -e 's/[&|\\]/\\&/g')
+
+tmp=$(mktemp "$GIT_CONFIG.XXXXXX")
+trap 'rm -f "$tmp"' EXIT
+sed -e "s|{{EMAIL}}|$esc_email|g" \
+    -e "s|{{SIGNINGKEY}}|$esc_key|g" \
+    "$GIT_TEMPLATE" > "$tmp"
+mv "$tmp" "$GIT_CONFIG"
+trap - EXIT
+echo "Wrote $GIT_CONFIG"

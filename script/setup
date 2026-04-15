@@ -4,19 +4,47 @@
 # pre-cloned dotfiles directory; run manually on a fresh macOS machine
 # after `git clone`.
 #
-# Fresh machine with no clone yet, one-liner:
-#   sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply tarebyte
+# On a fresh personal Mac:   ./script/setup
+# On a fresh work Mac:        CONTEXT=work ./script/setup
 
 set -e
 
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
+cd "$REPO"
 
-if ! command -v chezmoi >/dev/null 2>&1; then
-	BINDIR="$HOME/.local/bin"
-	mkdir -p "$BINDIR"
-	sh -c "$(curl -fsLS get.chezmoi.io)" -- -b "$BINDIR"
-	PATH="$BINDIR:$PATH"
-	export PATH
+OS="$(uname -s)"
+
+# Ensure stow is available before `make install` calls it.
+if ! command -v stow >/dev/null 2>&1; then
+	case "$OS" in
+		Darwin)
+			if ! command -v brew >/dev/null 2>&1; then
+				/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+				# A fresh Homebrew install does NOT put brew on $PATH in
+				# the current shell — it prints "add this to your profile".
+				# Load brew's environment into this script so the next
+				# `brew install` call actually works.
+				if [ -x /opt/homebrew/bin/brew ]; then
+					eval "$(/opt/homebrew/bin/brew shellenv)"
+				elif [ -x /usr/local/bin/brew ]; then
+					eval "$(/usr/local/bin/brew shellenv)"
+				fi
+			fi
+			brew install stow
+			;;
+		Linux)
+			if command -v apt-get >/dev/null 2>&1; then
+				sudo apt-get update && sudo apt-get install -y stow
+			else
+				echo "stow is required; please install it for your distro" >&2
+				exit 1
+			fi
+			;;
+		*)
+			echo "Unsupported OS: $OS" >&2
+			exit 1
+			;;
+	esac
 fi
 
-chezmoi init --apply --source "$REPO"
+make install

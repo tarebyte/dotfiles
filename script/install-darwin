@@ -1,0 +1,55 @@
+#!/bin/bash
+#
+# script/install-darwin
+#
+# macOS-side install steps: ensure Homebrew is installed and on PATH,
+# stow the `darwin` package, run brew bundle + fisher, register fish
+# in /etc/shells, and chsh to fish if needed.
+#
+# Invoked by `make install-darwin`.
+
+set -euo pipefail
+
+REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+cd "$REPO_ROOT"
+
+# Install Homebrew if it's not already on PATH.
+if ! command -v brew >/dev/null 2>&1; then
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+fi
+
+# A fresh Homebrew install prints "add this to your profile" but does NOT
+# put brew on the current shell's PATH. Source shellenv so the rest of
+# this script (and any child processes) can find brew.
+if [ -x /opt/homebrew/bin/brew ]; then
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+elif [ -x /usr/local/bin/brew ]; then
+    eval "$(/usr/local/bin/brew shellenv)"
+fi
+
+if ! command -v brew >/dev/null 2>&1; then
+    echo "brew not on PATH after install" >&2
+    exit 1
+fi
+
+stow -t "$HOME" darwin
+
+make brew fisher
+
+FISH_BIN="$(command -v fish || true)"
+if [ -z "$FISH_BIN" ]; then
+    echo "fish not installed after brew bundle" >&2
+    exit 1
+fi
+
+# Register fish as a valid login shell if it isn't already. Use -Fx so
+# we line-match exactly (no substring false positives).
+if ! grep -Fxq "$FISH_BIN" /etc/shells; then
+    echo "$FISH_BIN" | sudo tee -a /etc/shells >/dev/null
+fi
+
+# Switch the login shell to fish unless it's already set. Uses $SHELL as
+# a best-effort check; if $SHELL is stale, chsh is a no-op when already set.
+if [ "${SHELL:-}" != "$FISH_BIN" ]; then
+    chsh -s "$FISH_BIN"
+fi
