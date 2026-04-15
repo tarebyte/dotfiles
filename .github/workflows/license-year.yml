@@ -10,7 +10,7 @@ jobs:
       contents: write
       pull-requests: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Bump year
         id: bump
         run: |
@@ -24,7 +24,7 @@ jobs:
           fi
       - name: Open PR
         if: steps.bump.outputs.changed == 'true'
-        uses: peter-evans/create-pull-request@v7
+        uses: peter-evans/create-pull-request@v8
         with:
           commit-message: "Bump LICENSE year to ${{ steps.bump.outputs.year }}"
           title: "Bump LICENSE year to ${{ steps.bump.outputs.year }}"

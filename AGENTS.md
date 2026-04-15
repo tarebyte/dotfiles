@@ -56,6 +56,18 @@ shellcheck -x script/setup script/setup-git-config script/stow-package script/in
 ./script/test
 ```
 
+### CI
+
+`.github/workflows/ci.yml` has three jobs, all on `ubuntu-latest`:
+
+- **`test`** — installs `stow` via apt, runs `make test`. Mirrors the local `make test` exactly.
+- **`fish`** — `git ls-files -z '*.fish' | xargs -0 -r -n1 fish -n`. `-n1` so a syntax error in any single file propagates through xargs as a nonzero exit (without it, xargs batches all files into one `fish -n` call and you only see the last file's status).
+- **`lua`** — discovers the directory containing `stylua.toml` via `git ls-files` and passes it to `JohnnyMorganz/stylua-action`. stylua walks upward from each target file to find its own config, so no `-f` path is hardcoded.
+
+**Design constraint: every job discovers files via `git ls-files`, never via hardcoded paths.** Moving `common/` → `whatever/` should not require a CI edit. If you add a new validator, follow the same pattern. The one exception is the stylua version pin (`version: v2.4.1` in the `stylua-action` step) — bumping it may require reformatting the tracked `.lua` files, because stylua is not backwards-compatible on formatting across major versions. When bumping, run `mise exec stylua@<new-version> -- stylua common/.config/nvim` locally first and commit the reflow in the same change.
+
+`.github/workflows/license-year.yml` is a separate scheduled workflow that bumps the copyright year in `LICENSE` each January and opens a PR via `peter-evans/create-pull-request`. Unrelated to the test pipeline.
+
 ## Git identity layout
 
 Git config is the one dotfile that **isn't** stow-symlinked. Instead, it's rendered from a template at install time, because VS Code Dev Containers copies `~/.config/git/config` **verbatim** but does NOT follow `[include]` directives ([vscode-remote-release#3331](https://github.com/microsoft/vscode-remote-release/issues/3331)). To give devcontainers a working git config with aliases, colors, filters, AND identity all inlined in one file, the template has everything inlined and identity gets substituted at install time.

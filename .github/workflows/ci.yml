@@ -4,23 +4,50 @@ on:
     branches: main
   pull_request: []
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v6
+      - name: Install stow
+        run: sudo apt-get update && sudo apt-get install -y stow
+      - name: make test
+        run: make test
   fish:
     runs-on: ubuntu-latest
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v6
       - uses: fish-actions/install-fish@v1
+      # Discover every tracked .fish file via git ls-files so moving fish
+      # config between stow packages (or anywhere in the tree) doesn't
+      # break this job. -n1 invokes fish once per file so a syntax error
+      # in any one file propagates through xargs as a nonzero exit.
       - name: Validate fish syntax
-        run: fish -n .config/fish/**/*.fish
+        run: git ls-files -z '*.fish' | xargs -0 -r -n1 fish -n
   lua:
     runs-on: ubuntu-latest
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v3
-      - uses: JohnnyMorganz/stylua-action@v3
+      - uses: actions/checkout@v6
+      # Locate the directory containing stylua.toml dynamically. stylua
+      # walks up from each target file looking for a config, so passing
+      # that directory is enough — no hardcoded -f path. Immune to
+      # moving the nvim tree between packages.
+      - name: Find lua project root
+        id: lua_root
+        run: |
+          config=$(git ls-files '*stylua.toml' | head -1)
+          if [ -z "$config" ]; then
+            echo "no stylua.toml found in repo" >&2
+            exit 1
+          fi
+          echo "dir=$(dirname "$config")" >> "$GITHUB_OUTPUT"
+      - uses: JohnnyMorganz/stylua-action@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          version: v0.18.0
-          args: --check .config/nvim/ -f .config/nvim/stylua.toml
+          version: v2.4.1
+          args: --check ${{ steps.lua_root.outputs.dir }}
