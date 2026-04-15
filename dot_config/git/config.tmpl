@@ -27,7 +27,9 @@
 	newHighlight = green bold 22
 
 [commit]
+{{- if ne .git.signingkey "" }}
 	gpgsign = true
+{{- end }}
 	verbose = true
 
 [core]
@@ -54,7 +56,7 @@
 
 [gc]
 	auto = 0
-{{ if ne (env "CODESPACES") "true" }}
+{{ if not .codespaces }}
 [github]
 	user = {{ .git.github_user }}
 {{ end }}
@@ -73,7 +75,7 @@
 [push]
 	default = current
 
-{{ if ne (env "CODESPACES") "true" -}}
+{{ if not .codespaces -}}
 [user]
 	name = {{ .git.name }}
 	email = {{ .git.email }}

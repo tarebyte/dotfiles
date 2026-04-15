@@ -1,24 +1,38 @@
 {{- /* Per-machine chezmoi config template.
 
-On `chezmoi init`, chezmoi prompts for the values below and writes the
-result to ~/.config/chezmoi/chezmoi.toml, which is NOT tracked in the
-repo. Templates (e.g. dot_config/git/config.tmpl) reference the data
-via {{ .git.name }} etc., so identity never appears in git history and
-a forker gets prompted for their own values.
+On `chezmoi init`, chezmoi prompts for git identity and writes the
+answers to ~/.config/chezmoi/chezmoi.toml, which is NOT tracked in
+the repo. Templates (e.g. dot_config/git/config.tmpl) reference the
+data via {{ .git.name }} etc., so identity never appears in git
+history and a forker gets prompted for their own values.
+
+`promptStringOnce` with an empty default handles every entry point:
+  - stored value exists → returned without prompting (idempotent re-init)
+  - interactive, no stored value → prompts (empty default)
+  - non-interactive, no stored value → returns empty
+    (Codespaces, devcontainers, CI — no TTY to prompt on)
+
+We deliberately do NOT substitute made-up values (e.g. from
+$GITHUB_USER) when the user hasn't answered. GitHub Codespaces
+injects its own ~/.gitconfig with the authenticated identity, which
+takes precedence over ~/.config/git/config, so Codespaces commits
+still work without a fallback here.
+
+`codespaces` is exposed as a top-level data var so every template
+can branch on `{{ if .codespaces }}` without re-reading $CODESPACES.
 */ -}}
 
-{{- $name := "" -}}
-{{- $email := "" -}}
-{{- $signingkey := "" -}}
-{{- $githubUser := "" -}}
-{{- if ne (env "CODESPACES") "true" -}}
-{{-   $name = promptStringOnce . "git.name" "Full name" -}}
-{{-   $email = promptStringOnce . "git.email" "Email" -}}
-{{-   $signingkey = promptStringOnce . "git.signingkey" "GPG signing key ID (empty for none)" -}}
-{{-   $githubUser = promptStringOnce . "git.github_user" "GitHub username" -}}
-{{- end -}}
+{{- $codespaces := env "CODESPACES" | not | not -}}
+
+{{- $name := promptStringOnce . "git.name" "Full name" "" -}}
+{{- $email := promptStringOnce . "git.email" "Email" "" -}}
+{{- $signingkey := promptStringOnce . "git.signingkey" "GPG signing key ID (empty for none)" "" -}}
+{{- $githubUser := promptStringOnce . "git.github_user" "GitHub username" "" -}}
 
 sourceDir = {{ .chezmoi.sourceDir | quote }}
+
+[data]
+    codespaces = {{ $codespaces }}
 
 [data.git]
     name = {{ $name | quote }}

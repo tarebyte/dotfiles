@@ -16,14 +16,16 @@ No tests, build, or linter. `script/doctor` is the closest to a test — run aft
 | `brew bundle --global` | Re-sync after `dot_Brewfile` edit. The `run_onchange_after_10-brew-bundle.sh.tmpl` script re-runs this automatically on next `chezmoi apply` when the file changes. |
 | `:Lazy sync` | Update/install Neovim plugins via lazy.nvim; commit `lazy-lock.json`. |
 
-Git identity (name, email, GPG key ID, GitHub user) is NOT tracked. On `chezmoi init`, chezmoi prompts for the values (see `.chezmoi.toml.tmpl`) and writes them to `~/.config/chezmoi/chezmoi.toml` — per-machine, ungitted. `dot_config/git/config.tmpl` references them as `{{ .git.name }}` etc., so a forker gets prompted for their own values and nothing personal lives in the repo.
+Git identity (name, email, GPG key ID, GitHub user) is NOT tracked. On `chezmoi init`, chezmoi prompts for the values (see `.chezmoi.toml.tmpl`) and writes them to `~/.config/chezmoi/chezmoi.toml` — per-machine, ungitted. `dot_config/git/config.tmpl` references them as `{{ .git.name }}` etc., so a forker gets prompted for their own values and nothing personal lives in the repo. In non-interactive contexts (Codespaces, devcontainers, CI) the prompts fall through to empty strings — no substitute values are fabricated. Codespaces is fine with this because the container injects its own `~/.gitconfig` with the authenticated identity, and the `[user]` / `[github]` / `gpgsign` blocks in `dot_config/git/config.tmpl` are all gated off when `.codespaces` is true (or `.git.signingkey` is empty).
+
+`.chezmoi.toml.tmpl` also exposes `codespaces = {{ env "CODESPACES" | not | not }}` as a top-level data var, so every template can branch on `{{ if .codespaces }}` at template-render time instead of shelling out to `$CODESPACES` at runtime. `run_once_before_10-install-codespace-tools.sh.tmpl` gates its entire body on `{{ if .codespaces }}`, and `dot_config/git/config.tmpl` uses `.codespaces` to suppress `[user]` / `[github]`.
 
 ## Architecture
 
 ### Two-platform split
 
 - **macOS** → Fish (`dot_config/fish/config.fish`) + Starship + Homebrew (`dot_Brewfile`). Bootstrap scripts: `run_once_before_10-install-homebrew.sh.tmpl`, `run_onchange_after_10-brew-bundle.sh.tmpl`, `run_once_after_20-set-fish-shell.sh.tmpl`, `run_onchange_after_30-fisher-update.sh.tmpl`. All gated on `{{ if eq .chezmoi.os "darwin" }}`.
-- **Linux / Codespaces** → `dot_bash_aliases` (no Fish, no Starship). `run_once_before_10-install-linux-tools.sh.tmpl` pulls nvim/rg/bat/fzf/lazygit/diff-so-fancy/mise/tree-sitter via `gh release download` (arch-aware amd64/arm64). No Homebrew. Stays on zsh; no `chsh`.
+- **Codespaces** → `dot_bash_aliases` (no Fish, no Starship). `run_once_before_10-install-codespace-tools.sh.tmpl` pulls nvim/rg/bat/fzf/lazygit/diff-so-fancy/tree-sitter via `gh release download` (arch-aware amd64/arm64). No Homebrew, no mise (Codespaces already provides language runtimes). Stays on bash; no `chsh`. This script is gated on `{{ if .codespaces }}`, not `{{ eq .chezmoi.os "linux" }}` — a hypothetical personal Linux machine would not get this bootstrap and would need its own setup path. (`dot_bash_aliases` is still gated on Linux in `.chezmoiignore`, which is effectively the same set today since Codespaces is the only Linux target.)
 
 Shared: `dot_config/mise/config.toml.tmpl` (OS-branched), `EDITOR=nvim`, core aliases (`lg`, `gp`, `vi`, `vim`). Shell-level features usually need both `config.fish` and `dot_bash_aliases`.
 
