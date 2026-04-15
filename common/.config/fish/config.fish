@@ -6,6 +6,8 @@ switch (uname -m)
         set -gx HOMEBREW_PREFIX /usr/local
 end
 
+fish_config theme choose catppuccin-mocha
+
 ############
 # Homebrew #
 ############
