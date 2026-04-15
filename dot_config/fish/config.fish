@@ -42,7 +42,7 @@ set -gx ITERM_ENABLE_SHELL_INTEGRATION_WITH_TMUX YES
 set -gx OBJC_DISABLE_INITIALIZE_FORK_SAFETY YES
 
 set -gx PROJECTS $HOME/src
-set -gx DOTFILES $PROJECTS/(whoami)/dotfiles
+set -gx DOTFILES $HOME/.local/share/chezmoi
 set -gx GOPATH $PROJECTS/go
 
 test -f "$HOME/.config/fish/local_env.fish"; and source $HOME/.config/fish/local_env.fish
