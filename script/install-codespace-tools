@@ -25,7 +25,7 @@ echo "==> Installing tools (arch: $ARCH)..."
 if ! command -v nvim >/dev/null 2>&1; then
   echo "  Installing Neovim..."
   gh release download --clobber --dir /tmp/ --repo neovim/neovim \
-    --pattern "nvim-linux-${ARCH_ALT}.tar.gz" --latest
+    --pattern "nvim-linux-${ARCH_ALT}.tar.gz"
   sudo mkdir -p /opt/nvim
   sudo tar -xzf "/tmp/nvim-linux-${ARCH_ALT}.tar.gz" --strip-components=1 -C /opt/nvim
   sudo ln -sf /opt/nvim/bin/nvim /usr/local/bin/nvim
@@ -35,7 +35,7 @@ fi
 if ! command -v rg >/dev/null 2>&1; then
   echo "  Installing ripgrep..."
   gh release download --clobber --output /tmp/ripgrep.deb --repo BurntSushi/ripgrep \
-    --pattern "ripgrep_*_${ARCH_GO}.deb" --latest
+    --pattern "ripgrep_*_${ARCH_GO}.deb"
   sudo dpkg -i /tmp/ripgrep.deb
   rm -f /tmp/ripgrep.deb
 fi
@@ -43,7 +43,7 @@ fi
 if ! command -v bat >/dev/null 2>&1; then
   echo "  Installing bat..."
   gh release download --clobber --output /tmp/bat.deb --repo sharkdp/bat \
-    --pattern "bat_*_${ARCH}.deb" --latest
+    --pattern "bat_*_${ARCH}.deb"
   sudo dpkg -i /tmp/bat.deb
   rm -f /tmp/bat.deb
 fi
@@ -51,7 +51,7 @@ fi
 if ! command -v fzf >/dev/null 2>&1; then
   echo "  Installing fzf..."
   gh release download --clobber --output /tmp/fzf.tar.gz --repo junegunn/fzf \
-    --pattern "fzf-*-linux_${ARCH_GO}.tar.gz" --latest
+    --pattern "fzf-*-linux_${ARCH_GO}.tar.gz"
   tar -xzf /tmp/fzf.tar.gz -C /tmp/
   sudo install /tmp/fzf /usr/local/bin/fzf
   rm -f /tmp/fzf.tar.gz /tmp/fzf
@@ -60,7 +60,7 @@ fi
 if ! command -v lazygit >/dev/null 2>&1; then
   echo "  Installing lazygit..."
   gh release download --clobber --output /tmp/lazygit.tar.gz --repo jesseduffield/lazygit \
-    --pattern "lazygit_*_linux_${ARCH_ALT}.tar.gz" --latest
+    --pattern "lazygit_*_linux_${ARCH_ALT}.tar.gz"
   tar -xzf /tmp/lazygit.tar.gz -C /tmp/
   sudo install /tmp/lazygit /usr/local/bin/lazygit
   rm -f /tmp/lazygit.tar.gz /tmp/lazygit
