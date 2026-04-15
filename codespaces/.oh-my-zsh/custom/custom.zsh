@@ -35,4 +35,3 @@ alias tn="tmux new-session -A -s"
 alias vi=nvim
 alias vim=nvim
 alias whereami=pwd
-alias y=chezmoi

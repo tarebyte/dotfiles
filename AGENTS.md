@@ -1,6 +1,6 @@
 # AGENTS.md
 
-Personal dotfiles. **GNU stow**-managed — source tree is organized into packages (`common/`, `darwin/`, `codespaces/`) that mirror `$HOME`. Files live at their real names (no `dot_` prefix); stow creates symlinks from `$HOME` into the repo. Repo-management files (`README.md`, `AGENTS.md`, `LICENSE`, `script/`, `Makefile`, `templates/`) sit at the source root, outside every package, so stow never touches them. Per-OS gating is handled by which packages you stow — no `.chezmoiignore`, no ignore file at all.
+Personal dotfiles. **GNU stow**-managed — source tree is organized into packages (`common/`, `darwin/`, `codespaces/`) that mirror `$HOME`. Files live at their real names (no `dot_` prefix); stow creates symlinks from `$HOME` into the repo. Repo-management files (`README.md`, `AGENTS.md`, `LICENSE`, `script/`, `Makefile`, `templates/`) sit at the source root, outside every package, so stow never touches them. Per-OS gating is handled by which packages you stow.
 
 ## Commands
 
@@ -168,7 +168,7 @@ Formatting: LazyVim's default `conform.nvim` wiring, untouched. Format-on-save r
 If a tool wrote a file into a config directory at runtime (e.g. `funced` created `~/.config/fish/functions/newfunc.fish` as a real file in `$HOME`, not through a symlink), and you decide you *do* want it tracked:
 
 ```sh
-mv ~/.config/fish/functions/newfunc.fish ~/.local/share/chezmoi/common/.config/fish/functions/
+mv ~/.config/fish/functions/newfunc.fish common/.config/fish/functions/
 make install
 ```
 
