@@ -21,6 +21,14 @@ No tests, build, or linter. `script/doctor` is the closest to a test — run aft
 
 Stow symlinks files from the package into `$HOME`, so editing `~/.config/fish/config.fish` edits `common/.config/fish/config.fish` transparently. `git diff` in the repo shows your change immediately — no `apply`, no `re-add`, no drift. When you create a *new* file directly in a package, run `stow -R <package>` (or `make install` again) so stow picks it up.
 
+**Why `--no-folding`:** every `stow` invocation in this repo passes `--no-folding` (see the `STOW` variable in the Makefile). With folding enabled, stow creates a single directory-level symlink when a package subtree is new in `$HOME` — e.g. `~/.config/fish` would become a symlink pointing at `common/.config/fish`. That's minimal-symlink-count, but it means any runtime write a tool does inside `~/.config/fish/` (fish writing `fish_variables`, fisher writing `conf.d/` and `completions/`) silently propagates *through the symlink into the repo source*, polluting the stow package with untracked files. `--no-folding` makes every directory in `$HOME` a real directory containing individual per-file symlinks, so:
+
+- Edits to *tracked* files (`config.fish`, `lazy-lock.json`, etc.) still go through their per-file symlinks into the repo source, exactly as before.
+- *New* files written at runtime (`fish_variables`, `conf.d/foo.fish`, `completions/bar.fish`, whatever) land in real `$HOME` paths and never enter the repo. They're the same as any other per-machine file.
+- Adding a new tracked file is deliberate: create it in the package, run `stow -R` (or `make install`), and the per-file symlink appears in `$HOME`.
+
+Defense-in-depth: the root `.gitignore` also lists a handful of known runtime-state paths inside packages, so if `--no-folding` is ever accidentally dropped, those files still won't get committed.
+
 **The one exception is git config**, which is generated at install time rather than stow-symlinked. See "Git identity layout" below.
 
 ### Scripts

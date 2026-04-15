@@ -1,0 +1,13 @@
+# Runtime state that tools write into their config directories. Stow is
+# configured with --no-folding (see Makefile) so these writes should land
+# in real $HOME paths, not here — but we ignore them defensively in case
+# a file ever leaks back into a stow package.
+
+# Fish universal variables and fisher-installed plugin state.
+common/.config/fish/fish_variables
+common/.config/fish/conf.d/
+common/.config/fish/completions/
+
+# fzf's own state (history, etc.) — config is the only tracked file.
+common/.config/fzf/history
+common/.config/fzf/tmp/

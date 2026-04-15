@@ -1,5 +1,14 @@
 UNAME := $(shell uname -s)
 
+# Use --no-folding so every directory under a package becomes a real
+# directory in $HOME containing individual file symlinks, rather than
+# a single directory-level symlink. This keeps runtime writes (fish's
+# fish_variables, fisher plugins' conf.d/, etc.) inside $HOME instead
+# of silently propagating into the repo source via a folded symlink.
+# Edits to tracked files still go through their per-file symlink to
+# the repo source as before.
+STOW := stow --no-folding
+
 .DEFAULT_GOAL := install
 
 # Every target in this file is phony — all real work lives in script/
@@ -28,7 +37,7 @@ endif
 install: setup-git-config stow-common $(EXTRA_INSTALL)
 
 stow-common:
-	stow -t $$HOME common
+	$(STOW) -t $$HOME common
 
 # Assumes setup-git-config + stow-common have already run (i.e. was
 # invoked via `make install`). Safe to re-run as a standalone repair
@@ -39,7 +48,7 @@ install-darwin:
 # Assumes setup-git-config has already run. Stows the codespaces
 # package and runs the tool installer.
 install-codespaces:
-	stow -t $$HOME codespaces
+	$(STOW) -t $$HOME codespaces
 	./script/install-codespace-tools
 
 # Render templates/git-config.tmpl into ~/.config/git/config. Prompts
@@ -82,10 +91,10 @@ doctor:
 # stowed (modern stow is a no-op in that case, but older versions and
 # some edge cases error).
 clean:
-	-stow -D -t $$HOME common
+	-$(STOW) -D -t $$HOME common
 ifeq ($(UNAME),Darwin)
-	-stow -D -t $$HOME darwin
+	-$(STOW) -D -t $$HOME darwin
 endif
 ifneq ($(CODESPACES),)
-	-stow -D -t $$HOME codespaces
+	-$(STOW) -D -t $$HOME codespaces
 endif
