@@ -1,6 +1,6 @@
-# CLAUDE.md
+# AGENTS.md
 
-Personal dotfiles. **GNU stow**-managed — source tree is organized into packages (`common/`, `darwin/`, `codespaces/`) that mirror `$HOME`. Files live at their real names (no `dot_` prefix); stow creates symlinks from `$HOME` into the repo. Repo-management files (`README.md`, `CLAUDE.md`, `LICENSE`, `script/`, `Makefile`, `templates/`) sit at the source root, outside every package, so stow never touches them. Per-OS gating is handled by which packages you stow — no `.chezmoiignore`, no ignore file at all.
+Personal dotfiles. **GNU stow**-managed — source tree is organized into packages (`common/`, `darwin/`, `codespaces/`) that mirror `$HOME`. Files live at their real names (no `dot_` prefix); stow creates symlinks from `$HOME` into the repo. Repo-management files (`README.md`, `AGENTS.md`, `LICENSE`, `script/`, `Makefile`, `templates/`) sit at the source root, outside every package, so stow never touches them. Per-OS gating is handled by which packages you stow — no `.chezmoiignore`, no ignore file at all.
 
 ## Commands
 
