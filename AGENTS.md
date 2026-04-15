@@ -4,12 +4,13 @@ Personal dotfiles. **GNU stow**-managed — source tree is organized into packag
 
 ## Commands
 
-No tests, build, or linter. `script/doctor` is the closest to a test — run after any tooling change.
+`make test` is the repo's test target — runs `shellcheck -x` on every script plus the functional suite in `script/test`. Run it after any script edit. `script/doctor` is a separate health check for the installed environment on the current host, not for the repo itself.
 
 | Command | Purpose |
 |---------|---------|
 | `script/setup` | First-time entry point. Installs `stow` via Homebrew/apt if missing, then runs `make install`. Auto-run by Codespaces. |
 | `script/doctor` | Health check — core tools, shell, git, mise, Neovim, tmux/TPM. Also checks that `~/.config/git/config` matches the template (warns on drift). |
+| `make test` | Run `shellcheck -x` on every script under `script/` and then execute `script/test` (functional tests for `stow-package` and `setup-git-config`). |
 | `make install` | Generate `~/.config/git/config` from the template (prompting for identity on first run), stow `common`. On macOS also stow `darwin`, install brew bundle, update fisher, chsh to fish. |
 | `make regen-git-config` | Re-render `~/.config/git/config` from `templates/git-config.tmpl` + `~/.config/dotfiles/identity.env`. Run this after editing the template. |
 | `make brew` | Re-run `brew bundle --global` after editing `darwin/.Brewfile`. |
@@ -41,13 +42,18 @@ The `Makefile` is a thin dispatcher; real logic lives in `script/` so each piece
 |---|---|
 | `script/setup` | Bootstrap — installs `stow` if missing, then runs `make install`. `#!/bin/sh` (POSIX). |
 | `script/setup-git-config` | Renders `templates/git-config.tmpl` → `~/.config/git/config` using `~/.config/dotfiles/identity.env`. Prompts on first run (TTY-guarded), atomic temp+mv write, sed-escaped substitution. Bash. |
-| `script/install-darwin` | macOS bootstrap: installs Homebrew if missing + sources `brew shellenv`, stows `darwin`, runs `make brew fisher`, registers fish in `/etc/shells` (line-exact match), chsh to fish. Bash. |
+| `script/stow-package` | `stow --no-folding` wrapper. Dry-runs first, moves any conflicting real files in `$HOME` to `~/.dotfiles-backup/<timestamp>/<relative-path>/`, then stows. Nothing is ever deleted. Used by `make stow-common`, `make install-codespaces`, and `script/install-darwin` so first-time migrations off a prior dotfile manager don't abort on pre-existing files. Bash. |
+| `script/install-darwin` | macOS bootstrap: installs Homebrew if missing + sources `brew shellenv`, stows `darwin` (via `script/stow-package`), runs `make brew fisher`, registers fish in `/etc/shells` (line-exact match), chsh to fish. Bash. |
 | `script/install-codespace-tools` | Codespaces bootstrap: downloads nvim/rg/bat/fzf/lazygit/diff-so-fancy/tree-sitter via `gh release download --latest`. Bash, `set -euo pipefail`. |
 | `script/doctor` | Health check. Includes a template-drift check that re-renders `templates/git-config.tmpl` against `identity.env` and `cmp -s`'s against the live file; warns if they differ. Bash. |
+| `script/test` | Functional test suite for the scripts with non-trivial logic (`stow-package` conflict parsing + backup moves, `setup-git-config` template substitution + sed escaping). Each test runs inside its own `mktemp` sandbox with a stubbed `$HOME`; nothing touches the real system. Bash. |
 
-All five pass `shellcheck -x`. Run it after any script edit:
+All pass `shellcheck -x` and are exercised by `make test`, which runs both the linter and `script/test`:
 ```sh
-shellcheck -x script/setup script/setup-git-config script/install-darwin script/doctor script/install-codespace-tools
+make test
+# equivalent to:
+shellcheck -x script/setup script/setup-git-config script/stow-package script/install-darwin script/doctor script/install-codespace-tools script/test
+./script/test
 ```
 
 ## Git identity layout

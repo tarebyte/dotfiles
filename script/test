@@ -1,0 +1,264 @@
+#!/bin/bash
+#
+# script/test
+#
+# Functional tests for the scripts that have non-trivial logic:
+# stow-package (conflict parsing + backup moves) and setup-git-config
+# (template substitution + sed escaping). Each test runs inside its own
+# mktemp sandbox with a stubbed $HOME; nothing touches the real system.
+#
+# The runner does NOT use `set -e` globally so that a failing assertion
+# in one test reports and continues instead of aborting the whole suite.
+# Individual test functions set `set -e` locally so a bare `[ ... ]` or
+# command failure aborts just that test with a nonzero exit code, which
+# run_test translates into a FAIL.
+
+set -uo pipefail
+
+REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+cd "$REPO_ROOT"
+
+if [ -t 1 ]; then
+    RED='\033[0;31m'
+    GREEN='\033[0;32m'
+    NC='\033[0m'
+else
+    RED=''
+    GREEN=''
+    NC=''
+fi
+
+passed=0
+failed=0
+
+run_test() {
+    local name=$1
+    local fn=$2
+    local sandbox
+    sandbox=$(mktemp -d)
+    local output
+    if output=$("$fn" "$sandbox" 2>&1); then
+        printf "  ${GREEN}PASS${NC} %s\n" "$name"
+        passed=$((passed + 1))
+    else
+        printf "  ${RED}FAIL${NC} %s\n" "$name"
+        if [ -n "$output" ]; then
+            printf '%s\n' "$output" | sed 's/^/    /'
+        fi
+        failed=$((failed + 1))
+    fi
+    rm -rf "$sandbox"
+}
+
+# ------- stow-package -------
+#
+# The sandbox layout mirrors the real repo just enough for stow-package's
+# `$(dirname "$0")/..` resolution: we copy the script into
+# $sandbox/repo/script/ and build a fake package next to it. Invoking
+# $sandbox/repo/script/stow-package makes REPO_ROOT resolve to
+# $sandbox/repo, so `pkg` is looked up inside the sandbox, not the real
+# dotfiles checkout.
+
+make_stow_sandbox_repo() {
+    local sandbox=$1
+    mkdir -p "$sandbox/repo/script"
+    cp "$REPO_ROOT/script/stow-package" "$sandbox/repo/script/"
+}
+
+test_stow_clean() {
+    local sandbox=$1
+    set -e
+    make_stow_sandbox_repo "$sandbox"
+    mkdir -p "$sandbox/repo/pkg/.config" "$sandbox/home"
+    echo "repo-content" > "$sandbox/repo/pkg/.config/foo.conf"
+
+    HOME="$sandbox/home" "$sandbox/repo/script/stow-package" pkg > /dev/null
+
+    [ -L "$sandbox/home/.config/foo.conf" ] || { echo "expected symlink"; exit 1; }
+    [ ! -d "$sandbox/home/.dotfiles-backup" ] || { echo "backup dir should not exist"; exit 1; }
+}
+
+test_stow_real_file_conflict() {
+    local sandbox=$1
+    set -e
+    make_stow_sandbox_repo "$sandbox"
+    mkdir -p "$sandbox/repo/pkg/.config" "$sandbox/home/.config"
+    echo "repo-content" > "$sandbox/repo/pkg/.config/foo.conf"
+    echo "original-home-content" > "$sandbox/home/.config/foo.conf"
+
+    HOME="$sandbox/home" "$sandbox/repo/script/stow-package" pkg > /dev/null
+
+    [ -L "$sandbox/home/.config/foo.conf" ] || { echo "expected symlink after stow"; exit 1; }
+
+    local backup
+    backup=$(find "$sandbox/home/.dotfiles-backup" -name foo.conf -print -quit 2>/dev/null)
+    [ -n "$backup" ] || { echo "no backup file found"; exit 1; }
+    [ "$(cat "$backup")" = "original-home-content" ] \
+        || { echo "backup contents not preserved"; exit 1; }
+}
+
+test_stow_foreign_symlink_conflict() {
+    local sandbox=$1
+    set -e
+    make_stow_sandbox_repo "$sandbox"
+    mkdir -p "$sandbox/repo/pkg/.config" "$sandbox/home/.config" "$sandbox/other"
+    echo "repo-content" > "$sandbox/repo/pkg/.config/foo.conf"
+    echo "foreign" > "$sandbox/other/foreign-target"
+    ln -s "$sandbox/other/foreign-target" "$sandbox/home/.config/foo.conf"
+
+    HOME="$sandbox/home" "$sandbox/repo/script/stow-package" pkg > /dev/null
+
+    [ -L "$sandbox/home/.config/foo.conf" ] || { echo "expected symlink"; exit 1; }
+    local target
+    target=$(readlink "$sandbox/home/.config/foo.conf")
+    case "$target" in
+        */repo/pkg/.config/foo.conf) ;;
+        *) echo "symlink points to wrong target: $target"; exit 1 ;;
+    esac
+    find "$sandbox/home/.dotfiles-backup" -name foo.conf 2>/dev/null | grep -q . \
+        || { echo "foreign symlink not backed up"; exit 1; }
+}
+
+test_stow_mixed_conflicts_and_clean() {
+    local sandbox=$1
+    set -e
+    make_stow_sandbox_repo "$sandbox"
+    mkdir -p "$sandbox/repo/pkg/.config/nested" "$sandbox/home/.config/nested"
+    echo "a" > "$sandbox/repo/pkg/.config/a.conf"
+    echo "b" > "$sandbox/repo/pkg/.config/nested/b.conf"
+    echo "c" > "$sandbox/repo/pkg/.config/nested/c.conf"
+    echo "home-b" > "$sandbox/home/.config/nested/b.conf"
+
+    HOME="$sandbox/home" "$sandbox/repo/script/stow-package" pkg > /dev/null
+
+    [ -L "$sandbox/home/.config/a.conf" ]          || { echo "a not symlinked"; exit 1; }
+    [ -L "$sandbox/home/.config/nested/b.conf" ]   || { echo "b not symlinked"; exit 1; }
+    [ -L "$sandbox/home/.config/nested/c.conf" ]   || { echo "c not symlinked"; exit 1; }
+
+    find "$sandbox/home/.dotfiles-backup" -name b.conf 2>/dev/null | grep -q . \
+        || { echo "b.conf should be in backup"; exit 1; }
+    if find "$sandbox/home/.dotfiles-backup" -name a.conf 2>/dev/null | grep -q .; then
+        echo "a.conf should not be in backup"; exit 1
+    fi
+    if find "$sandbox/home/.dotfiles-backup" -name c.conf 2>/dev/null | grep -q .; then
+        echo "c.conf should not be in backup"; exit 1
+    fi
+}
+
+test_stow_missing_arg() {
+    local sandbox=$1
+    if "$REPO_ROOT/script/stow-package" 2>/dev/null; then
+        echo "expected nonzero exit for missing arg"
+        exit 1
+    fi
+}
+
+test_stow_nonexistent_package() {
+    local sandbox=$1
+    set -e
+    make_stow_sandbox_repo "$sandbox"
+    if HOME="$sandbox/home" "$sandbox/repo/script/stow-package" nonexistent 2>/dev/null; then
+        echo "expected nonzero exit for missing package"
+        exit 1
+    fi
+}
+
+# ------- setup-git-config -------
+#
+# setup-git-config hardcodes its template path relative to $REPO_ROOT
+# (via $(dirname "$0")/..), so we invoke the real script from the real
+# repo but stub $HOME so identity.env and the rendered config live in
+# the sandbox. This tests the real template rendering end-to-end.
+
+test_git_config_basic_render() {
+    local sandbox=$1
+    set -e
+    mkdir -p "$sandbox/home/.config/dotfiles"
+    cat > "$sandbox/home/.config/dotfiles/identity.env" <<'EOF'
+EMAIL=test@example.com
+SIGNINGKEY=ABCD1234DEADBEEF
+EOF
+
+    HOME="$sandbox/home" "$REPO_ROOT/script/setup-git-config" > /dev/null
+
+    local config="$sandbox/home/.config/git/config"
+    [ -f "$config" ] || { echo "config not rendered"; exit 1; }
+    grep -q 'test@example.com'    "$config" || { echo "email not substituted"; exit 1; }
+    grep -q 'ABCD1234DEADBEEF'    "$config" || { echo "signingkey not substituted"; exit 1; }
+    if grep -q '{{EMAIL}}' "$config";      then echo "EMAIL placeholder left behind";      exit 1; fi
+    if grep -q '{{SIGNINGKEY}}' "$config"; then echo "SIGNINGKEY placeholder left behind"; exit 1; fi
+}
+
+test_git_config_sed_metachars() {
+    local sandbox=$1
+    set -e
+    mkdir -p "$sandbox/home/.config/dotfiles"
+    # Values contain sed metacharacters &, |, and \ — the script escapes
+    # them before substitution. Without the escaping, sed would corrupt
+    # the output or error out.
+    cat > "$sandbox/home/.config/dotfiles/identity.env" <<'EOF'
+EMAIL=weird&chars|here\test@example.com
+SIGNINGKEY=KEY&BAD|ID\WITHBACKSLASH
+EOF
+
+    HOME="$sandbox/home" "$REPO_ROOT/script/setup-git-config" > /dev/null
+
+    local config="$sandbox/home/.config/git/config"
+    grep -qF 'weird&chars|here\test@example.com' "$config" \
+        || { echo "email with sed metachars corrupted"; exit 1; }
+    grep -qF 'KEY&BAD|ID\WITHBACKSLASH' "$config" \
+        || { echo "signingkey with sed metachars corrupted"; exit 1; }
+}
+
+test_git_config_codespaces_skip() {
+    local sandbox=$1
+    set -e
+    mkdir -p "$sandbox/home"
+    CODESPACES=1 HOME="$sandbox/home" "$REPO_ROOT/script/setup-git-config" > /dev/null
+    [ ! -f "$sandbox/home/.config/git/config" ] \
+        || { echo "codespaces path should skip rendering"; exit 1; }
+}
+
+test_git_config_missing_email() {
+    local sandbox=$1
+    set -e
+    mkdir -p "$sandbox/home/.config/dotfiles"
+    echo "SIGNINGKEY=xxx" > "$sandbox/home/.config/dotfiles/identity.env"
+    if HOME="$sandbox/home" "$REPO_ROOT/script/setup-git-config" 2>/dev/null; then
+        echo "expected nonzero exit when EMAIL missing"
+        exit 1
+    fi
+}
+
+test_git_config_missing_signingkey() {
+    local sandbox=$1
+    set -e
+    mkdir -p "$sandbox/home/.config/dotfiles"
+    echo "EMAIL=x@y.z" > "$sandbox/home/.config/dotfiles/identity.env"
+    if HOME="$sandbox/home" "$REPO_ROOT/script/setup-git-config" 2>/dev/null; then
+        echo "expected nonzero exit when SIGNINGKEY missing"
+        exit 1
+    fi
+}
+
+# ------- runner -------
+
+echo "=== stow-package ==="
+run_test "clean stow, no conflicts"         test_stow_clean
+run_test "real file conflict"               test_stow_real_file_conflict
+run_test "foreign symlink conflict"         test_stow_foreign_symlink_conflict
+run_test "mixed conflicts and clean files"  test_stow_mixed_conflicts_and_clean
+run_test "missing arg errors"               test_stow_missing_arg
+run_test "nonexistent package errors"       test_stow_nonexistent_package
+
+echo
+echo "=== setup-git-config ==="
+run_test "basic template render"            test_git_config_basic_render
+run_test "sed metacharacter escaping"       test_git_config_sed_metachars
+run_test "codespaces skip"                  test_git_config_codespaces_skip
+run_test "missing EMAIL errors"             test_git_config_missing_email
+run_test "missing SIGNINGKEY errors"        test_git_config_missing_signingkey
+
+echo
+printf "${GREEN}passed: %d${NC}  ${RED}failed: %d${NC}\n" "$passed" "$failed"
+[ "$failed" -eq 0 ]

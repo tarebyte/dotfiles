@@ -16,7 +16,7 @@ STOW := stow --no-folding
 # list it in .PHONY below.
 .PHONY: install install-darwin install-codespaces stow-common
 .PHONY: setup-git-config regen-git-config
-.PHONY: brew fisher mise doctor clean
+.PHONY: brew fisher mise doctor test clean
 
 # Dispatcher is explicitly serial. Parallel `make -j` on overlapping stow
 # packages would race during directory folding, and none of this benefits
@@ -37,7 +37,7 @@ endif
 install: setup-git-config stow-common $(EXTRA_INSTALL)
 
 stow-common:
-	$(STOW) -t $$HOME common
+	./script/stow-package common
 
 # Assumes setup-git-config + stow-common have already run (i.e. was
 # invoked via `make install`). Safe to re-run as a standalone repair
@@ -48,7 +48,7 @@ install-darwin:
 # Assumes setup-git-config has already run. Stows the codespaces
 # package and runs the tool installer.
 install-codespaces:
-	$(STOW) -t $$HOME codespaces
+	./script/stow-package codespaces
 	./script/install-codespace-tools
 
 # Render templates/git-config.tmpl into ~/.config/git/config. Prompts
@@ -84,6 +84,13 @@ mise:
 
 doctor:
 	./script/doctor
+
+# Static check every script, then run the functional test suite.
+# shellcheck is cheap — run it first so a lint failure short-circuits
+# before we spin up mktemp sandboxes.
+test:
+	shellcheck -x script/setup script/setup-git-config script/stow-package script/install-darwin script/doctor script/install-codespace-tools script/test
+	./script/test
 
 # Uninstall all stowed packages from $HOME. Does NOT delete the repo,
 # the generated ~/.config/git/config, or ~/.config/dotfiles/identity.env.

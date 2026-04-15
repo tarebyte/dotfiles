@@ -1,0 +1,66 @@
+#!/bin/bash
+#
+# script/stow-package <package>
+#
+# Wrapper around `stow --no-folding` that handles pre-existing files in $HOME
+# by moving them into a timestamped backup dir before stowing. Intended for
+# the first-time install / migration case where $HOME already contains real
+# config files (from a previous dotfile manager or hand-authored) that would
+# otherwise make stow abort with "existing target is neither a link nor a
+# directory".
+#
+# Behavior:
+#   1. Dry-runs stow to enumerate conflicts.
+#   2. Moves every conflicting real file into
+#      ~/.dotfiles-backup/<timestamp>/<relative-path>/, preserving structure.
+#   3. Runs the real stow.
+#
+# Nothing is ever deleted — if the new setup is wrong you can rsync the
+# backup dir back over $HOME. Invoked by the Makefile's stow targets and by
+# script/install-darwin.
+
+set -euo pipefail
+
+pkg="${1:?usage: script/stow-package <package>}"
+
+REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+cd "$REPO_ROOT"
+
+if [ ! -d "$pkg" ]; then
+    echo "stow-package: no such package: $pkg" >&2
+    exit 1
+fi
+
+# Dry-run stow. It exits non-zero when conflicts are present, which would
+# abort this script under `set -e` — wrap in `|| true` so we can inspect
+# the diagnostic output either way.
+dryrun=$(stow -n --no-folding -v -t "$HOME" "$pkg" 2>&1 || true)
+
+# Stow emits two conflict diagnostics we care about:
+#   * cannot stow <src> over existing target <target> since neither a link
+#     nor a directory and --adopt not specified
+#       → real file already sitting at the target path (the common case
+#         when migrating off a prior dotfile manager)
+#   * existing target is not owned by stow: <target>
+#       → target is already a symlink, but points outside any stow package
+# Capture <target> from both forms.
+conflicts=$(printf '%s\n' "$dryrun" | sed -n \
+    -e 's|.*cannot stow .* over existing target \(.*\) since neither a link nor a directory.*|\1|p' \
+    -e 's|.*existing target is not owned by stow: \(.*\)|\1|p')
+
+if [ -n "$conflicts" ]; then
+    ts=$(date +%Y%m%d-%H%M%S)
+    backup_root="$HOME/.dotfiles-backup/$ts"
+    echo "stow-package: $pkg has conflicts; moving aside to $backup_root"
+    while IFS= read -r rel; do
+        [ -n "$rel" ] || continue
+        src="$HOME/$rel"
+        dst="$backup_root/$rel"
+        mkdir -p "$(dirname "$dst")"
+        mv "$src" "$dst"
+        echo "  moved $rel"
+    done <<< "$conflicts"
+fi
+
+stow --no-folding -t "$HOME" "$pkg"
+echo "stow-package: stowed $pkg"
