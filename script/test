@@ -217,11 +217,11 @@ test_git_config_codespaces_skip() {
     CODESPACES=1 HOME="$sandbox/home" "$REPO_ROOT/script/setup-git-config" > /dev/null
     [ -f "$sandbox/home/.config/git/config" ] \
         || { echo "codespaces path should render config"; exit 1; }
-    # identity lines should be stripped
-    ! grep -q '{{EMAIL}}' "$sandbox/home/.config/git/config" \
-        || { echo "template placeholder {{EMAIL}} should be removed"; exit 1; }
-    ! grep -q '{{SIGNINGKEY}}' "$sandbox/home/.config/git/config" \
-        || { echo "template placeholder {{SIGNINGKEY}} should be removed"; exit 1; }
+    # [user] and [include] sections should be stripped
+    ! grep -q '\[user\]' "$sandbox/home/.config/git/config" \
+        || { echo "[user] section should be removed"; exit 1; }
+    ! grep -q '\[include\]' "$sandbox/home/.config/git/config" \
+        || { echo "[include] section should be removed"; exit 1; }
     # gpgsign should be disabled
     grep -q 'gpgsign = false' "$sandbox/home/.config/git/config" \
         || { echo "gpgsign should be false in codespaces mode"; exit 1; }

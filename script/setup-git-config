@@ -36,8 +36,9 @@ if [ -n "${CODESPACES:-}" ]; then
     mkdir -p "$HOME/.config/git"
     tmp=$(mktemp "$GIT_CONFIG.XXXXXX")
     trap 'rm -f "$tmp"' EXIT
-    sed -e '/{{EMAIL}}/d' \
-        -e '/{{SIGNINGKEY}}/d' \
+    sed -e '/\[user\]/,/^$/d' \
+        -e '/# macOS-only/,/^$/d' \
+        -e '/\[include\]/,/^$/d' \
         -e 's/gpgsign = true/gpgsign = false/' \
         "$GIT_TEMPLATE" > "$tmp"
     mv "$tmp" "$GIT_CONFIG"
