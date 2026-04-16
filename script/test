@@ -215,8 +215,19 @@ test_git_config_codespaces_skip() {
     set -e
     mkdir -p "$sandbox/home"
     CODESPACES=1 HOME="$sandbox/home" "$REPO_ROOT/script/setup-git-config" > /dev/null
-    [ ! -f "$sandbox/home/.config/git/config" ] \
-        || { echo "codespaces path should skip rendering"; exit 1; }
+    [ -f "$sandbox/home/.config/git/config" ] \
+        || { echo "codespaces path should render config"; exit 1; }
+    # identity lines should be stripped
+    ! grep -q '{{EMAIL}}' "$sandbox/home/.config/git/config" \
+        || { echo "template placeholder {{EMAIL}} should be removed"; exit 1; }
+    ! grep -q '{{SIGNINGKEY}}' "$sandbox/home/.config/git/config" \
+        || { echo "template placeholder {{SIGNINGKEY}} should be removed"; exit 1; }
+    # gpgsign should be disabled
+    grep -q 'gpgsign = false' "$sandbox/home/.config/git/config" \
+        || { echo "gpgsign should be false in codespaces mode"; exit 1; }
+    # aliases should still be present
+    grep -q '\[alias\]' "$sandbox/home/.config/git/config" \
+        || { echo "aliases should be present in codespaces config"; exit 1; }
 }
 
 test_git_config_missing_email() {
@@ -255,7 +266,7 @@ echo
 echo "=== setup-git-config ==="
 run_test "basic template render"            test_git_config_basic_render
 run_test "sed metacharacter escaping"       test_git_config_sed_metachars
-run_test "codespaces skip"                  test_git_config_codespaces_skip
+run_test "codespaces render"                  test_git_config_codespaces_skip
 run_test "missing EMAIL errors"             test_git_config_missing_email
 run_test "missing SIGNINGKEY errors"        test_git_config_missing_signingkey
 

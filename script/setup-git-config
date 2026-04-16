@@ -23,16 +23,28 @@
 
 set -euo pipefail
 
-if [ -n "${CODESPACES:-}" ]; then
-    echo "Skipping git config setup on Codespaces"
-    exit 0
-fi
-
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 GIT_TEMPLATE="$REPO_ROOT/templates/git-config.tmpl"
 GIT_CONFIG="$HOME/.config/git/config"
 IDENTITY_DIR="$HOME/.config/dotfiles"
 IDENTITY_FILE="$IDENTITY_DIR/identity.env"
+
+if [ -n "${CODESPACES:-}" ]; then
+    # Codespaces injects identity (name, email, credential helper) into
+    # ~/.gitconfig, so we only need the template for aliases, colors,
+    # filters, etc. Strip the identity/signing lines and render as-is.
+    mkdir -p "$HOME/.config/git"
+    tmp=$(mktemp "$GIT_CONFIG.XXXXXX")
+    trap 'rm -f "$tmp"' EXIT
+    sed -e '/{{EMAIL}}/d' \
+        -e '/{{SIGNINGKEY}}/d' \
+        -e 's/gpgsign = true/gpgsign = false/' \
+        "$GIT_TEMPLATE" > "$tmp"
+    mv "$tmp" "$GIT_CONFIG"
+    trap - EXIT
+    echo "Wrote $GIT_CONFIG (Codespaces mode — identity from ~/.gitconfig)"
+    exit 0
+fi
 
 mkdir -p "$HOME/.config/git"
 mkdir -p "$IDENTITY_DIR"
