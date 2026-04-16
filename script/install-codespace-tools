@@ -133,13 +133,13 @@ else
 fi
 
 if command -v tmux >/dev/null 2>&1; then
-  echo "  ✓ tmux already installed ($(tool_version tmux))"
+  echo "  ✓ tmux already installed ($(tmux -V))"
 else
   start=$SECONDS
   echo "  Installing tmux..."
   echo "    sudo: installing via apt-get..."
   sudo apt-get install -yq tmux >/dev/null 2>&1
-  echo "  ✓ tmux installed ($(tool_version tmux), $((SECONDS - start))s)"
+  echo "  ✓ tmux installed ($(tmux -V), $((SECONDS - start))s)"
 fi
 
 echo ""
