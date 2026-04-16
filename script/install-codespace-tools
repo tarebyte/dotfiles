@@ -137,13 +137,8 @@ if command -v tmux >/dev/null 2>&1; then
 else
   start=$SECONDS
   echo "  Installing tmux..."
-  gh release download --clobber --output /tmp/tmux.appimage --repo nelsonenzo/tmux-appimage \
-    --pattern "tmux.appimage"
-  chmod +x /tmp/tmux.appimage
-  cd /tmp && /tmp/tmux.appimage --appimage-extract >/dev/null 2>&1
-  install /tmp/squashfs-root/usr/bin/tmux "$LOCAL_BIN/tmux"
-  rm -rf /tmp/tmux.appimage /tmp/squashfs-root
-  cd - >/dev/null
+  echo "    sudo: installing via apt-get..."
+  sudo apt-get install -yq tmux >/dev/null 2>&1
   echo "  ✓ tmux installed ($(tool_version tmux), $((SECONDS - start))s)"
 fi
 
