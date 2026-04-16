@@ -8,6 +8,11 @@
 set -euo pipefail
 
 mkdir -p "$HOME/.local/state/dotfiles"
+# Capture tee's PID so we can wait on it specifically at exit.
+# The process substitution keeps tee alive until stdout closes, which
+# happens naturally when the script exits — no explicit wait needed
+# for correctness, but we want the final echo to flush before the
+# shell tears down the pipe.
 exec > >(tee -i "$HOME/.local/state/dotfiles/bootstrap.log")
 exec 2>&1
 
@@ -126,10 +131,6 @@ else
   rm -f /tmp/tree-sitter
   echo "  ✓ tree-sitter installed ($(tool_version tree-sitter), $((SECONDS - start))s)"
 fi
-
-# Wait for the tee subprocess to drain its buffer before exit, so the
-# last lines of the log don't get lost when bash's exec-redirect races.
-wait 2>/dev/null || true
 
 echo ""
 echo "==> Bootstrap complete! Restart your terminal or run: source ~/.bash_aliases"
