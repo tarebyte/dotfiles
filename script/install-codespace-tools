@@ -68,20 +68,23 @@ fi
 
 if ! command -v diff-so-fancy >/dev/null 2>&1; then
   echo "  Installing diff-so-fancy..."
-  git clone --depth 1 https://github.com/so-fancy/diff-so-fancy.git /tmp/diff-so-fancy
-  sudo mkdir -p /usr/local/bin/lib/
-  sudo install /tmp/diff-so-fancy/diff-so-fancy /usr/local/bin/diff-so-fancy
-  sudo install /tmp/diff-so-fancy/lib/DiffHighlight.pm /usr/local/bin/lib/DiffHighlight.pm
-  rm -rf /tmp/diff-so-fancy
+  gh release download --clobber --output /tmp/diff-so-fancy --repo so-fancy/diff-so-fancy \
+    --pattern "diff-so-fancy"
+  sudo install /tmp/diff-so-fancy /usr/local/bin/diff-so-fancy
+  rm -f /tmp/diff-so-fancy
 fi
 
 if ! command -v tree-sitter >/dev/null 2>&1; then
-  if command -v cargo >/dev/null 2>&1; then
-    echo "  Installing tree-sitter-cli..."
-    cargo install tree-sitter-cli
-  else
-    echo "  Skipping tree-sitter-cli (cargo not available)..."
-  fi
+  echo "  Installing tree-sitter-cli..."
+  case "$ARCH_GO" in
+    amd64) TS_ARCH="x64"  ;;
+    arm64) TS_ARCH="arm64" ;;
+  esac
+  gh release download --clobber --output /tmp/tree-sitter.gz --repo tree-sitter/tree-sitter \
+    --pattern "tree-sitter-linux-${TS_ARCH}.gz"
+  gunzip -f /tmp/tree-sitter.gz
+  sudo install /tmp/tree-sitter /usr/local/bin/tree-sitter
+  rm -f /tmp/tree-sitter
 fi
 
 # Wait for the tee subprocess to drain its buffer before exit, so the
