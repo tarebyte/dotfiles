@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Install CLI tools GitHub Codespaces doesn't ship by default:
-# neovim, ripgrep, bat, fzf, lazygit, diff-so-fancy, tree-sitter.
+# neovim, ripgrep, bat, fzf, lazygit, diff-so-fancy, tree-sitter, tmux.
 # Invoked by `make install-codespaces`. Safe to re-run — each step
 # no-ops if its binary is already on PATH.
 
@@ -130,6 +130,18 @@ else
   install /tmp/tree-sitter "$LOCAL_BIN/tree-sitter"
   rm -f /tmp/tree-sitter
   echo "  ✓ tree-sitter installed ($(tool_version tree-sitter), $((SECONDS - start))s)"
+fi
+
+if command -v tmux >/dev/null 2>&1; then
+  echo "  ✓ tmux already installed ($(tool_version tmux))"
+else
+  start=$SECONDS
+  echo "  Installing tmux..."
+  gh release download --clobber --output /tmp/tmux.appimage --repo nelsonenzo/tmux-appimage \
+    --pattern "tmux.appimage"
+  install /tmp/tmux.appimage "$LOCAL_BIN/tmux"
+  rm -f /tmp/tmux.appimage
+  echo "  ✓ tmux installed ($(tool_version tmux), $((SECONDS - start))s)"
 fi
 
 echo ""
