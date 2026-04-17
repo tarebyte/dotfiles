@@ -16,3 +16,8 @@ map("n", "<leader>cs", "<cmd>StripWhitespace<cr>", { desc = "Strip trailing whit
 map("n", "<leader>O", "<cmd>Trouble symbols toggle focus=false<cr>", { desc = "Show outline (Trouble symbols)" })
 
 map("n", "<leader>fa", "<cmd>A<cr>", { desc = "Alternate file (projectionist)" })
+
+-- Mouse support
+map("n", "<MouseMove>", function()
+  require("hover").mouse()
+end, { desc = "hover.nvim (mouse)" })

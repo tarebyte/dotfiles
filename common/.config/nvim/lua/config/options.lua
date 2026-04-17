@@ -12,3 +12,5 @@ opt.listchars = "tab:> ,trail:-,extends:>,precedes:<,nbsp:+"
 opt.updatetime = 250
 opt.relativenumber = false
 opt.pumblend = 0
+
+vim.o.mousemoveevent = true

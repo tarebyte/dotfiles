@@ -1,7 +1,6 @@
 -- LazyVim sets its own autocmds first; this file adds ours.
 
 local ts = vim.api.nvim_create_augroup("treesitter_custom", { clear = true })
-local diag = vim.api.nvim_create_augroup("diagnostics", { clear = true })
 
 -- Register the gotmpl parser under per-target aliases so each compound
 -- filetype resolves injection queries from its own directory
@@ -31,12 +30,4 @@ vim.filetype.add({
     [".*%.html%.g?o?tmpl$"] = "gotmpl_html",
     [".*%.g?o?tmpl$"] = "gotmpl_html",
   },
-})
-
--- Diagnostic float on hover; paired with updatetime = 250 in options.lua.
-vim.api.nvim_create_autocmd("CursorHold", {
-  group = diag,
-  callback = function()
-    vim.diagnostic.open_float(nil, { focus = false, scope = "cursor" })
-  end,
 })

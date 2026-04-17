@@ -88,10 +88,17 @@ return {
   },
 
   {
-    "nvim-tree/nvim-web-devicons",
+    "lewis6991/hover.nvim",
     opts = {
-      override = {
-        rb = { icon = "" },
+      providers = {
+        "hover.providers.diagnostic",
+        "hover.providers.lsp",
+        "hover.providers.dap",
+      },
+      mouse_providers = {
+        "hover.providers.diagnostic",
+        "hover.providers.lsp",
+        "hover.providers.dap",
       },
     },
   },

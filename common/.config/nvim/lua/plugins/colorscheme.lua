@@ -10,7 +10,6 @@ return {
     "catppuccin/nvim",
     opts = {
       dim_inactive = { enabled = true },
-      float = { transparent = false, solid = false },
       integrations = {
         blink_cmp = { style = "bordered" },
         lualine = {
@@ -54,6 +53,12 @@ return {
         },
       },
       custom_highlights = function(colors)
+        -- Blend hover.nvim's source-tab strip into the window bg: it uses TabLine*
+        -- groups by default, which catppuccin renders darker than NormalFloat.
+        vim.api.nvim_set_hl(0, "HoverSourceLine", { link = "NormalFloat" })
+        vim.api.nvim_set_hl(0, "HoverInactiveSource", { link = "NormalFloat" })
+        vim.api.nvim_set_hl(0, "HoverActiveSource", { link = "NormalFloat" })
+
         return {
           NormalFloat = { bg = colors.base },
           FloatBorder = { fg = colors.lavender, bg = "NONE" },
