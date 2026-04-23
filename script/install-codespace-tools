@@ -34,6 +34,19 @@ tool_version() {
   echo "${ver:-unknown}"
 }
 
+# Check GitHub API rate limit before downloading a release asset.
+# Skips the download (returns 1) when remaining quota is too low.
+# The rate_limit endpoint itself is free and never counts against quota.
+gh_download() {
+  local remaining
+  remaining=$(gh api rate_limit --jq '.resources.core.remaining' 2>/dev/null || echo "0")
+  if [ "$remaining" -lt 5 ]; then
+    echo "    ⚠ GitHub API rate limit low (remaining: $remaining) — skipping download"
+    return 1
+  fi
+  gh release download "$@"
+}
+
 echo "==> Installing tools (arch: $ARCH)..."
 
 if command -v nvim >/dev/null 2>&1; then
@@ -41,78 +54,17 @@ if command -v nvim >/dev/null 2>&1; then
 else
   start=$SECONDS
   echo "  Installing Neovim..."
-  gh release download --clobber --dir /tmp/ --repo neovim/neovim \
-    --pattern "nvim-linux-${ARCH_ALT}.tar.gz"
-  echo "    sudo: extracting to /opt/nvim..."
-  sudo mkdir -p /opt/nvim
-  sudo tar -xzf "/tmp/nvim-linux-${ARCH_ALT}.tar.gz" --strip-components=1 -C /opt/nvim
-  sudo ln -sf /opt/nvim/bin/nvim /usr/local/bin/nvim
-  rm -f "/tmp/nvim-linux-${ARCH_ALT}.tar.gz"
-  echo "  ✓ Neovim installed ($(tool_version nvim), $((SECONDS - start))s)"
-fi
-
-if command -v rg >/dev/null 2>&1; then
-  echo "  ✓ ripgrep already installed ($(tool_version rg))"
-else
-  start=$SECONDS
-  echo "  Installing ripgrep..."
-  gh release download --clobber --output /tmp/ripgrep.deb --repo BurntSushi/ripgrep \
-    --pattern "ripgrep_*_${ARCH_GO}.deb"
-  echo "    sudo: installing .deb package..."
-  sudo dpkg -i /tmp/ripgrep.deb
-  rm -f /tmp/ripgrep.deb
-  echo "  ✓ ripgrep installed ($(tool_version rg), $((SECONDS - start))s)"
-fi
-
-if command -v bat >/dev/null 2>&1; then
-  echo "  ✓ bat already installed ($(tool_version bat))"
-else
-  start=$SECONDS
-  echo "  Installing bat..."
-  gh release download --clobber --output /tmp/bat.deb --repo sharkdp/bat \
-    --pattern "bat_*_${ARCH}.deb"
-  echo "    sudo: installing .deb package..."
-  sudo dpkg -i /tmp/bat.deb
-  rm -f /tmp/bat.deb
-  echo "  ✓ bat installed ($(tool_version bat), $((SECONDS - start))s)"
-fi
-
-if command -v fzf >/dev/null 2>&1; then
-  echo "  ✓ fzf already installed ($(tool_version fzf))"
-else
-  start=$SECONDS
-  echo "  Installing fzf..."
-  gh release download --clobber --output /tmp/fzf.tar.gz --repo junegunn/fzf \
-    --pattern "fzf-*-linux_${ARCH_GO}.tar.gz"
-  tar -xzf /tmp/fzf.tar.gz -C /tmp/
-  install /tmp/fzf "$LOCAL_BIN/fzf"
-  rm -f /tmp/fzf.tar.gz /tmp/fzf
-  echo "  ✓ fzf installed ($(tool_version fzf), $((SECONDS - start))s)"
-fi
-
-if command -v lazygit >/dev/null 2>&1; then
-  echo "  ✓ lazygit already installed ($(lazygit --version 2>&1 | sed -n 's/.*, version=\([^,]*\).*/\1/p' || tool_version lazygit))"
-else
-  start=$SECONDS
-  echo "  Installing lazygit..."
-  gh release download --clobber --output /tmp/lazygit.tar.gz --repo jesseduffield/lazygit \
-    --pattern "lazygit_*_linux_${ARCH_ALT}.tar.gz"
-  tar -xzf /tmp/lazygit.tar.gz -C /tmp/
-  install /tmp/lazygit "$LOCAL_BIN/lazygit"
-  rm -f /tmp/lazygit.tar.gz /tmp/lazygit
-  echo "  ✓ lazygit installed ($(lazygit --version 2>&1 | sed -n 's/.*, version=\([^,]*\).*/\1/p' || tool_version lazygit), $((SECONDS - start))s)"
-fi
-
-if command -v diff-so-fancy >/dev/null 2>&1; then
-  echo "  ✓ diff-so-fancy already installed ($(diff-so-fancy --version 2>&1 | sed -n 's/.*Version[[:space:]]*:[[:space:]]*//p' || tool_version diff-so-fancy))"
-else
-  start=$SECONDS
-  echo "  Installing diff-so-fancy..."
-  gh release download --clobber --output /tmp/diff-so-fancy --repo so-fancy/diff-so-fancy \
-    --pattern "diff-so-fancy"
-  install /tmp/diff-so-fancy "$LOCAL_BIN/diff-so-fancy"
-  rm -f /tmp/diff-so-fancy
-  echo "  ✓ diff-so-fancy installed ($(diff-so-fancy --version 2>&1 | sed -n 's/.*Version[[:space:]]*:[[:space:]]*//p' || tool_version diff-so-fancy), $((SECONDS - start))s)"
+  if gh_download --clobber --dir /tmp/ --repo neovim/neovim \
+    --pattern "nvim-linux-${ARCH_ALT}.tar.gz"; then
+    echo "    sudo: extracting to /opt/nvim..."
+    sudo mkdir -p /opt/nvim
+    sudo tar -xzf "/tmp/nvim-linux-${ARCH_ALT}.tar.gz" --strip-components=1 -C /opt/nvim
+    sudo ln -sf /opt/nvim/bin/nvim /usr/local/bin/nvim
+    rm -f "/tmp/nvim-linux-${ARCH_ALT}.tar.gz"
+    echo "  ✓ Neovim installed ($(tool_version nvim), $((SECONDS - start))s)"
+  else
+    echo "  ⚠ Neovim skipped"
+  fi
 fi
 
 if command -v tree-sitter >/dev/null 2>&1; then
@@ -124,12 +76,15 @@ else
     amd64) TS_ARCH="x64"  ;;
     arm64) TS_ARCH="arm64" ;;
   esac
-  gh release download --clobber --output /tmp/tree-sitter.gz --repo tree-sitter/tree-sitter \
-    --pattern "tree-sitter-linux-${TS_ARCH}.gz"
-  gunzip -f /tmp/tree-sitter.gz
-  install /tmp/tree-sitter "$LOCAL_BIN/tree-sitter"
-  rm -f /tmp/tree-sitter
-  echo "  ✓ tree-sitter installed ($(tool_version tree-sitter), $((SECONDS - start))s)"
+  if gh_download --clobber --output /tmp/tree-sitter.gz --repo tree-sitter/tree-sitter \
+    --pattern "tree-sitter-linux-${TS_ARCH}.gz"; then
+    gunzip -f /tmp/tree-sitter.gz
+    install /tmp/tree-sitter "$LOCAL_BIN/tree-sitter"
+    rm -f /tmp/tree-sitter
+    echo "  ✓ tree-sitter installed ($(tool_version tree-sitter), $((SECONDS - start))s)"
+  else
+    echo "  ⚠ tree-sitter skipped"
+  fi
 fi
 
 if command -v tmux >/dev/null 2>&1; then
@@ -140,6 +95,85 @@ else
   echo "    sudo: installing via apt-get..."
   sudo apt-get install -yq tmux >/dev/null 2>&1
   echo "  ✓ tmux installed ($(tmux -V), $((SECONDS - start))s)"
+fi
+
+if command -v rg >/dev/null 2>&1; then
+  echo "  ✓ ripgrep already installed ($(tool_version rg))"
+else
+  start=$SECONDS
+  echo "  Installing ripgrep..."
+  if gh_download --clobber --output /tmp/ripgrep.deb --repo BurntSushi/ripgrep \
+    --pattern "ripgrep_*_${ARCH_GO}.deb"; then
+    echo "    sudo: installing .deb package..."
+    sudo dpkg -i /tmp/ripgrep.deb
+    rm -f /tmp/ripgrep.deb
+    echo "  ✓ ripgrep installed ($(tool_version rg), $((SECONDS - start))s)"
+  else
+    echo "  ⚠ ripgrep skipped"
+  fi
+fi
+
+if command -v bat >/dev/null 2>&1; then
+  echo "  ✓ bat already installed ($(tool_version bat))"
+else
+  start=$SECONDS
+  echo "  Installing bat..."
+  if gh_download --clobber --output /tmp/bat.deb --repo sharkdp/bat \
+    --pattern "bat_*_${ARCH}.deb"; then
+    echo "    sudo: installing .deb package..."
+    sudo dpkg -i /tmp/bat.deb
+    rm -f /tmp/bat.deb
+    echo "  ✓ bat installed ($(tool_version bat), $((SECONDS - start))s)"
+  else
+    echo "  ⚠ bat skipped"
+  fi
+fi
+
+if command -v fzf >/dev/null 2>&1; then
+  echo "  ✓ fzf already installed ($(tool_version fzf))"
+else
+  start=$SECONDS
+  echo "  Installing fzf..."
+  if gh_download --clobber --output /tmp/fzf.tar.gz --repo junegunn/fzf \
+    --pattern "fzf-*-linux_${ARCH_GO}.tar.gz"; then
+    tar -xzf /tmp/fzf.tar.gz -C /tmp/
+    install /tmp/fzf "$LOCAL_BIN/fzf"
+    rm -f /tmp/fzf.tar.gz /tmp/fzf
+    echo "  ✓ fzf installed ($(tool_version fzf), $((SECONDS - start))s)"
+  else
+    echo "  ⚠ fzf skipped"
+  fi
+fi
+
+if command -v lazygit >/dev/null 2>&1; then
+  echo "  ✓ lazygit already installed ($(lazygit --version 2>&1 | sed -n 's/.*, version=\([^,]*\).*/\1/p' || tool_version lazygit))"
+else
+  start=$SECONDS
+  echo "  Installing lazygit..."
+  if gh_download --clobber --output /tmp/lazygit.tar.gz --repo jesseduffield/lazygit \
+    --pattern "lazygit_*_linux_${ARCH_ALT}.tar.gz"; then
+    tar -xzf /tmp/lazygit.tar.gz -C /tmp/
+    install /tmp/lazygit "$LOCAL_BIN/lazygit"
+    rm -f /tmp/lazygit.tar.gz /tmp/lazygit
+    echo "  ✓ lazygit installed ($(lazygit --version 2>&1 | sed -n 's/.*, version=\([^,]*\).*/\1/p' || tool_version lazygit), $((SECONDS - start))s)"
+  else
+    echo "  ⚠ lazygit skipped"
+  fi
+fi
+
+if command -v diff-so-fancy >/dev/null 2>&1; then
+  echo "  ✓ diff-so-fancy already installed ($(diff-so-fancy --version 2>&1 | sed -n 's/.*Version[[:space:]]*:[[:space:]]*//p' || tool_version diff-so-fancy))"
+else
+  start=$SECONDS
+  echo "  Installing diff-so-fancy..."
+  if gh_download --clobber --output /tmp/diff-so-fancy --repo so-fancy/diff-so-fancy \
+    --pattern "diff-so-fancy"; then
+    install /tmp/diff-so-fancy "$LOCAL_BIN/diff-so-fancy"
+    rm -f /tmp/diff-so-fancy
+    echo "  ✓ diff-so-fancy installed ($(diff-so-fancy --version 2>&1 | sed -n 's/.*Version[[:space:]]*:[[:space:]]*//p' || tool_version diff-so-fancy), $((SECONDS - start))s)"
+  else
+    echo "  ⚠ diff-so-fancy skipped"
+  fi
 fi
 
 echo ""
