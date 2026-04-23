@@ -69,6 +69,10 @@ if test -d $HOME/.local/bin
     fish_add_path -aP $HOME/.local/bin
 end
 
+if test -d $HOME/.orbstack/bin
+    fish_add_path -aP $HOME/.orbstack/bin
+end
+
 #####################
 # Other adjustments #
 #####################
