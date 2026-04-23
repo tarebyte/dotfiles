@@ -1,6 +1,5 @@
 # vim: ft=ruby
 
-brew "autojump"
 brew "bat"
 brew "container"
 brew "curl"
@@ -28,6 +27,7 @@ brew "tmux"
 brew "tree-sitter"
 brew "tree-sitter-cli"
 brew "wifi-password"
+brew "zoxide"
 
 cask "1password-cli"
 cask "dash"

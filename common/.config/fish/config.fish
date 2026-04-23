@@ -84,11 +84,16 @@ abbr -ag tn tmux new-session -A -s
 abbr -ag lg lazygit
 abbr -ag ":e" $EDITOR
 abbr -ag "+x" "chmod u+x"
+abbr -ag j z
 
 alias ls "ls -GpF"
 alias vi $EDITOR
 alias vim $EDITOR
 alias whereami pwd
+
+if type -q zoxide
+    zoxide init fish | source
+end
 
 if type -q starship
     starship init fish | source
