@@ -58,3 +58,53 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           version: v2.4.1
           args: --check ${{ steps.lua_root.outputs.dir }}
+  codespace-tools:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        # 20.04 = glibc 2.31 (cargo fallback), 22.04 = glibc 2.35
+        # (boundary), 24.04 = glibc 2.39 (prebuilt binary)
+        image: ["ubuntu:20.04", "ubuntu:22.04", "ubuntu:24.04"]
+    container:
+      image: ${{ matrix.image }}
+    env:
+      GH_TOKEN: ${{ github.token }}
+      DEBIAN_FRONTEND: noninteractive
+    steps:
+      - name: Install base dependencies
+        run: |
+          apt-get update
+          apt-get install -y sudo curl git
+      - name: Install gh CLI
+        run: |
+          curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+            | dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
+          echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" \
+            | tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+          apt-get update
+          apt-get install -y gh
+      - name: Install Rust toolchain (old glibc only)
+        if: matrix.image == 'ubuntu:20.04'
+        run: |
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \
+            | sh -s -- -y --profile minimal
+          echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
+      - uses: actions/checkout@v6
+      - name: Run install-codespace-tools
+        run: script/install-codespace-tools
+      - name: Verify all tools installed
+        run: |
+          export PATH="$HOME/.local/bin:$PATH"
+          failed=0
+          for tool in nvim tree-sitter tmux rg bat fzf lazygit diff-so-fancy; do
+            if command -v "$tool" >/dev/null 2>&1; then
+              printf "  ✓ %s: %s\n" "$tool" "$("$tool" --version 2>&1 | head -1 || echo ok)"
+            else
+              printf "  ✗ %s: NOT FOUND\n" "$tool"
+              failed=1
+            fi
+          done
+          exit "$failed"
