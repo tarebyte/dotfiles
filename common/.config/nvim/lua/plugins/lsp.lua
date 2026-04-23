@@ -75,6 +75,7 @@ return {
             on_dir(root)
           end,
         },
+        tailwindcss = {},
         -- For Ruby repos that ship a `.vscode/run-sorbet` shim (Stripe-style
         -- setups). ruby_lsp checks for the same marker and bows out so the two
         -- clients never run together.
