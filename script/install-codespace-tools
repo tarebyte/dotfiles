@@ -34,6 +34,25 @@ tool_version() {
   echo "${ver:-unknown}"
 }
 
+# Return 0 (true) if system glibc is older than the given version.
+# Usage: glibc_version_lt 2.35
+glibc_version_lt() {
+  local threshold="$1"
+  local ver
+  ver=$(getconf GNU_LIBC_VERSION 2>/dev/null | awk '{print $2}')
+  if [ -z "$ver" ]; then
+    # Can't determine glibc version; assume old to be safe
+    return 0
+  fi
+  local sys_major sys_minor thr_major thr_minor
+  sys_major="${ver%%.*}"
+  sys_minor="${ver#*.}"
+  thr_major="${threshold%%.*}"
+  thr_minor="${threshold#*.}"
+  [ "$sys_major" -lt "$thr_major" ] || \
+    { [ "$sys_major" -eq "$thr_major" ] && [ "$sys_minor" -lt "$thr_minor" ]; }
+}
+
 # Check GitHub API rate limit before downloading a release asset.
 # Skips the download (returns 1) when remaining quota is too low.
 # The rate_limit endpoint itself is free and never counts against quota.
@@ -71,19 +90,30 @@ if command -v tree-sitter >/dev/null 2>&1; then
   echo "  ✓ tree-sitter already installed ($(tool_version tree-sitter))"
 else
   start=$SECONDS
-  echo "  Installing tree-sitter-cli..."
-  case "$ARCH_GO" in
-    amd64) TS_ARCH="x64"  ;;
-    arm64) TS_ARCH="arm64" ;;
-  esac
-  if gh_download --clobber --output /tmp/tree-sitter.gz --repo tree-sitter/tree-sitter \
-    --pattern "tree-sitter-linux-${TS_ARCH}.gz"; then
-    gunzip -f /tmp/tree-sitter.gz
-    install /tmp/tree-sitter "$LOCAL_BIN/tree-sitter"
-    rm -f /tmp/tree-sitter
-    echo "  ✓ tree-sitter installed ($(tool_version tree-sitter), $((SECONDS - start))s)"
+  if glibc_version_lt 2.35; then
+    GLIBC_VER=$(getconf GNU_LIBC_VERSION 2>/dev/null | awk '{print $2}' || echo "unknown")
+    echo "  Installing tree-sitter-cli via cargo (glibc ${GLIBC_VER} < 2.35)..."
+    if command -v cargo >/dev/null 2>&1; then
+      cargo install tree-sitter-cli --root "$HOME/.local"
+      echo "  ✓ tree-sitter installed ($(tool_version tree-sitter), $((SECONDS - start))s)"
+    else
+      echo "  ⚠ tree-sitter skipped (cargo not found; install Rust to build from source)"
+    fi
   else
-    echo "  ⚠ tree-sitter skipped"
+    echo "  Installing tree-sitter-cli..."
+    case "$ARCH_GO" in
+      amd64) TS_ARCH="x64"  ;;
+      arm64) TS_ARCH="arm64" ;;
+    esac
+    if gh_download --clobber --output /tmp/tree-sitter.gz --repo tree-sitter/tree-sitter \
+      --pattern "tree-sitter-linux-${TS_ARCH}.gz"; then
+      gunzip -f /tmp/tree-sitter.gz
+      install /tmp/tree-sitter "$LOCAL_BIN/tree-sitter"
+      rm -f /tmp/tree-sitter
+      echo "  ✓ tree-sitter installed ($(tool_version tree-sitter), $((SECONDS - start))s)"
+    else
+      echo "  ⚠ tree-sitter skipped"
+    fi
   fi
 fi
 
