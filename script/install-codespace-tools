@@ -39,7 +39,8 @@ tool_version() {
 glibc_version_lt() {
   local threshold="$1"
   local ver
-  ver=$(getconf GNU_LIBC_VERSION 2>/dev/null | awk '{print $2}')
+  ver=$(getconf GNU_LIBC_VERSION 2>/dev/null || true)
+  ver=$(echo "$ver" | awk '{print $2}')
   if [ -z "$ver" ]; then
     # Can't determine glibc version; assume old to be safe
     return 0

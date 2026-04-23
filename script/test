@@ -252,6 +252,100 @@ test_git_config_missing_signingkey() {
     fi
 }
 
+# ------- glibc_version_lt -------
+#
+# The glibc_version_lt function lives in install-codespace-tools.
+# We extract it into the sandbox and stub `getconf` to control the
+# reported glibc version.
+
+extract_glibc_fn() {
+    local sandbox=$1
+    # Extract the function body from install-codespace-tools
+    sed -n '/^glibc_version_lt()/,/^}/p' "$REPO_ROOT/script/install-codespace-tools" \
+        > "$sandbox/glibc_fn.sh"
+}
+
+test_glibc_lt_older() {
+    local sandbox=$1
+    set -e
+    extract_glibc_fn "$sandbox"
+    mkdir -p "$sandbox/bin"
+    cat > "$sandbox/bin/getconf" <<'STUB'
+#!/bin/bash
+echo "glibc 2.31"
+STUB
+    chmod +x "$sandbox/bin/getconf"
+    # Source the function and run it with stubbed getconf
+    # shellcheck disable=SC1091,SC2030
+    ( PATH="$sandbox/bin:$PATH"; source "$sandbox/glibc_fn.sh"; glibc_version_lt 2.35 )
+}
+
+test_glibc_lt_equal() {
+    local sandbox=$1
+    set -e
+    extract_glibc_fn "$sandbox"
+    mkdir -p "$sandbox/bin"
+    cat > "$sandbox/bin/getconf" <<'STUB'
+#!/bin/bash
+echo "glibc 2.35"
+STUB
+    chmod +x "$sandbox/bin/getconf"
+    # shellcheck disable=SC1091,SC2030,SC2031
+    if ( PATH="$sandbox/bin:$PATH"; source "$sandbox/glibc_fn.sh"; glibc_version_lt 2.35 ); then
+        echo "2.35 should not be less than 2.35"
+        exit 1
+    fi
+}
+
+test_glibc_lt_newer() {
+    local sandbox=$1
+    set -e
+    extract_glibc_fn "$sandbox"
+    mkdir -p "$sandbox/bin"
+    cat > "$sandbox/bin/getconf" <<'STUB'
+#!/bin/bash
+echo "glibc 2.36"
+STUB
+    chmod +x "$sandbox/bin/getconf"
+    # shellcheck disable=SC1091,SC2030,SC2031
+    if ( PATH="$sandbox/bin:$PATH"; source "$sandbox/glibc_fn.sh"; glibc_version_lt 2.35 ); then
+        echo "2.36 should not be less than 2.35"
+        exit 1
+    fi
+}
+
+test_glibc_lt_missing_getconf() {
+    local sandbox=$1
+    set -e
+    extract_glibc_fn "$sandbox"
+    mkdir -p "$sandbox/bin"
+    # Stub getconf to exit 1 so the function can't determine glibc version
+    cat > "$sandbox/bin/getconf" <<'STUB'
+#!/bin/bash
+exit 1
+STUB
+    chmod +x "$sandbox/bin/getconf"
+    # shellcheck disable=SC1091,SC2030,SC2031
+    ( PATH="$sandbox/bin:$PATH"; source "$sandbox/glibc_fn.sh"; glibc_version_lt 2.35 )
+}
+
+test_glibc_lt_major_boundary() {
+    local sandbox=$1
+    set -e
+    extract_glibc_fn "$sandbox"
+    mkdir -p "$sandbox/bin"
+    cat > "$sandbox/bin/getconf" <<'STUB'
+#!/bin/bash
+echo "glibc 3.0"
+STUB
+    chmod +x "$sandbox/bin/getconf"
+    # shellcheck disable=SC1091,SC2031
+    if ( PATH="$sandbox/bin:$PATH"; source "$sandbox/glibc_fn.sh"; glibc_version_lt 2.35 ); then
+        echo "3.0 should not be less than 2.35"
+        exit 1
+    fi
+}
+
 # ------- runner -------
 
 echo "=== stow-package ==="
@@ -269,6 +363,14 @@ run_test "sed metacharacter escaping"       test_git_config_sed_metachars
 run_test "codespaces render"                  test_git_config_codespaces_skip
 run_test "missing EMAIL errors"             test_git_config_missing_email
 run_test "missing SIGNINGKEY errors"        test_git_config_missing_signingkey
+
+echo
+echo "=== glibc_version_lt ==="
+run_test "older glibc (2.31 < 2.35)"       test_glibc_lt_older
+run_test "equal glibc (2.35 = 2.35)"        test_glibc_lt_equal
+run_test "newer glibc (2.36 > 2.35)"        test_glibc_lt_newer
+run_test "missing getconf assumes old"      test_glibc_lt_missing_getconf
+run_test "major version boundary (3.0)"     test_glibc_lt_major_boundary
 
 echo
 printf "${GREEN}passed: %d${NC}  ${RED}failed: %d${NC}\n" "$passed" "$failed"
