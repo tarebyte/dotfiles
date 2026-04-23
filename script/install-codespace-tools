@@ -95,6 +95,10 @@ else
     GLIBC_VER=$(getconf GNU_LIBC_VERSION 2>/dev/null | awk '{print $2}' || echo "unknown")
     echo "  Installing tree-sitter-cli via cargo (glibc ${GLIBC_VER} < 2.35)..."
     if command -v cargo >/dev/null 2>&1; then
+      if ! dpkg -s libclang-dev >/dev/null 2>&1; then
+        echo "    sudo: installing libclang-dev (needed by bindgen)..."
+        sudo apt-get install -yq libclang-dev >/dev/null 2>&1
+      fi
       cargo install tree-sitter-cli --root "$HOME/.local"
       echo "  ✓ tree-sitter installed ($(tool_version tree-sitter), $((SECONDS - start))s)"
     else
