@@ -162,7 +162,7 @@ else
 fi
 
 if command -v diff-so-fancy >/dev/null 2>&1; then
-  echo "  ✓ diff-so-fancy already installed ($(diff-so-fancy --version </dev/null 2>&1 | sed -n 's/.*Version[[:space:]]*:[[:space:]]*//p' || tool_version diff-so-fancy))"
+  echo "  ✓ diff-so-fancy already installed"
 else
   start=$SECONDS
   echo "  Installing diff-so-fancy..."
@@ -170,7 +170,7 @@ else
     --pattern "diff-so-fancy"; then
     install /tmp/diff-so-fancy "$LOCAL_BIN/diff-so-fancy"
     rm -f /tmp/diff-so-fancy
-    echo "  ✓ diff-so-fancy installed ($(diff-so-fancy --version </dev/null 2>&1 | sed -n 's/.*Version[[:space:]]*:[[:space:]]*//p' || tool_version diff-so-fancy), $((SECONDS - start))s)"
+    echo "  ✓ diff-so-fancy installed ($((SECONDS - start))s)"
   else
     echo "  ⚠ diff-so-fancy skipped"
   fi
