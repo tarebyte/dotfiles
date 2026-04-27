@@ -4,6 +4,7 @@ return {
     opts = function(_, opts)
       opts.options.component_separators = { left = "", right = "" }
       opts.options.section_separators = { left = "", right = "" }
+      opts.options.disabled_filetypes.winbar = { "dirvish", "lazy", "snacks_dashboard" }
 
       opts.sections.lualine_a = {
         {
@@ -18,8 +19,22 @@ return {
         { "branch", icon = "" },
       }
 
+      local navic = table.remove(opts.sections.lualine_c)
+
+      local pretty_path = table.remove(opts.sections.lualine_c) -- pretty path
+      table.remove(opts.sections.lualine_c) -- filetype
+      -- skip diagnostics
+      table.remove(opts.sections.lualine_c, 1) -- root_dir
+
       opts.sections.lualine_y = { "progress" }
       opts.sections.lualine_z = { "location" }
+
+      opts.winbar = {
+        lualine_b = { pretty_path },
+        lualine_c = { navic },
+      }
+
+      opts.inactive_winbar = { lualine_b = { "filename" } }
     end,
   },
 

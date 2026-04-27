@@ -62,6 +62,8 @@ return {
         return {
           NormalFloat = { bg = colors.base },
           FloatBorder = { fg = colors.lavender, bg = "NONE" },
+          WinBar = { bg = colors.mantle },
+          WinBarNC = { bg = colors.mantle },
           ["@string.special.symbol.ruby"] = { fg = colors.maroon },
         }
       end,
