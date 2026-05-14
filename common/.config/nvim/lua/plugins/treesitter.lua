@@ -6,6 +6,7 @@ return {
         "css",
         "c_sharp",
         "dockerfile",
+        "embedded_template",
         "fish",
         "git_config",
         "git_rebase",
