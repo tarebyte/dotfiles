@@ -26,7 +26,10 @@ return {
       servers = {
         ruby_lsp = {
           mason = false,
-          cmd = { "mise", "exec", "--", "ruby-lsp" },
+          cmd = function(dispatchers)
+            local argv = vim.fn.executable("mise") == 1 and { "mise", "exec", "--", "ruby-lsp" } or { "ruby-lsp" }
+            return vim.lsp.rpc.start(argv, dispatchers)
+          end,
           root_dir = function(bufnr, on_dir)
             local root = vim.fs.root(bufnr, { "Gemfile", ".git" })
             if not root then
