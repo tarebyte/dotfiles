@@ -11,3 +11,6 @@ common/.config/fish/completions/
 # fzf's own state (history, etc.) — config is the only tracked file.
 common/.config/fzf/history
 common/.config/fzf/tmp/
+
+# Ignore lazyvim lock file.
+common/.config/nvim/lazy-lock.json
