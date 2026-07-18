@@ -1,6 +1,5 @@
 # vi: ft=toml
 [tools]
-dotnet = "latest"
 go = "latest"
 lua = "latest"
 node = "lts"
