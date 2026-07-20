@@ -45,15 +45,16 @@ The `Makefile` is a thin dispatcher; real logic lives in `script/` so each piece
 | `script/setup-git-config` | Renders `templates/git-config.tmpl` → `~/.config/git/config` using `~/.config/dotfiles/identity.env`. Prompts on first run (TTY-guarded), atomic temp+mv write, sed-escaped substitution. Bash. |
 | `script/stow-package` | `stow --no-folding` wrapper. Dry-runs first, moves any conflicting real files in `$HOME` to `~/.dotfiles-backup/<timestamp>/<relative-path>/`, then stows. Nothing is ever deleted. Used by `make stow-common`, `make install-codespaces`, and `script/install-darwin` so first-time migrations off a prior dotfile manager don't abort on pre-existing files. Bash. |
 | `script/install-darwin` | macOS bootstrap: installs Homebrew if missing + sources `brew shellenv`, stows `darwin` (via `script/stow-package`), runs `make brew fisher`, registers fish in `/etc/shells` (line-exact match), chsh to fish. Bash. |
-| `script/install-codespace-tools` | Codespaces bootstrap: downloads nvim/rg/bat/fzf/lazygit/diff-so-fancy/tree-sitter via `gh release download`. Bash, `set -euo pipefail`. |
+| `script/install-codespace-tools` | Codespaces bootstrap **provision phase**: downloads nvim/rg/bat/fzf/lazygit/diff-so-fancy/tree-sitter via `gh release download`. Data-driven: a flat list of `install_tool` calls at the bottom names each tool, its version-flag probe, and an installer function (`via_deb`, `via_tarball_bin`, `via_raw_bin`, `via_nvim`, `via_apt`, or `install_tree_sitter`); the `install_tool` driver centralizes the skip/reinstall/time/log boilerplate. Readiness uses `tool_ready` (on PATH **and** the probe flag runs), so a binary broken by a glibc mismatch is detected and reinstalled instead of skipped — tree-sitter additionally falls back to a cargo build on old glibc (<2.35). diff-so-fancy has no version flag, so it uses the `none` probe (presence only). Installs binaries only — plugin state is `sync-codespace-plugins`' job. Bash, `set -euo pipefail`. |
+| `script/sync-codespace-plugins` | Codespaces bootstrap **sync phase**: reconciles editor + terminal plugin state. `setup_neovim` runs headless `+Lazy! sync` + `+TSUpdateSync` (bounded by `nvim_headless`'s `timeout`); `setup_tmux` clones TPM and runs `install_plugins` from `~/.tmux.conf`. Both guard-skip when the tool or its stowed config is missing, are non-fatal, and are idempotent. Split from tool provisioning because populating plugin state is a different lifecycle phase — re-run it alone via `make sync-codespace-plugins` whenever the declared plugin set changes. Since `stow-common` runs before this script, `~/.config/nvim` and `~/.tmux.conf` are already symlinked. Bash, `set -euo pipefail`. |
 | `script/doctor` | Health check. Includes a template-drift check that re-renders `templates/git-config.tmpl` against `identity.env` and `cmp -s`'s against the live file; warns if they differ. Bash. |
-| `script/test` | Functional test suite for the scripts with non-trivial logic (`stow-package` conflict parsing + backup moves, `setup-git-config` template substitution + sed escaping). Each test runs inside its own `mktemp` sandbox with a stubbed `$HOME`; nothing touches the real system. Bash. |
+| `script/test` | Functional test suite for the scripts with non-trivial logic (`stow-package` conflict parsing + backup moves, `setup-git-config` template substitution + sed escaping) plus unit tests for the `glibc_version_lt` and `tool_ready` helpers extracted from `install-codespace-tools`. Each test runs inside its own `mktemp` sandbox with a stubbed `$HOME`; nothing touches the real system. Bash. |
 
 All pass `shellcheck -x` and are exercised by `make test`, which runs both the linter and `script/test`:
 ```sh
 make test
 # equivalent to:
-shellcheck -x script/setup script/setup-git-config script/stow-package script/install-darwin script/doctor script/install-codespace-tools script/test
+shellcheck -x script/setup script/setup-git-config script/stow-package script/install-darwin script/doctor script/install-codespace-tools script/sync-codespace-plugins script/test
 ./script/test
 ```
 
@@ -121,7 +122,7 @@ Git config isn't in any stow package — it's rendered from `templates/git-confi
 ### Two-platform feature split
 
 - **macOS** → Fish (`common/.config/fish/config.fish`) + Starship + Homebrew (`darwin/.Brewfile`). `make install-darwin` installs Homebrew, stows `darwin`, runs `brew bundle`, bootstraps fisher, adds fish to `/etc/shells`, `chsh`s to fish.
-- **Codespaces** → `codespaces/.bash_aliases` (no Fish, no Starship). `make install-codespaces` calls `script/install-codespace-tools` which pulls nvim/rg/bat/fzf/lazygit/diff-so-fancy/tree-sitter via `gh release download` (arch-aware amd64/arm64). No Homebrew, no mise. Stays on bash.
+- **Codespaces** → `codespaces/.bash_aliases` (no Fish, no Starship). `make install-codespaces` runs two lifecycle phases: `script/install-codespace-tools` provisions binaries (nvim/rg/bat/fzf/lazygit/diff-so-fancy/tree-sitter via `gh release download`, arch-aware amd64/arm64, through a data-driven `install_tool` driver that verifies each tool actually runs so a glibc-broken binary gets rebuilt rather than skipped), then `script/sync-codespace-plugins` reconciles plugin state (headless Neovim `+Lazy! sync`/`+TSUpdateSync` and tmux TPM). The sync phase is also a standalone `make sync-codespace-plugins` target. No Homebrew, no mise. Stays on bash.
 
 Shared: `common/.config/mise/config.toml`, `EDITOR=nvim`, core aliases (`lg`, `gp`, `vi`, `vim`). Shell-level features usually need both `config.fish` and `codespaces/.bash_aliases`.
 
@@ -172,7 +173,7 @@ Formatting: LazyVim's default `conform.nvim` wiring, untouched. Format-on-save r
 ### Git / Tmux / Terminal
 
 - **Git**: see the "Git identity layout" section above for the template-based setup. All static config (aliases: `co` fzf checkout, `cs` signed commit, `up` pull --rebase; GPG signing on; diff-so-fancy pager; `pull.rebase`; default branch `main`) lives in `templates/git-config.tmpl`. macOS credential helper in `darwin/.config/git/config.darwin`.
-- **Tmux**: prefix `Ctrl-f`, base index 1, vim copy-mode, Catppuccin Mocha, plugins via TPM (`prefix + I`).
+- **Tmux**: prefix `Ctrl-f`, base index 1, vim copy-mode, Catppuccin Mocha, plugins via TPM (`prefix + I` on macOS; on Codespaces `sync-codespace-plugins` clones TPM and installs plugins headlessly).
 - **iTerm2**: not tracked — changes too often. Don't edit here.
 
 ## Adding a file

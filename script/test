@@ -339,9 +339,98 @@ test_glibc_lt_major_boundary() {
 echo "glibc 3.0"
 STUB
     chmod +x "$sandbox/bin/getconf"
-    # shellcheck disable=SC1091,SC2031
+    # shellcheck disable=SC1091,SC2030,SC2031
     if ( PATH="$sandbox/bin:$PATH"; source "$sandbox/glibc_fn.sh"; glibc_version_lt 2.35 ); then
         echo "3.0 should not be less than 2.35"
+        exit 1
+    fi
+}
+
+# ------- tool_ready -------
+#
+# tool_ready lives in install-codespace-tools. With a version-flag probe it
+# must return true only when a tool is both on PATH and actually executes —
+# a binary present but broken (e.g. glibc mismatch, exits nonzero) must be
+# treated as not runnable so the installer rebuilds it. With the "none"
+# probe it checks presence only (tools without a version flag).
+
+extract_tool_ready_fn() {
+    local sandbox=$1
+    sed -n '/^tool_ready()/,/^}/p' "$REPO_ROOT/script/install-codespace-tools" \
+        > "$sandbox/tool_ready_fn.sh"
+}
+
+test_tool_ready_working() {
+    local sandbox=$1
+    set -e
+    extract_tool_ready_fn "$sandbox"
+    mkdir -p "$sandbox/bin"
+    cat > "$sandbox/bin/faketool" <<'STUB'
+#!/bin/bash
+echo "faketool 1.2.3"
+STUB
+    chmod +x "$sandbox/bin/faketool"
+    # shellcheck disable=SC1091,SC2030,SC2031
+    ( PATH="$sandbox/bin:$PATH"; source "$sandbox/tool_ready_fn.sh"; tool_ready faketool --version )
+}
+
+test_tool_ready_broken() {
+    local sandbox=$1
+    set -e
+    extract_tool_ready_fn "$sandbox"
+    mkdir -p "$sandbox/bin"
+    # Present on PATH but crashes at runtime, like a glibc mismatch.
+    cat > "$sandbox/bin/faketool" <<'STUB'
+#!/bin/bash
+echo "faketool: version \`GLIBC_2.35' not found" >&2
+exit 1
+STUB
+    chmod +x "$sandbox/bin/faketool"
+    # shellcheck disable=SC1091,SC2030,SC2031
+    if ( PATH="$sandbox/bin:$PATH"; source "$sandbox/tool_ready_fn.sh"; tool_ready faketool --version ); then
+        echo "a broken binary should not be reported as ready"
+        exit 1
+    fi
+}
+
+test_tool_ready_absent() {
+    local sandbox=$1
+    set -e
+    extract_tool_ready_fn "$sandbox"
+    # Empty PATH dir: the tool is not present at all.
+    mkdir -p "$sandbox/bin"
+    # shellcheck disable=SC1091,SC2030,SC2031
+    if ( PATH="$sandbox/bin"; source "$sandbox/tool_ready_fn.sh"; tool_ready faketool --version ); then
+        echo "an absent tool should not be reported as ready"
+        exit 1
+    fi
+}
+
+test_tool_ready_none_present() {
+    local sandbox=$1
+    set -e
+    extract_tool_ready_fn "$sandbox"
+    mkdir -p "$sandbox/bin"
+    # A tool with no version flag: "none" probe checks presence only, so a
+    # binary that errors on --version is still considered ready.
+    cat > "$sandbox/bin/faketool" <<'STUB'
+#!/bin/bash
+echo "usage: faketool ..." >&2
+exit 1
+STUB
+    chmod +x "$sandbox/bin/faketool"
+    # shellcheck disable=SC1091,SC2030,SC2031
+    ( PATH="$sandbox/bin:$PATH"; source "$sandbox/tool_ready_fn.sh"; tool_ready faketool none )
+}
+
+test_tool_ready_none_absent() {
+    local sandbox=$1
+    set -e
+    extract_tool_ready_fn "$sandbox"
+    mkdir -p "$sandbox/bin"
+    # shellcheck disable=SC1091,SC2030,SC2031
+    if ( PATH="$sandbox/bin"; source "$sandbox/tool_ready_fn.sh"; tool_ready faketool none ); then
+        echo "an absent tool should not be reported as ready (none probe)"
         exit 1
     fi
 }
@@ -371,6 +460,14 @@ run_test "equal glibc (2.35 = 2.35)"        test_glibc_lt_equal
 run_test "newer glibc (2.36 > 2.35)"        test_glibc_lt_newer
 run_test "missing getconf assumes old"      test_glibc_lt_missing_getconf
 run_test "major version boundary (3.0)"     test_glibc_lt_major_boundary
+
+echo
+echo "=== tool_ready ==="
+run_test "working tool ready"               test_tool_ready_working
+run_test "broken tool (glibc) not ready"    test_tool_ready_broken
+run_test "absent tool not ready"            test_tool_ready_absent
+run_test "none probe: present is ready"     test_tool_ready_none_present
+run_test "none probe: absent not ready"     test_tool_ready_none_absent
 
 echo
 printf "${GREEN}passed: %d${NC}  ${RED}failed: %d${NC}\n" "$passed" "$failed"

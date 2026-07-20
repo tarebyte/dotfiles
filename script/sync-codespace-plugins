@@ -1,0 +1,112 @@
+#!/bin/bash
+#
+# Reconcile editor + terminal plugin state on a Codespace: sync Neovim
+# plugins (lazy.nvim) and compile the tree-sitter parsers listed in the
+# config, then install tmux plugins via TPM. This is the "sync" phase of
+# the lifecycle — distinct from install-codespace-tools, which provisions
+# the binaries. It's idempotent and re-runnable on its own (`make
+# sync-codespace-plugins`) whenever the declared plugin set changes. Every
+# step is non-fatal and guard-skips when a tool or its config is missing,
+# so it never wedges a bootstrap.
+
+set -euo pipefail
+
+mkdir -p "$HOME/.local/state/dotfiles"
+# Append to the same log install-codespace-tools writes, so a full `make
+# install-codespaces` run leaves one complete bootstrap record.
+exec > >(tee -ia "$HOME/.local/state/dotfiles/bootstrap.log")
+exec 2>&1
+
+echo "==> Syncing Codespaces plugins..."
+
+# Return 0 (true) only if a tool is installed AND actually usable. `probe`
+# is a version flag the binary must run successfully (e.g. --version, -V),
+# which also catches a binary that's present but broken at runtime — e.g.
+# linked against a newer glibc than the system provides. Pass "none" for
+# tools with no version flag (checked by presence only).
+tool_ready() {
+  local cmd=$1 probe=$2
+  command -v "$cmd" >/dev/null 2>&1 || return 1
+  if [ "$probe" = none ]; then
+    return 0
+  fi
+  "$cmd" "$probe" </dev/null >/dev/null 2>&1
+}
+
+# Run Neovim headlessly with the given ex-commands then quit. stdin is
+# detached so nothing can block on a prompt, and the whole run is bounded
+# by `timeout` when it's available so a hang can't wedge the sync.
+nvim_headless() {
+  if command -v timeout >/dev/null 2>&1; then
+    timeout 600 nvim --headless "$@" +qa </dev/null
+  else
+    nvim --headless "$@" +qa </dev/null
+  fi
+}
+
+# Sync plugins (lazy.nvim) and compile the tree-sitter parsers listed in
+# the config. Runs only when nvim is usable and its config is stowed. Every
+# step is non-fatal — a failure here shouldn't fail the whole run, since
+# plugins/parsers also install on first real launch.
+setup_neovim() {
+  if ! tool_ready nvim --version; then
+    return 0
+  fi
+  if [ ! -e "$HOME/.config/nvim/init.lua" ]; then
+    echo "  ⚠ Neovim config not found at ~/.config/nvim — skipping plugin sync"
+    return 0
+  fi
+  if ! command -v cc >/dev/null 2>&1 && ! command -v gcc >/dev/null 2>&1; then
+    echo "    ⚠ no C compiler (cc/gcc) found — tree-sitter parsers may fail to build"
+  fi
+
+  local start=$SECONDS
+  echo "  Syncing Neovim plugins (lazy.nvim)..."
+  nvim_headless "+Lazy! sync" || echo "    ⚠ Lazy sync reported errors (continuing)"
+  echo "  Compiling tree-sitter parsers (TSUpdateSync)..."
+  nvim_headless "+TSUpdateSync" || echo "    ⚠ tree-sitter parser install reported errors (continuing)"
+  echo "  ✓ Neovim ready ($((SECONDS - start))s)"
+}
+
+# Install TPM (the plugin manager) and the plugins listed in ~/.tmux.conf,
+# so a fresh box has them without launching tmux first. TPM's
+# install_plugins parses the config directly and needs no running server;
+# TMUX_PLUGIN_MANAGER_PATH tells it where to put plugins. Non-fatal — the
+# tmux.conf also self-bootstraps TPM on first launch, which becomes a
+# no-op once TPM is already cloned here.
+setup_tmux() {
+  if ! tool_ready tmux -V; then
+    return 0
+  fi
+  if [ ! -e "$HOME/.tmux.conf" ]; then
+    echo "  ⚠ tmux config not found at ~/.tmux.conf — skipping plugin install"
+    return 0
+  fi
+
+  local start=$SECONDS
+  local tpm_dir="$HOME/.tmux/plugins/tpm"
+  export TMUX_PLUGIN_MANAGER_PATH="$HOME/.tmux/plugins/"
+
+  if [ ! -d "$tpm_dir" ]; then
+    echo "  Installing tmux plugin manager (TPM)..."
+    if ! git clone --depth 1 https://github.com/tmux-plugins/tpm "$tpm_dir" >/dev/null 2>&1; then
+      echo "    ⚠ TPM clone failed (continuing)"
+      return 0
+    fi
+  fi
+
+  echo "  Installing tmux plugins (TPM)..."
+  "$tpm_dir/bin/install_plugins" || echo "    ⚠ tmux plugin install reported errors (continuing)"
+  echo "  ✓ tmux plugins ready ($((SECONDS - start))s)"
+}
+
+echo ""
+echo "==> Setting up Neovim..."
+setup_neovim
+
+echo ""
+echo "==> Setting up tmux..."
+setup_tmux
+
+echo ""
+echo "==> Plugin sync complete!"

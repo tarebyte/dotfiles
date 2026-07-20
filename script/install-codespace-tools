@@ -2,8 +2,10 @@
 #
 # Install CLI tools GitHub Codespaces doesn't ship by default:
 # neovim, ripgrep, bat, fzf, lazygit, diff-so-fancy, tree-sitter, tmux.
-# Invoked by `make install-codespaces`. Safe to re-run — each step
-# no-ops if its binary is already on PATH.
+# This is the "provision" phase — it only installs binaries. Populating
+# app plugin state (Neovim + tmux) is a separate lifecycle phase handled by
+# sync-codespace-plugins. Invoked by `make install-codespaces`. Safe to
+# re-run — each tool no-ops if it's already installed and runnable.
 
 set -euo pipefail
 
@@ -28,10 +30,45 @@ esac
 LOCAL_BIN="$HOME/.local/bin"
 mkdir -p "$LOCAL_BIN"
 
+# Print the first line of a tool's version output, or "unknown" if it can't
+# be read. `flag` defaults to --version; tools that use a different flag
+# (e.g. tmux's -V) pass it explicitly.
 tool_version() {
   local ver
-  ver=$("$1" --version </dev/null 2>&1 | head -1 || true)
+  ver=$("$1" "${2:---version}" </dev/null 2>&1 | head -1 || true)
   echo "${ver:-unknown}"
+}
+
+# Return 0 (true) only if a tool is installed AND actually usable. `probe`
+# is a version flag the binary must run successfully (e.g. --version, -V),
+# which also catches a binary that's present but broken at runtime — e.g.
+# linked against a newer glibc than the system provides ("version
+# `GLIBC_2.xx' not found"), which `command -v` alone can't detect. Pass
+# "none" for tools with no version flag (checked by presence only).
+tool_ready() {
+  local cmd=$1 probe=$2
+  command -v "$cmd" >/dev/null 2>&1 || return 1
+  if [ "$probe" = none ]; then
+    return 0
+  fi
+  "$cmd" "$probe" </dev/null >/dev/null 2>&1
+}
+
+# Echo a " (version[, extra])" suffix for result lines, omitting the version
+# when the tool has none ("none" probe) or it can't be read.
+version_paren() {
+  local cmd=$1 probe=$2 extra=${3:-} ver=""
+  if [ "$probe" != none ]; then
+    ver=$(tool_version "$cmd" "$probe")
+    [ "$ver" = unknown ] && ver=""
+  fi
+  if [ -n "$ver" ] && [ -n "$extra" ]; then
+    printf ' (%s, %s)' "$ver" "$extra"
+  elif [ -n "$ver" ]; then
+    printf ' (%s)' "$ver"
+  elif [ -n "$extra" ]; then
+    printf ' (%s)' "$extra"
+  fi
 }
 
 # Return 0 (true) if system glibc is older than the given version.
@@ -67,149 +104,139 @@ gh_download() {
   gh release download "$@"
 }
 
+# --- installers: each downloads and installs one tool, returning nonzero
+# --- (a "skip") when the download is unavailable. The install_tool driver
+# --- wraps these with the shared guard/timing/logging.
+
+# neovim: extract the release tarball to /opt/nvim and symlink onto PATH (sudo).
+via_nvim() {
+  local asset="nvim-linux-${ARCH_ALT}.tar.gz"
+  gh_download --clobber --dir /tmp/ --repo neovim/neovim --pattern "$asset" || return 1
+  echo "    sudo: extracting to /opt/nvim..."
+  sudo mkdir -p /opt/nvim
+  sudo tar -xzf "/tmp/$asset" --strip-components=1 -C /opt/nvim
+  sudo ln -sf /opt/nvim/bin/nvim /usr/local/bin/nvim
+  rm -f "/tmp/$asset"
+}
+
+# Download a .deb and install it (sudo). Args: repo asset
+via_deb() {
+  local repo=$1 asset=$2 tmp=/tmp/pkg.deb
+  gh_download --clobber --output "$tmp" --repo "$repo" --pattern "$asset" || return 1
+  echo "    sudo: installing .deb package..."
+  sudo dpkg -i "$tmp"
+  rm -f "$tmp"
+}
+
+# Download a .tar.gz and install one extracted binary to ~/.local/bin.
+# Args: repo asset binname
+via_tarball_bin() {
+  local repo=$1 asset=$2 binname=$3 tmp=/tmp/dl.tar.gz
+  gh_download --clobber --output "$tmp" --repo "$repo" --pattern "$asset" || return 1
+  tar -xzf "$tmp" -C /tmp/
+  install "/tmp/$binname" "$LOCAL_BIN/$binname"
+  rm -f "$tmp" "/tmp/$binname"
+}
+
+# Download a single raw file and install it to ~/.local/bin.
+# Args: repo asset binname
+via_raw_bin() {
+  local repo=$1 asset=$2 binname=$3
+  local tmp="/tmp/$binname"
+  gh_download --clobber --output "$tmp" --repo "$repo" --pattern "$asset" || return 1
+  install "$tmp" "$LOCAL_BIN/$binname"
+  rm -f "$tmp"
+}
+
+# Install a package via apt (sudo). Args: package
+via_apt() {
+  echo "    sudo: installing via apt-get..."
+  sudo apt-get install -yq "$1" >/dev/null 2>&1
+}
+
+# Build tree-sitter-cli from source. Used when the system glibc is too old
+# (< 2.35) to link the prebuilt binary. Prints a reason and returns nonzero
+# if the Rust toolchain isn't available.
+install_tree_sitter_cargo() {
+  if ! command -v cargo >/dev/null 2>&1; then
+    echo "    cargo not found; install Rust to build tree-sitter from source"
+    return 1
+  fi
+  if ! dpkg -s libclang-dev >/dev/null 2>&1; then
+    echo "    sudo: installing libclang-dev (needed by bindgen)..."
+    sudo apt-get install -yq libclang-dev >/dev/null 2>&1
+  fi
+  cargo install tree-sitter-cli --root "$HOME/.local"
+}
+
+# Install the prebuilt tree-sitter release binary into ~/.local/bin. Used
+# when glibc is new enough to link it.
+install_tree_sitter_release() {
+  local ts_arch
+  case "$ARCH_GO" in
+    amd64) ts_arch="x64"   ;;
+    arm64) ts_arch="arm64" ;;
+  esac
+  gh_download --clobber --output /tmp/tree-sitter.gz --repo tree-sitter/tree-sitter \
+    --pattern "tree-sitter-linux-${ts_arch}.gz" || return 1
+  gunzip -f /tmp/tree-sitter.gz
+  install /tmp/tree-sitter "$LOCAL_BIN/tree-sitter"
+  rm -f /tmp/tree-sitter
+}
+
+# tree-sitter: prebuilt release binary, or a from-source cargo build when the
+# system glibc is too old to link the prebuilt one.
+install_tree_sitter() {
+  if glibc_version_lt 2.35; then
+    local glibc_ver
+    glibc_ver=$(getconf GNU_LIBC_VERSION 2>/dev/null | awk '{print $2}' || echo "unknown")
+    echo "    glibc ${glibc_ver} < 2.35 — building from source via cargo..."
+    install_tree_sitter_cargo
+  else
+    install_tree_sitter_release
+  fi
+}
+
+# Install one tool, centralizing the shared bootstrap boilerplate: skip if
+# already usable, warn and reinstall if present-but-broken (e.g. a glibc
+# mismatch), time the work, and log a uniform result. Args:
+#   display    human-readable name for log lines
+#   cmd        command to probe on PATH
+#   probe      version flag proving the tool runs (--version, -V, ...), or
+#              "none" to check by presence only (tools with no version flag)
+#   installer  function that performs the install; extra args are forwarded
+install_tool() {
+  local display=$1 cmd=$2 probe=$3 installer=$4
+  shift 4
+
+  if tool_ready "$cmd" "$probe"; then
+    echo "  ✓ $display already installed$(version_paren "$cmd" "$probe")"
+    return 0
+  fi
+
+  if [ "$probe" != none ] && command -v "$cmd" >/dev/null 2>&1; then
+    echo "  ⚠ $display is on PATH but won't run (likely glibc mismatch) — reinstalling..."
+  fi
+
+  local start=$SECONDS
+  echo "  Installing $display..."
+  if "$installer" "$@"; then
+    echo "  ✓ $display installed$(version_paren "$cmd" "$probe" "$((SECONDS - start))s")"
+  else
+    echo "  ⚠ $display skipped"
+  fi
+}
+
 echo "==> Installing tools (arch: $ARCH)..."
 
-if command -v nvim >/dev/null 2>&1; then
-  echo "  ✓ Neovim already installed ($(tool_version nvim))"
-else
-  start=$SECONDS
-  echo "  Installing Neovim..."
-  if gh_download --clobber --dir /tmp/ --repo neovim/neovim \
-    --pattern "nvim-linux-${ARCH_ALT}.tar.gz"; then
-    echo "    sudo: extracting to /opt/nvim..."
-    sudo mkdir -p /opt/nvim
-    sudo tar -xzf "/tmp/nvim-linux-${ARCH_ALT}.tar.gz" --strip-components=1 -C /opt/nvim
-    sudo ln -sf /opt/nvim/bin/nvim /usr/local/bin/nvim
-    rm -f "/tmp/nvim-linux-${ARCH_ALT}.tar.gz"
-    echo "  ✓ Neovim installed ($(tool_version nvim), $((SECONDS - start))s)"
-  else
-    echo "  ⚠ Neovim skipped"
-  fi
-fi
-
-if command -v tree-sitter >/dev/null 2>&1; then
-  echo "  ✓ tree-sitter already installed ($(tool_version tree-sitter))"
-else
-  start=$SECONDS
-  if glibc_version_lt 2.35; then
-    GLIBC_VER=$(getconf GNU_LIBC_VERSION 2>/dev/null | awk '{print $2}' || echo "unknown")
-    echo "  Installing tree-sitter-cli via cargo (glibc ${GLIBC_VER} < 2.35)..."
-    if command -v cargo >/dev/null 2>&1; then
-      if ! dpkg -s libclang-dev >/dev/null 2>&1; then
-        echo "    sudo: installing libclang-dev (needed by bindgen)..."
-        sudo apt-get install -yq libclang-dev >/dev/null 2>&1
-      fi
-      cargo install tree-sitter-cli --root "$HOME/.local"
-      echo "  ✓ tree-sitter installed ($(tool_version tree-sitter), $((SECONDS - start))s)"
-    else
-      echo "  ⚠ tree-sitter skipped (cargo not found; install Rust to build from source)"
-    fi
-  else
-    echo "  Installing tree-sitter-cli..."
-    case "$ARCH_GO" in
-      amd64) TS_ARCH="x64"  ;;
-      arm64) TS_ARCH="arm64" ;;
-    esac
-    if gh_download --clobber --output /tmp/tree-sitter.gz --repo tree-sitter/tree-sitter \
-      --pattern "tree-sitter-linux-${TS_ARCH}.gz"; then
-      gunzip -f /tmp/tree-sitter.gz
-      install /tmp/tree-sitter "$LOCAL_BIN/tree-sitter"
-      rm -f /tmp/tree-sitter
-      echo "  ✓ tree-sitter installed ($(tool_version tree-sitter), $((SECONDS - start))s)"
-    else
-      echo "  ⚠ tree-sitter skipped"
-    fi
-  fi
-fi
-
-if command -v tmux >/dev/null 2>&1; then
-  echo "  ✓ tmux already installed ($(tmux -V))"
-else
-  start=$SECONDS
-  echo "  Installing tmux..."
-  echo "    sudo: installing via apt-get..."
-  sudo apt-get install -yq tmux >/dev/null 2>&1
-  echo "  ✓ tmux installed ($(tmux -V), $((SECONDS - start))s)"
-fi
-
-if command -v rg >/dev/null 2>&1; then
-  echo "  ✓ ripgrep already installed ($(tool_version rg))"
-else
-  start=$SECONDS
-  echo "  Installing ripgrep..."
-  if gh_download --clobber --output /tmp/ripgrep.deb --repo BurntSushi/ripgrep \
-    --pattern "ripgrep_*_${ARCH_GO}.deb"; then
-    echo "    sudo: installing .deb package..."
-    sudo dpkg -i /tmp/ripgrep.deb
-    rm -f /tmp/ripgrep.deb
-    echo "  ✓ ripgrep installed ($(tool_version rg), $((SECONDS - start))s)"
-  else
-    echo "  ⚠ ripgrep skipped"
-  fi
-fi
-
-if command -v bat >/dev/null 2>&1; then
-  echo "  ✓ bat already installed ($(tool_version bat))"
-else
-  start=$SECONDS
-  echo "  Installing bat..."
-  if gh_download --clobber --output /tmp/bat.deb --repo sharkdp/bat \
-    --pattern "bat_*_${ARCH}.deb"; then
-    echo "    sudo: installing .deb package..."
-    sudo dpkg -i /tmp/bat.deb
-    rm -f /tmp/bat.deb
-    echo "  ✓ bat installed ($(tool_version bat), $((SECONDS - start))s)"
-  else
-    echo "  ⚠ bat skipped"
-  fi
-fi
-
-if command -v fzf >/dev/null 2>&1; then
-  echo "  ✓ fzf already installed ($(tool_version fzf))"
-else
-  start=$SECONDS
-  echo "  Installing fzf..."
-  if gh_download --clobber --output /tmp/fzf.tar.gz --repo junegunn/fzf \
-    --pattern "fzf-*-linux_${ARCH_GO}.tar.gz"; then
-    tar -xzf /tmp/fzf.tar.gz -C /tmp/
-    install /tmp/fzf "$LOCAL_BIN/fzf"
-    rm -f /tmp/fzf.tar.gz /tmp/fzf
-    echo "  ✓ fzf installed ($(tool_version fzf), $((SECONDS - start))s)"
-  else
-    echo "  ⚠ fzf skipped"
-  fi
-fi
-
-if command -v lazygit >/dev/null 2>&1; then
-  echo "  ✓ lazygit already installed ($(lazygit --version 2>&1 | sed -n 's/.*, version=\([^,]*\).*/\1/p' || tool_version lazygit))"
-else
-  start=$SECONDS
-  echo "  Installing lazygit..."
-  if gh_download --clobber --output /tmp/lazygit.tar.gz --repo jesseduffield/lazygit \
-    --pattern "lazygit_*_linux_${ARCH_ALT}.tar.gz"; then
-    tar -xzf /tmp/lazygit.tar.gz -C /tmp/
-    install /tmp/lazygit "$LOCAL_BIN/lazygit"
-    rm -f /tmp/lazygit.tar.gz /tmp/lazygit
-    echo "  ✓ lazygit installed ($(lazygit --version 2>&1 | sed -n 's/.*, version=\([^,]*\).*/\1/p' || tool_version lazygit), $((SECONDS - start))s)"
-  else
-    echo "  ⚠ lazygit skipped"
-  fi
-fi
-
-if command -v diff-so-fancy >/dev/null 2>&1; then
-  echo "  ✓ diff-so-fancy already installed"
-else
-  start=$SECONDS
-  echo "  Installing diff-so-fancy..."
-  if gh_download --clobber --output /tmp/diff-so-fancy --repo so-fancy/diff-so-fancy \
-    --pattern "diff-so-fancy"; then
-    install /tmp/diff-so-fancy "$LOCAL_BIN/diff-so-fancy"
-    rm -f /tmp/diff-so-fancy
-    echo "  ✓ diff-so-fancy installed ($((SECONDS - start))s)"
-  else
-    echo "  ⚠ diff-so-fancy skipped"
-  fi
-fi
+install_tool "Neovim"        nvim          --version via_nvim
+install_tool "tree-sitter"   tree-sitter   --version install_tree_sitter
+install_tool "tmux"          tmux          -V        via_apt         tmux
+install_tool "ripgrep"       rg            --version via_deb         BurntSushi/ripgrep     "ripgrep_*_${ARCH_GO}.deb"
+install_tool "bat"           bat           --version via_deb         sharkdp/bat            "bat_*_${ARCH}.deb"
+install_tool "fzf"           fzf           --version via_tarball_bin junegunn/fzf           "fzf-*-linux_${ARCH_GO}.tar.gz"      fzf
+install_tool "lazygit"       lazygit       --version via_tarball_bin jesseduffield/lazygit  "lazygit_*_linux_${ARCH_ALT}.tar.gz" lazygit
+install_tool "diff-so-fancy" diff-so-fancy none      via_raw_bin     so-fancy/diff-so-fancy diff-so-fancy                        diff-so-fancy
 
 echo ""
-echo "==> Bootstrap complete! Restart your terminal or run: source ~/.bash_aliases"
+echo "==> Tools installed! Plugin sync runs next (sync-codespace-plugins)."

@@ -14,7 +14,7 @@ STOW := stow --no-folding
 # Every target in this file is phony — all real work lives in script/
 # and this Makefile is just a dispatcher. If you add a new target,
 # list it in .PHONY below.
-.PHONY: install install-darwin install-codespaces stow-common
+.PHONY: install install-darwin install-codespaces sync-codespace-plugins stow-common
 .PHONY: setup-git-config regen-git-config
 .PHONY: brew fisher mise doctor test clean
 
@@ -46,10 +46,17 @@ install-darwin:
 	./script/install-darwin
 
 # Assumes setup-git-config has already run. Stows the codespaces
-# package and runs the tool installer.
+# package, provisions the CLI tools, then syncs editor + terminal plugins.
 install-codespaces:
 	./script/stow-package codespaces
 	./script/install-codespace-tools
+	./script/sync-codespace-plugins
+
+# Reconcile Neovim + tmux plugin state. Split from tool provisioning so it
+# can be re-run on its own whenever the declared plugin set changes. Safe
+# to re-run — idempotent and guard-skips when a tool or config is missing.
+sync-codespace-plugins:
+	./script/sync-codespace-plugins
 
 # Render templates/git-config.tmpl into ~/.config/git/config. Prompts
 # for identity on first run; silent thereafter. See the script for
@@ -89,7 +96,7 @@ doctor:
 # shellcheck is cheap — run it first so a lint failure short-circuits
 # before we spin up mktemp sandboxes.
 test:
-	shellcheck -x script/setup script/setup-git-config script/stow-package script/install-darwin script/doctor script/install-codespace-tools script/test
+	shellcheck -x script/setup script/setup-git-config script/stow-package script/install-darwin script/doctor script/install-codespace-tools script/sync-codespace-plugins script/test
 	./script/test
 
 # Uninstall all stowed packages from $HOME. Does NOT delete the repo,
