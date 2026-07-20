@@ -60,13 +60,14 @@ shellcheck -x script/setup script/setup-git-config script/stow-package script/in
 
 ### CI
 
-`.github/workflows/ci.yml` has three jobs, all on `ubuntu-latest`:
+`.github/workflows/ci.yml` has four jobs:
 
-- **`test`** — installs `stow` via apt, runs `make test`. Mirrors the local `make test` exactly.
-- **`fish`** — `git ls-files -z '*.fish' | xargs -0 -r -n1 fish -n`. `-n1` so a syntax error in any single file propagates through xargs as a nonzero exit (without it, xargs batches all files into one `fish -n` call and you only see the last file's status).
-- **`lua`** — discovers the directory containing `stylua.toml` via `git ls-files` and passes it to `JohnnyMorganz/stylua-action`. stylua walks upward from each target file to find its own config, so no `-f` path is hardcoded.
+- **`test`** (`ubuntu-latest`) — installs `stow` via apt, runs `make test`. Mirrors the local `make test` exactly.
+- **`fish`** (`ubuntu-latest`) — `git ls-files -z '*.fish' | xargs -0 -r -n1 fish -n`. `-n1` so a syntax error in any single file propagates through xargs as a nonzero exit (without it, xargs batches all files into one `fish -n` call and you only see the last file's status).
+- **`lua`** (`ubuntu-latest`) — discovers the directory containing `stylua.toml` via `git ls-files` and passes it to `JohnnyMorganz/stylua-action`. stylua walks upward from each target file to find its own config, so no `-f` path is hardcoded.
+- **`codespace-tools`** — matrix over `ubuntu:20.04`/`22.04`/`24.04` containers (glibc 2.31/2.35/2.39) that installs the `gh` CLI, installs the Rust toolchain on 20.04 only (for the tree-sitter cargo fallback on old glibc), runs `script/install-codespace-tools`, then verifies all 8 tools (`nvim`, `tree-sitter`, `tmux`, `rg`, `bat`, `fzf`, `lazygit`, `diff-so-fancy`) are on PATH and runnable. This is the end-to-end guard for the glibc-aware provisioning logic.
 
-**Design constraint: every job discovers files via `git ls-files`, never via hardcoded paths.** Moving `common/` → `whatever/` should not require a CI edit. If you add a new validator, follow the same pattern. The one exception is the stylua version pin (`version: v2.4.1` in the `stylua-action` step) — bumping it may require reformatting the tracked `.lua` files, because stylua is not backwards-compatible on formatting across major versions. When bumping, run `mise exec stylua@<new-version> -- stylua common/.config/nvim` locally first and commit the reflow in the same change.
+**Design constraint: every file-linting job (`test`, `fish`, `lua`) discovers files via `git ls-files`, never via hardcoded paths.** Moving `common/` → `whatever/` should not require a CI edit. If you add a new validator, follow the same pattern. The one exception is the stylua version pin (`version: v2.4.1` in the `stylua-action` step) — bumping it may require reformatting the tracked `.lua` files, because stylua is not backwards-compatible on formatting across major versions. When bumping, run `mise exec stylua@<new-version> -- stylua common/.config/nvim` locally first and commit the reflow in the same change.
 
 `.github/workflows/license-year.yml` is a separate scheduled workflow that bumps the copyright year in `LICENSE` each January and opens a PR via `peter-evans/create-pull-request`. Unrelated to the test pipeline.
 
@@ -133,7 +134,7 @@ Machine-local secrets on Codespaces come from user-defined Codespaces secrets. O
 Built on **LazyVim** (`lazy.nvim` under the hood). Mason is disabled — LSP servers are installed by mise/system and configured inline in `lua/plugins/lsp.lua` via `opts.servers`. No Mason, no `ensure_installed` for language servers.
 
 Layout under `common/.config/nvim/`:
-- `init.lua` — 3-line stub: sets leader and `require("config.lazy")`.
+- `init.lua` — tiny stub: sets `mapleader`/`maplocalleader`, then `require("config.lazy")`.
 - `lua/config/lazy.lua` — bootstraps lazy.nvim and imports `lazyvim.plugins` + local `plugins/`. The enabled LazyVim extras live in `lazyvim.json` (managed by `:LazyExtras`), not in this file.
 - `lazyvim.json` — tracks the enabled extras and news-read state. Commit changes after toggling extras.
 - `lua/config/options.lua` — only the deltas from LazyVim defaults (`gdefault`, `cmdheight=0`, `listchars`, `updatetime`, `relativenumber=false`, `pumblend=0`).
@@ -144,7 +145,6 @@ Layout under `common/.config/nvim/`:
 - `lua/plugins/disabled.lua` — single place for LazyVim plugins we turn off: `bufferline.nvim`, `mason.nvim`, `mason-lspconfig.nvim`, `neo-tree.nvim`.
 - `lua/plugins/coding.lua` — blink.cmp Tab/S-Tab cycling + sources, disable for mini.surround.
 - `lua/plugins/gitsigns.lua` — gitsigns `numhl` only (no current-line blame).
-- `lua/plugins/noice.lua` — noice routes/presets.
 - `lua/plugins/lsp.lua` — registers the Ruby servers (`ruby_lsp`, `vscode_sorbet`, `vscode_sorbet_rubocop`) via `opts.servers`, and sets `opts.diagnostics`. Mason itself is disabled in `disabled.lua`.
 - `lua/plugins/editing.lua` — vim-surround, vim-repeat, vim-eunuch, vim-projectionist, vim-rails, vim-better-whitespace, vim-dirvish + dirvish-git.
 - `lua/plugins/treesitter.lua` — parser list additions, treesitter-context, treesitter-textobjects, endwise.
@@ -169,6 +169,8 @@ Formatting: LazyVim's default `conform.nvim` wiring, untouched. Format-on-save r
 ### Fish
 
 `common/.config/fish/` = `config.fish`, `fish_plugins` (Fisher), `functions/` (one fn per file, filename must match function name). Non-obvious helpers: `gloan` (clones into `~/src/{owner}/{repo}`), `github_token` (1Password).
+
+**Don't replace the inlined Homebrew env block in `config.fish` with `eval (brew shellenv)`.** The top of `config.fish` sets `HOMEBREW_PREFIX` (via a `uname -m` switch) plus `HOMEBREW_CELLAR`, `HOMEBREW_REPOSITORY`, and the PATH/MANPATH/INFOPATH entries by hand. This is deliberate: `brew shellenv` shells out to a Bash/Ruby subprocess on every shell startup, and inlining the values avoids that latency. Keep the block hand-written and update it only if Homebrew's env layout changes.
 
 ### Git / Tmux / Terminal
 
