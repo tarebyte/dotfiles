@@ -25,6 +25,13 @@ return {
       },
       servers = {
         ruby_lsp = {
+          init_options = {
+            addonSettings = {
+              ["Ruby LSP Rails"] = {
+                enablePendingMigrationsPrompt = false,
+              },
+            },
+          },
           mason = false,
           cmd = function(dispatchers)
             local argv = vim.fn.executable("mise") == 1 and { "mise", "exec", "--", "ruby-lsp" } or { "ruby-lsp" }
