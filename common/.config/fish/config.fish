@@ -22,16 +22,12 @@ if test -d $HOMEBREW_PREFIX
     set -gx MANPATH "$HOMEBREW_PREFIX/share/man" $MANPATH
     set -q INFOPATH; or set INFOPATH ''
     set -gx INFOPATH "$HOMEBREW_PREFIX/share/info" $INFOPATH
-
-    # Autojump
-    [ -f "$HOMEBREW_PREFIX/share/autojump/autojump.fish" ]; and source $HOMEBREW_PREFIX/share/autojump/autojump.fish
 end
 
 #######
 # ENV #
 #######
 
-set -g async_prompt_functions _pure_prompt_git
 set -gx BAT_THEME ansi
 set -gx EDITOR nvim
 
@@ -79,9 +75,9 @@ end
 
 set -U fish_greeting
 
-##########################
+###########################
 # Aliases & Abbreviations #
-##########################
+###########################
 
 abbr -ag gp git push
 abbr -ag tn tmux new-session -A -s
@@ -95,10 +91,9 @@ alias vi $EDITOR
 alias vim $EDITOR
 alias whereami pwd
 
-if type -q zoxide
-    zoxide init fish | source
+if test -f /Applications/Tailscale.app/Contents/MacOS/Tailscale
+    alias tailscale /Applications/Tailscale.app/Contents/MacOS/Tailscale
 end
 
-if type -q starship
-    starship init fish | source
-end
+type -q zoxide; and zoxide init fish | source
+type -q starship; and starship init fish | source
