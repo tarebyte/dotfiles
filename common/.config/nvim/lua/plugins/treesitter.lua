@@ -14,6 +14,7 @@ return {
         "gitcommit",
         "gitignore",
         "gotmpl",
+        "python",
         "latex",
         "ruby",
         "scss",
@@ -26,5 +27,10 @@ return {
     "RRethy/nvim-treesitter-endwise",
     event = "InsertEnter",
     dependencies = { "nvim-treesitter/nvim-treesitter" },
+  },
+
+  {
+    "tarebyte/vim-ruby-minitest",
+    ft = "ruby",
   },
 }
