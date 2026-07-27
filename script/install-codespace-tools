@@ -184,17 +184,32 @@ install_tree_sitter_release() {
   rm -f /tmp/tree-sitter
 }
 
-# tree-sitter: prebuilt release binary, or a from-source cargo build when the
-# system glibc is too old to link the prebuilt one.
+# tree-sitter: prebuilt release binary, with a from-source cargo build as the
+# fallback. The prebuilt binary's glibc floor keeps rising (GLIBC_2.39 as of
+# tree-sitter 0.26), so a hardcoded threshold goes stale and installs a binary
+# the system can't run. Two things route to the cargo build instead:
+#   1. a fast-path for clearly-too-old glibc (< 2.35), to skip a doomed
+#      download entirely, and
+#   2. a runtime check that the freshly-installed prebuilt binary actually
+#      runs — this catches a glibc newer than the fast-path threshold but
+#      still older than what the binary needs (e.g. 2.35 vs 2.39).
 install_tree_sitter() {
   if glibc_version_lt 2.35; then
     local glibc_ver
     glibc_ver=$(getconf GNU_LIBC_VERSION 2>/dev/null | awk '{print $2}' || echo "unknown")
     echo "    glibc ${glibc_ver} < 2.35 — building from source via cargo..."
     install_tree_sitter_cargo
-  else
-    install_tree_sitter_release
+    return
   fi
+
+  if install_tree_sitter_release && \
+     "$LOCAL_BIN/tree-sitter" --version </dev/null >/dev/null 2>&1; then
+    return
+  fi
+
+  echo "    prebuilt tree-sitter won't run here (glibc too old for it) — building from source via cargo..."
+  rm -f "$LOCAL_BIN/tree-sitter"
+  install_tree_sitter_cargo
 }
 
 # Install one tool, centralizing the shared bootstrap boilerplate: skip if

@@ -65,9 +65,16 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # 20.04 = glibc 2.31 (cargo fallback), 22.04 = glibc 2.35
-        # (boundary), 24.04 = glibc 2.39 (prebuilt binary)
-        image: ["ubuntu:20.04", "ubuntu:22.04", "ubuntu:24.04"]
+        # The variable that actually matters is glibc version, not distro —
+        # these images are chosen as glibc representatives spanning the
+        # prebuilt tree-sitter binary's floor (GLIBC_2.39):
+        #   ubuntu:20.04 = glibc 2.31  -> cargo fallback
+        #   ubuntu:22.04 = glibc 2.35  -> cargo fallback
+        #   debian:12    = glibc 2.36  -> cargo fallback (in-the-gap case)
+        #   ubuntu:24.04 = glibc 2.39  -> prebuilt binary runs directly
+        # debian:12 guards the 2.35–2.39 gap where a stale version threshold
+        # would install a binary the system can't run.
+        image: ["ubuntu:20.04", "ubuntu:22.04", "debian:12", "ubuntu:24.04"]
     container:
       image: ${{ matrix.image }}
     env:
@@ -86,8 +93,8 @@ jobs:
             | tee /etc/apt/sources.list.d/github-cli.list > /dev/null
           apt-get update
           apt-get install -y gh
-      - name: Install Rust toolchain (old glibc only)
-        if: matrix.image == 'ubuntu:20.04'
+      - name: Install Rust toolchain (glibc < 2.39 uses cargo fallback)
+        if: matrix.image != 'ubuntu:24.04'
         run: |
           apt-get install -y build-essential libclang-dev
           curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \
@@ -100,12 +107,32 @@ jobs:
         run: |
           export PATH="$HOME/.local/bin:$PATH"
           failed=0
-          for tool in nvim tree-sitter tmux rg bat fzf lazygit diff-so-fancy; do
-            if command -v "$tool" >/dev/null 2>&1; then
-              printf "  ✓ %s: %s\n" "$tool" "$("$tool" --version 2>&1 | head -1 || echo ok)"
+          # Run each tool's version flag WITHOUT a pipe so its own exit
+          # status is checked — a binary that's on PATH but broken at
+          # runtime (e.g. a glibc mismatch) must fail this job, not pass.
+          # diff-so-fancy has no version flag, so it's checked by presence.
+          verify() {
+            local tool=$1 flag=$2 out
+            if ! command -v "$tool" >/dev/null 2>&1; then
+              printf "  ✗ %s: NOT FOUND\n" "$tool"; failed=1; return
+            fi
+            if [ "$flag" = none ]; then
+              printf "  ✓ %s: present\n" "$tool"; return
+            fi
+            if out=$("$tool" "$flag" </dev/null 2>&1); then
+              printf "  ✓ %s: %s\n" "$tool" "$(printf '%s' "$out" | head -1)"
             else
-              printf "  ✗ %s: NOT FOUND\n" "$tool"
+              printf "  ✗ %s: present but won't run: %s\n" \
+                "$tool" "$(printf '%s' "$out" | head -1)"
               failed=1
             fi
-          done
+          }
+          verify nvim --version
+          verify tree-sitter --version
+          verify tmux -V
+          verify rg --version
+          verify bat --version
+          verify fzf --version
+          verify lazygit --version
+          verify diff-so-fancy none
           exit "$failed"
