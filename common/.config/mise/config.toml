@@ -11,6 +11,7 @@ rust = "latest"
 "npm:bash-language-server" = "latest"
 "npm:markdown-toc" = "latest"
 golangci-lint = "v2.11.4"
+bun = "latest"
 
 [settings.ruby]
 compile = false
