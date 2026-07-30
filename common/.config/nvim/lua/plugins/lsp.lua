@@ -49,7 +49,6 @@ return {
             on_dir(root)
           end,
         },
-        tailwindcss = {},
         vscode_sorbet = {
           cmd = { ".vscode/run-sorbet", "--lsp" },
           filetypes = { "ruby" },
