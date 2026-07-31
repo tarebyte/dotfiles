@@ -168,7 +168,9 @@ Formatting: LazyVim's default `conform.nvim` wiring, untouched. Format-on-save r
 
 ### Fish
 
-`common/.config/fish/` = `config.fish`, `fish_plugins` (Fisher), `functions/` (one fn per file, filename must match function name). Non-obvious helpers: `gloan` (clones into `~/src/{owner}/{repo}`), `github_token` (1Password).
+`common/.config/fish/` = `config.fish`, `fish_plugins` (Fisher), `functions/` (one fn per file, filename must match function name). Non-obvious helpers: `gloan` (clones into `~/src/{owner}/{repo}`), `github_token` / `set_github_token` / `refresh_github_token` (gh keyring, cached).
+
+**GitHub token helpers.** `refresh_github_token` reads the token from the `gh` keyring and caches it at `~/.cache/gh-token` (mode 600); `github_token` prints it, preferring `$GITHUB_TOKEN`, then a cache newer than 7 days, then a refresh; `set_github_token` exports it. All three call `gh` as `env -u GH_TOKEN -u GITHUB_TOKEN gh auth token` — tools like the Copilot app inject a narrowly-scoped `GH_TOKEN` that `gh auth token` would otherwise echo back, masking the keyring credential that actually carries `read:packages`. Run `refresh_github_token` by hand after `gh auth login`/`gh auth refresh`. Exporting `GITHUB_TOKEN` at startup is opt-in per host via `~/.config/fish/local_env.fish` (untracked), since it puts a live token in every shell's environment.
 
 **Don't replace the inlined Homebrew env block in `config.fish` with `eval (brew shellenv)`.** The top of `config.fish` sets `HOMEBREW_PREFIX` (via a `uname -m` switch) plus `HOMEBREW_CELLAR`, `HOMEBREW_REPOSITORY`, and the PATH/MANPATH/INFOPATH entries by hand. This is deliberate: `brew shellenv` shells out to a Bash/Ruby subprocess on every shell startup, and inlining the values avoids that latency. Keep the block hand-written and update it only if Homebrew's env layout changes.
 
