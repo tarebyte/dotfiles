@@ -8,7 +8,6 @@ return {
         "dockerfile",
         "embedded_template",
         "fish",
-        "gotmpl",
         "python",
         "latex",
         "ruby",
@@ -17,7 +16,6 @@ return {
       },
     },
   },
-
   {
     "RRethy/nvim-treesitter-endwise",
     event = "InsertEnter",
