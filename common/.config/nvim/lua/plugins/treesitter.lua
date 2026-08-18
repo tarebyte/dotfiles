@@ -23,9 +23,4 @@ return {
     event = "InsertEnter",
     dependencies = { "nvim-treesitter/nvim-treesitter" },
   },
-
-  {
-    "tarebyte/vim-ruby-minitest",
-    ft = "ruby",
-  },
 }
