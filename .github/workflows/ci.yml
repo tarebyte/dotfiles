@@ -84,8 +84,15 @@ jobs:
         # image on each side of that branch:
         #   ubuntu:22.04 = glibc 2.35 -> prebuilt won't run, cargo fallback
         #   ubuntu:24.04 = glibc 2.39 -> prebuilt binary runs directly
-        # Additional older images (ubuntu:20.04, debian:12) exercised the exact
-        # same fallback path and only added cargo build time.
+        #
+        # ubuntu:22.04 is also the oldest release this repo supports. Ubuntu
+        # 20.04 (glibc 2.31) can't run the prebuilt Neovim at all, which needs
+        # GLIBC_2.33 — and unlike tree-sitter, Neovim has no source-build
+        # fallback here, so that job failed on `nvim` rather than on anything
+        # this matrix is meant to exercise. Supporting 20.04 again means
+        # teaching via_nvim to fall back to an older release or an AppImage.
+        # debian:12 (glibc 2.36) was dropped separately: it drives the same
+        # cargo fallback as 22.04 and only added build time.
         image: ["ubuntu:22.04", "ubuntu:24.04"]
     container:
       image: ${{ matrix.image }}
