@@ -8,7 +8,6 @@ return {
         "dockerfile",
         "embedded_template",
         "fish",
-        "python",
         "latex",
         "ruby",
         "scss",

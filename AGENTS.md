@@ -229,4 +229,4 @@ make install
 
 ## Dev focus
 
-Ruby/Rails primary — Sorbet (`vscode_sorbet`, `vscode_sorbet_rubocop`), ruby-lsp, Rubocop (`common/.rubocop.yml`), vim-rails, `common/.pryrc`. Also Go (gopls + gofumpt + goimports via the `lang.go` LazyVim extra, binaries from mise), Lua (lua_ls, stylua), Node, Rust, Python, and .NET via mise. Because Mason is disabled, the `ensure_installed` entries inside LazyVim language extras are silent no-ops — any tool they want must be declared in `common/.config/mise/config.toml`. See "Tool provisioning" above.
+Ruby/Rails primary — Sorbet (`vscode_sorbet`, `vscode_sorbet_rubocop`), ruby-lsp, Rubocop (`common/.rubocop.yml`), vim-rails, `common/.pryrc`. Also Go (gopls + gofumpt + goimports via the `lang.go` LazyVim extra, binaries from mise), Lua (lua_ls, stylua), Node, and Rust via mise. Because Mason is disabled, the `ensure_installed` entries inside LazyVim language extras are silent no-ops — any tool they want must be declared in `common/.config/mise/config.toml`. See "Tool provisioning" above.
