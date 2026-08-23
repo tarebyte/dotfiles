@@ -10,13 +10,13 @@ Personal dotfiles. **GNU stow**-managed — source tree is organized into packag
 |---------|---------|
 | `script/setup` | First-time entry point. Installs `stow` via Homebrew/apt if missing, then runs `make install`. Auto-run by Codespaces. |
 | `script/doctor` | Health check — core tools, shell, git, mise, Neovim, tmux/TPM. Also checks that `~/.config/git/config` matches the template (warns on drift). |
-| `make test` | Run `shellcheck -x` on every script under `script/` and then execute `script/test` (functional tests for `stow-package` and `setup-git-config`). |
+| `make test` | Run `shellcheck -x` on every script under `script/` and then execute `script/test` (functional tests for `stow-package` and `setup-git-config`, plus unit tests for `tool_ready`). |
 | `make install` | Generate `~/.config/git/config` from the template (prompting for identity on first run), stow `common`. On macOS also stow `darwin`, install brew bundle, update fisher, chsh to fish. |
 | `make regen-git-config` | Re-render `~/.config/git/config` from `templates/git-config.tmpl` + `~/.config/dotfiles/identity.env`. Run this after editing the template. |
 | `make brew` | Re-run `brew bundle --global` after editing `darwin/.Brewfile`. |
 | `make fisher` | Bootstrap fisher if needed and run `fisher update` after editing `common/.config/fish/fish_plugins`. |
 | `make mise` | `mise trust && mise install` after editing `common/.config/mise/config.toml`. |
-| `make clean` | `stow -D` every package — cleanly unlinks everything from `$HOME`. Does NOT delete `~/.config/git/config` or `~/.config/dotfiles/identity.env`. |
+| `make clean` | `stow -D` the active packages — always `common`, plus `darwin` on macOS and `codespaces` when `$CODESPACES` is set. Does NOT delete `~/.config/git/config` or `~/.config/dotfiles/identity.env`. |
 | `:Lazy sync` | Update/install Neovim plugins via lazy.nvim. `lazy-lock.json` is intentionally gitignored — see the Neovim section. |
 
 `make install` is also the recovery incantation — re-running it after a broken state is safe because `script/stow-package` handles pre-existing files by moving them aside, and every other step is idempotent.
@@ -69,7 +69,7 @@ Script discovery goes through `git ls-files`, same as the CI linting jobs — ad
 - **`lua`** (`ubuntu-latest`) — discovers the directory containing `stylua.toml` via `git ls-files`, installs `stylua` from the tracked mise config, and runs `--check` against that directory. stylua walks upward from each target file to find its own config, so no `-f` path is hardcoded.
 - **`codespace-tools`** — matrix over `ubuntu:22.04`/`ubuntu:24.04` containers, chosen as glibc representatives (2.35/2.39) sitting either side of the prebuilt tree-sitter binary's floor (GLIBC_2.39), so one image exercises the cargo fallback and the other the prebuilt path. `ubuntu:22.04` doubles as the oldest release this repo supports: Ubuntu 20.04 (glibc 2.31) can't run the prebuilt Neovim, which requires `GLIBC_2.33`, and `via_nvim` has no source-build fallback the way tree-sitter does — so that job failed on `nvim`, not on anything the matrix is meant to exercise. `debian:12` (glibc 2.36) was dropped for the different, milder reason that it drives the same cargo fallback as 22.04 and only adds build time. Each job installs the `gh` CLI, installs the Rust toolchain on every image except 24.04 (glibc `< 2.39` needs the tree-sitter cargo fallback), runs `script/install-codespace-tools`, then verifies all 8 tools (`nvim`, `tree-sitter`, `tmux`, `rg`, `bat`, `fzf`, `lazygit`, `diff-so-fancy`) are on PATH **and** actually run (each tool's own version-flag exit status is checked, unpiped, so a present-but-broken binary fails the job). This is the end-to-end guard for the glibc-aware provisioning logic.
 
-**Design constraint: every file-linting job (`test`, `fish`, `lua`) discovers files via `git ls-files`, never via hardcoded paths.** Moving `common/` → `whatever/` should not require a CI edit. If you add a new validator, follow the same pattern. Where a tool *is* mise-managed, its version follows the same rule — the `lua` job installs `stylua` from `common/.config/mise/config.toml` rather than pinning a version in an action input. (`shellcheck` is not mise-managed and so is not pinned anywhere: CI uses the runner's preinstalled copy, macOS uses Homebrew's.) Bumping the `stylua` pin may require reformatting the tracked `.lua` files, because stylua is not backwards-compatible on formatting across major versions — run `mise exec stylua@<new-version> -- stylua common/.config/nvim` locally first and commit the reflow in the same change.
+**Design constraint: every file-linting job (`test`, `fish`, `lua`) discovers the files it validates via `git ls-files`, never via hardcoded paths.** If you add a new validator, follow the same pattern. The `lua` job does hardcode `common/.config/mise/config.toml` as `MISE_GLOBAL_CONFIG_FILE` so it can install the tracked `stylua` version rather than duplicating a pin in the workflow; moving that mise config requires updating CI. (`shellcheck` is not mise-managed and so is not pinned anywhere: CI uses the runner's preinstalled copy, macOS uses Homebrew's.) Bumping the `stylua` pin may require reformatting the tracked `.lua` files, because stylua is not backwards-compatible on formatting across major versions — run `mise exec stylua@<new-version> -- stylua common/.config/nvim` locally first and commit the reflow in the same change.
 
 `.github/workflows/license-year.yml` is a separate scheduled workflow that bumps the copyright year in `LICENSE` each January and opens a PR via `peter-evans/create-pull-request`. Unrelated to the test pipeline.
 
@@ -151,28 +151,27 @@ Layout under `common/.config/nvim/`:
 - `init.lua` — tiny stub: sets `mapleader`/`maplocalleader`, then `require("config.lazy")`.
 - `lua/config/lazy.lua` — bootstraps lazy.nvim and imports `lazyvim.plugins` + local `plugins/`. The enabled LazyVim extras live in `lazyvim.json` (managed by `:LazyExtras`), not in this file.
 - `lazyvim.json` — tracks the enabled extras and news-read state. Commit changes after toggling extras.
-- `lua/config/options.lua` — only the deltas from LazyVim defaults (`gdefault`, `cmdheight=0`, `listchars`, `updatetime`, `relativenumber=false`, `pumblend=0`).
+- `lua/config/options.lua` — reasserts the comma leader after LazyVim loads and sets the remaining deltas from its defaults (`gdefault`, `cmdheight=0`, `listchars`, `updatetime`, `relativenumber=false`, `pumblend=0`, `mousemoveevent=true`).
 - `lua/config/keymaps.lua` — only our custom keymaps on top of LazyVim's.
-- `lua/config/autocmds.lua` — custom autocmds (CursorHold diagnostic float, gotmpl filetype + parser aliases).
+- `lua/config/autocmds.lua` — currently an empty placeholder for custom autocmds.
 - `lua/plugins/colorscheme.lua` — LazyVim `colorscheme` opt + catppuccin flavour, highlights, lualine palette integration.
-- `lua/plugins/ui.lua` — lualine sections, snacks dashboard + picker/notifier/statuscolumn/explorer, nvim-web-devicons.
+- `lua/plugins/ui.lua` — lualine sections, snacks dashboard + picker/notifier/statuscolumn/explorer, and hover.nvim providers.
 - `lua/plugins/disabled.lua` — single place for LazyVim plugins we turn off: `bufferline.nvim`, `mason.nvim`, `mason-lspconfig.nvim`, `neo-tree.nvim`.
-- `lua/plugins/coding.lua` — blink.cmp Tab/S-Tab cycling + sources, disable for mini.surround.
+- `lua/plugins/coding.lua` — blink.cmp Tab/S-Tab cycling + sources.
 - `lua/plugins/gitsigns.lua` — gitsigns `numhl` only (no current-line blame).
 - `lua/plugins/lsp.lua` — registers the Ruby servers (`ruby_lsp`, `vscode_sorbet`, `vscode_sorbet_rubocop`) and `harper_ls` (prose/grammar) via `opts.servers`, and sets `opts.diagnostics`. Mason itself is disabled in `disabled.lua`.
 - `lua/plugins/editing.lua` — vim-surround, vim-repeat, vim-eunuch, vim-projectionist, vim-rails, vim-better-whitespace, vim-dirvish + dirvish-git.
-- `lua/plugins/treesitter.lua` — parser list additions, treesitter-context, treesitter-textobjects, endwise.
+- `lua/plugins/treesitter.lua` — parser list additions and endwise. Treesitter context is enabled through the `lazyvim.plugins.extras.ui.treesitter-context` entry in `lazyvim.json`; textobjects are not configured locally in this file.
 - `ftplugin/`, `ftdetect/`, `after/` — standard.
-- `lazy-lock.json` — **gitignored on purpose.** lazy.nvim writes it through the stow symlink, but it isn't tracked, so plugin versions are deliberately not pinned across machines: each host resolves to whatever `:Lazy sync` fetches. If you ever want reproducible plugin versions, drop the entry from `.gitignore` and `git add` it — the symlink already exists, so nothing else has to change.
+- `lazy-lock.json` — **gitignored on purpose.** On a fresh clone it is absent from the stow package, so lazy.nvim writes a host-local `~/.config/nvim/lazy-lock.json`; if an ignored source-tree copy already exists, stow may symlink that copy instead. Either way it isn't tracked, so plugin versions are deliberately not pinned across machines. To make versions reproducible, remove the `.gitignore` entry, move or copy the host lockfile into `common/.config/nvim/`, add it to git, and run `make install`.
 
 Conventions (intentional — don't "fix"):
 - Leader: `,` (not space — set in `init.lua` before `require("config.lazy")`).
 - `gdefault = true`, absolute line numbers, `cmdheight = 0`, `clipboard = unnamedplus`.
-- Custom focusless diagnostic float on `CursorHold` (paired with `updatetime = 250`).
-- Autocmds wrapped in a named `augroup` with `clear = true` so re-sourcing is idempotent.
+- Mouse movement events are enabled for hover.nvim's `<MouseMove>` mapping.
 - Theme: Catppuccin Mocha (matches tmux).
 - File explorer: vim-dirvish (neo-tree disabled).
-- Surround: vim-surround (mini.surround disabled).
+- Surround: vim-surround is explicitly installed; there is no local mini.surround override.
 - Prose: `harper_ls` and `setlocal spell` (in `ftplugin/markdown.vim`) share one word list — `spell/en.utf-8.add`, wired into harper via `userDictPath`. Add words in one place, not two.
 
 Adding a plugin: create/edit a spec file under `lua/plugins/` returning a lazy.nvim spec table. Run `:Lazy sync`.
@@ -185,7 +184,7 @@ Formatting: LazyVim's default `conform.nvim` wiring, untouched. Format-on-save r
 
 `common/.config/fish/` = `config.fish`, `fish_plugins` (Fisher), and `functions/` (one fn per file, filename must match function name). Nothing under `conf.d/` is tracked — it's ignored in `.gitignore` because fisher and fish itself write there at runtime. Non-obvious helpers: `gloan` (clones into `~/src/{owner}/{repo}`), `github_token` / `set_github_token` / `refresh_github_token` (gh keyring, cached).
 
-**GitHub token helpers.** `refresh_github_token` reads the token from the `gh` keyring and caches it at `~/.cache/gh-token` (mode 600); `github_token` prints it, preferring `$GITHUB_TOKEN`, then a cache newer than 7 days, then a refresh; `set_github_token` exports it. All three call `gh` as `env -u GH_TOKEN -u GITHUB_TOKEN gh auth token` — tools like the Copilot app inject a narrowly-scoped `GH_TOKEN` that `gh auth token` would otherwise echo back, masking the keyring credential that actually carries `read:packages`. Run `refresh_github_token` by hand after `gh auth login`/`gh auth refresh`. Exporting `GITHUB_TOKEN` at startup is opt-in per host via `~/.config/fish/local_env.fish` (untracked — copy `local_env.fish.example` to start), since it puts a live token in every shell's environment.
+**GitHub token helpers.** `refresh_github_token` reads the token from the `gh` keyring and caches it at `~/.cache/gh-token` (mode 600); `github_token` prints it, preferring `$GITHUB_TOKEN`, then a cache newer than 7 days, then a refresh; `set_github_token` exports it. The refresh path calls `env -u GH_TOKEN -u GITHUB_TOKEN gh auth token` — tools like the Copilot app inject a narrowly-scoped `GH_TOKEN` that `gh auth token` would otherwise echo back, masking the keyring credential that actually carries `read:packages`. Run `refresh_github_token` by hand after `gh auth login`/`gh auth refresh`. Exporting `GITHUB_TOKEN` at startup is opt-in per host via `~/.config/fish/local_env.fish` (untracked — copy `local_env.fish.example` to start), since it puts a live token in every shell's environment.
 
 **Don't replace the inlined Homebrew env block in `config.fish` with `eval (brew shellenv)`.** The top of `config.fish` sets `HOMEBREW_PREFIX` (via a `uname -m` switch) plus `HOMEBREW_CELLAR`, `HOMEBREW_REPOSITORY`, and the PATH/MANPATH/INFOPATH entries by hand. This is deliberate: `brew shellenv` shells out to a Bash/Ruby subprocess on every shell startup, and inlining the values avoids that latency. Keep the block hand-written and update it only if Homebrew's env layout changes.
 
