@@ -1,89 +1,168 @@
 #!/bin/bash
 #
-# script/setup-git-config
+# script/setup-git-config [--check]
 #
-# Render templates/git-config.tmpl into ~/.config/git/config, substituting
-# the user's email and GPG signing key. On first run, prompts for the values
-# and writes them to ~/.config/dotfiles/identity.env (mode 0600). On later
-# runs, reads the values back from that file with no prompts.
+# Render templates/git-config.tmpl into ~/.config/git/config. Per-host values
+# live in a standard Git config file at
+# ~/.config/local/git/identity.gitconfig;
+# Git itself reads and writes those values and injects them into a temporary
+# copy of the template. The completed file is moved into place atomically.
 #
-# No-op on GitHub Codespaces: Codespaces injects its own ~/.gitconfig that
-# takes precedence, so the rendered XDG config wouldn't be consulted anyway.
-#
-# Robustness notes:
-# - identity.env is created under a 077 umask so it's never briefly
-#   world-readable between creation and the 0600 intent.
-# - identity.env is parsed via awk instead of `.`-sourcing, so a hand-edited
-#   file containing shell metacharacters can't execute code.
-# - EMAIL and SIGNINGKEY are escaped for sed metacharacters (& | \) before
-#   substitution, so values with odd characters can't corrupt the output.
-# - The rendered config is written to a temp file and atomically mv'd
-#   into place, so a mid-render failure can't leave ~/.config/git/config
-#   truncated.
+# Codespaces use the same renderer without a local identity: the injected
+# ~/.gitconfig supplies identity and credentials, signing is disabled, and the
+# macOS-only include is removed.
 
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 GIT_TEMPLATE="$REPO_ROOT/templates/git-config.tmpl"
 GIT_CONFIG="$HOME/.config/git/config"
-IDENTITY_DIR="$HOME/.config/dotfiles"
-IDENTITY_FILE="$IDENTITY_DIR/identity.env"
+IDENTITY_DIR="$HOME/.config/local/git"
+IDENTITY_FILE="$IDENTITY_DIR/identity.gitconfig"
+LEGACY_IDENTITY_DIR="$HOME/.config/dotfiles"
+LEGACY_GIT_IDENTITY_FILE="$LEGACY_IDENTITY_DIR/identity.gitconfig"
+LEGACY_ENV_IDENTITY_FILE="$LEGACY_IDENTITY_DIR/identity.env"
+LEGACY_ENV_BACKUP="$IDENTITY_DIR/identity.env.migrated"
+MODE="write"
+tmp=""
 
-if [ -n "${CODESPACES:-}" ]; then
-    # Codespaces injects identity (name, email, credential helper) into
-    # ~/.gitconfig, so we only need the template for aliases, colors,
-    # filters, etc. Strip the identity/signing lines and render as-is.
-    mkdir -p "$HOME/.config/git"
-    tmp=$(mktemp "$GIT_CONFIG.XXXXXX")
-    trap 'rm -f "$tmp"' EXIT
-    sed -e '/\[user\]/,/^$/d' \
-        -e '/# macOS-only/,/^$/d' \
-        -e '/\[include\]/,/^$/d' \
-        -e 's/gpgsign = true/gpgsign = false/' \
-        "$GIT_TEMPLATE" > "$tmp"
-    mv "$tmp" "$GIT_CONFIG"
-    trap - EXIT
-    echo "Wrote $GIT_CONFIG (Codespaces mode — identity from ~/.gitconfig)"
-    exit 0
+case "${1:-}" in
+	"") ;;
+	--check) MODE="check" ;;
+	*)
+		echo "usage: script/setup-git-config [--check]" >&2
+		exit 2
+		;;
+esac
+
+trap '[ -z "$tmp" ] || rm -f "$tmp"' EXIT
+
+write_identity() {
+	local output=$1 email=$2 key=$3
+	(
+		umask 077
+		: > "$output"
+		git config --file "$output" user.email "$email"
+		git config --file "$output" user.signingkey "$key"
+	)
+	chmod 600 "$output"
+}
+
+migrate_git_identity() {
+	local email key
+	email=$(git config --file "$LEGACY_GIT_IDENTITY_FILE" --get user.email) \
+		|| { echo "legacy identity.gitconfig missing user.email" >&2; return 1; }
+	key=$(git config --file "$LEGACY_GIT_IDENTITY_FILE" --get user.signingkey) \
+		|| { echo "legacy identity.gitconfig missing user.signingkey" >&2; return 1; }
+	[ -n "$email" ] || { echo "legacy identity.gitconfig has empty user.email" >&2; return 1; }
+	[ -n "$key" ] || { echo "legacy identity.gitconfig has empty user.signingkey" >&2; return 1; }
+
+	mv "$LEGACY_GIT_IDENTITY_FILE" "$IDENTITY_FILE"
+	chmod 600 "$IDENTITY_FILE"
+	echo "Moved $LEGACY_GIT_IDENTITY_FILE to $IDENTITY_FILE"
+}
+
+archive_legacy_env() {
+	if [ -f "$LEGACY_ENV_IDENTITY_FILE" ] && [ ! -e "$LEGACY_ENV_BACKUP" ]; then
+		mv "$LEGACY_ENV_IDENTITY_FILE" "$LEGACY_ENV_BACKUP"
+		chmod 600 "$LEGACY_ENV_BACKUP"
+		echo "Archived $LEGACY_ENV_IDENTITY_FILE at $LEGACY_ENV_BACKUP"
+	fi
+	rmdir "$LEGACY_IDENTITY_DIR" 2>/dev/null || true
+}
+
+migrate_env_identity() {
+	local email key
+	email=$(awk -F= '$1=="EMAIL"{sub(/^EMAIL=/,""); print; exit}' "$LEGACY_ENV_IDENTITY_FILE")
+	key=$(awk -F= '$1=="SIGNINGKEY"{sub(/^SIGNINGKEY=/,""); print; exit}' "$LEGACY_ENV_IDENTITY_FILE")
+	[ -n "$email" ] || { echo "legacy identity.env missing EMAIL" >&2; return 1; }
+	[ -n "$key" ] || { echo "legacy identity.env missing SIGNINGKEY" >&2; return 1; }
+
+	tmp=$(mktemp "$IDENTITY_FILE.XXXXXX")
+	write_identity "$tmp" "$email" "$key"
+	mv "$tmp" "$IDENTITY_FILE"
+	tmp=""
+	echo "Migrated $LEGACY_ENV_IDENTITY_FILE to $IDENTITY_FILE"
+}
+
+create_identity() {
+	local email key
+	if [ ! -t 0 ]; then
+		echo "setup-git-config: no identity file and no TTY to prompt on" >&2
+		echo "  create $IDENTITY_FILE with user.email and user.signingkey" >&2
+		return 1
+	fi
+
+	echo "First-time git identity setup..."
+	printf "Email: "
+	IFS= read -r email
+	[ -n "$email" ] || { echo "email is required" >&2; return 1; }
+	printf "GPG signing key ID: "
+	IFS= read -r key
+	[ -n "$key" ] || { echo "signing key is required" >&2; return 1; }
+
+	tmp=$(mktemp "$IDENTITY_FILE.XXXXXX")
+	write_identity "$tmp" "$email" "$key"
+	mv "$tmp" "$IDENTITY_FILE"
+	tmp=""
+	echo "Wrote $IDENTITY_FILE"
+}
+
+render_config() {
+	local output=$1 email key
+	cp "$GIT_TEMPLATE" "$output"
+
+	if [ -n "${CODESPACES:-}" ]; then
+		git config --file "$output" --remove-section user
+		git config --file "$output" commit.gpgsign false
+		git config --file "$output" --remove-section include
+		return
+	fi
+
+	email=$(git config --file "$IDENTITY_FILE" --get user.email) \
+		|| { echo "identity.gitconfig missing user.email" >&2; return 1; }
+	key=$(git config --file "$IDENTITY_FILE" --get user.signingkey) \
+		|| { echo "identity.gitconfig missing user.signingkey" >&2; return 1; }
+
+	git config --file "$output" user.email "$email"
+	git config --file "$output" user.signingkey "$key"
+}
+
+if [ "$MODE" = check ]; then
+	[ -f "$GIT_CONFIG" ] || exit 1
+	if [ -z "${CODESPACES:-}" ] && [ ! -f "$IDENTITY_FILE" ]; then
+		exit 1
+	fi
+	tmp=$(mktemp "${TMPDIR:-/tmp}/dotfiles-git-config.XXXXXX")
+	render_config "$tmp"
+	cmp -s "$tmp" "$GIT_CONFIG"
+	exit
 fi
 
 mkdir -p "$HOME/.config/git"
-mkdir -p "$IDENTITY_DIR"
-chmod 700 "$IDENTITY_DIR"
 
-if [ ! -f "$IDENTITY_FILE" ]; then
-    if [ ! -t 0 ]; then
-        echo "setup-git-config: no identity file and no TTY to prompt on" >&2
-        echo "  create $IDENTITY_FILE manually with EMAIL= and SIGNINGKEY= lines" >&2
-        exit 1
-    fi
-    echo "First-time git identity setup..."
-    printf "Email: "
-    IFS= read -r email
-    [ -n "$email" ] || { echo "email is required" >&2; exit 1; }
-    printf "GPG signing key ID: "
-    IFS= read -r key
-    [ -n "$key" ] || { echo "signing key is required" >&2; exit 1; }
-    (
-        umask 077
-        printf 'EMAIL=%s\nSIGNINGKEY=%s\n' "$email" "$key" > "$IDENTITY_FILE"
-    )
-    echo "Wrote $IDENTITY_FILE"
+if [ -z "${CODESPACES:-}" ]; then
+	mkdir -p "$IDENTITY_DIR"
+	chmod 700 "$IDENTITY_DIR"
+	if [ ! -f "$IDENTITY_FILE" ]; then
+		if [ -f "$LEGACY_GIT_IDENTITY_FILE" ]; then
+			migrate_git_identity
+		elif [ -f "$LEGACY_ENV_IDENTITY_FILE" ]; then
+			migrate_env_identity
+		else
+			create_identity
+		fi
+	fi
+	archive_legacy_env
 fi
 
-email=$(awk -F= '$1=="EMAIL"{sub(/^EMAIL=/,""); print; exit}' "$IDENTITY_FILE")
-key=$(awk -F= '$1=="SIGNINGKEY"{sub(/^SIGNINGKEY=/,""); print; exit}' "$IDENTITY_FILE")
-[ -n "$email" ] || { echo "identity.env missing EMAIL" >&2; exit 1; }
-[ -n "$key" ]   || { echo "identity.env missing SIGNINGKEY" >&2; exit 1; }
-
-esc_email=$(printf '%s' "$email" | sed -e 's/[&|\\]/\\&/g')
-esc_key=$(printf '%s' "$key" | sed -e 's/[&|\\]/\\&/g')
-
 tmp=$(mktemp "$GIT_CONFIG.XXXXXX")
-trap 'rm -f "$tmp"' EXIT
-sed -e "s|{{EMAIL}}|$esc_email|g" \
-    -e "s|{{SIGNINGKEY}}|$esc_key|g" \
-    "$GIT_TEMPLATE" > "$tmp"
+render_config "$tmp"
 mv "$tmp" "$GIT_CONFIG"
-trap - EXIT
-echo "Wrote $GIT_CONFIG"
+tmp=""
+
+if [ -n "${CODESPACES:-}" ]; then
+	echo "Wrote $GIT_CONFIG (Codespaces mode — identity from ~/.gitconfig)"
+else
+	echo "Wrote $GIT_CONFIG"
+fi

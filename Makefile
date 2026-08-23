@@ -62,9 +62,9 @@ install-codespaces:
 sync-codespace-plugins:
 	./script/sync-codespace-plugins
 
-# Render templates/git-config.tmpl into ~/.config/git/config. Prompts
-# for identity on first run; silent thereafter. See the script for
-# details.
+# Render templates/git-config.tmpl into ~/.config/git/config and inject the
+# per-host identity with `git config --file`. Prompts on first run; silent
+# thereafter. See the script for details.
 setup-git-config:
 	./script/setup-git-config
 
@@ -105,7 +105,7 @@ test:
 	./script/test
 
 # Uninstall all stowed packages from $HOME. Does NOT delete the repo,
-# the generated ~/.config/git/config, or ~/.config/dotfiles/identity.env.
+# the generated ~/.config/git/config, or the per-host identity file.
 # Leading `-` tolerates `stow -D` on a package that wasn't previously
 # stowed (modern stow is a no-op in that case, but older versions and
 # some edge cases error).

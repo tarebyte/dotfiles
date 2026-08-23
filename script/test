@@ -4,8 +4,9 @@
 #
 # Functional tests for the scripts that have non-trivial logic:
 # stow-package (conflict parsing + backup moves) and setup-git-config
-# (template substitution + sed escaping). Each test runs inside its own
-# mktemp sandbox with a stubbed $HOME; nothing touches the real system.
+# (Git-native rendering, migration, and drift detection). Each test runs
+# inside its own mktemp sandbox with a stubbed $HOME; nothing touches the real
+# system.
 #
 # The runner does NOT use `set -e` globally so that a failing assertion
 # in one test reports and continues instead of aborting the whole suite.
@@ -119,6 +120,29 @@ test_stow_foreign_symlink_conflict() {
         || { echo "foreign symlink not backed up"; exit 1; }
 }
 
+test_stow_foreign_directory_symlink_conflict() {
+    local sandbox=$1
+    set -e
+    make_stow_sandbox_repo "$sandbox"
+    mkdir -p "$sandbox/repo/pkg/.config/demo" \
+	"$sandbox/home" \
+	"$sandbox/other/config/demo"
+    echo "repo-content" > "$sandbox/repo/pkg/.config/demo/foo.conf"
+    echo "foreign-content" > "$sandbox/other/config/demo/foreign.conf"
+    ln -s "$sandbox/other/config" "$sandbox/home/.config"
+
+    HOME="$sandbox/home" "$sandbox/repo/script/stow-package" pkg > /dev/null
+
+    [ -d "$sandbox/home/.config" ] && [ ! -L "$sandbox/home/.config" ] \
+	|| { echo "foreign directory symlink was not replaced"; exit 1; }
+    [ -L "$sandbox/home/.config/demo/foo.conf" ] \
+	|| { echo "package file was not stowed"; exit 1; }
+    [ -f "$sandbox/other/config/demo/foreign.conf" ] \
+	|| { echo "foreign directory contents were changed"; exit 1; }
+    find "$sandbox/home/.dotfiles-backup" -type l -name .config 2>/dev/null | grep -q . \
+	|| { echo "foreign directory symlink not backed up"; exit 1; }
+}
+
 test_stow_mixed_conflicts_and_clean() {
     local sandbox=$1
     set -e
@@ -164,6 +188,73 @@ test_stow_restow_is_idempotent() {
         || { echo "re-stow should not back anything up"; exit 1; }
 }
 
+test_stow_restow_prunes_obsolete_link() {
+    local sandbox=$1
+    set -e
+    make_stow_sandbox_repo "$sandbox"
+    mkdir -p "$sandbox/repo/pkg/.config" "$sandbox/home"
+    echo "keep" > "$sandbox/repo/pkg/.config/keep.conf"
+    echo "remove" > "$sandbox/repo/pkg/.config/remove.conf"
+
+    HOME="$sandbox/home" "$sandbox/repo/script/stow-package" pkg > /dev/null
+    rm "$sandbox/repo/pkg/.config/remove.conf"
+    HOME="$sandbox/home" "$sandbox/repo/script/stow-package" pkg > /dev/null
+
+    [ -L "$sandbox/home/.config/keep.conf" ] || { echo "current link missing"; exit 1; }
+    [ ! -e "$sandbox/home/.config/remove.conf" ] \
+	&& [ ! -L "$sandbox/home/.config/remove.conf" ] \
+	|| { echo "obsolete link was not pruned"; exit 1; }
+}
+
+test_stow_restow_unfolds_owned_directory() {
+    local sandbox=$1
+    set -e
+    make_stow_sandbox_repo "$sandbox"
+    mkdir -p "$sandbox/repo/pkg/.config/demo" "$sandbox/home"
+    echo "repo-content" > "$sandbox/repo/pkg/.config/demo/foo.conf"
+
+    (
+	cd "$sandbox/repo"
+	stow -t "$sandbox/home" pkg
+    )
+    [ -L "$sandbox/home/.config" ] || { echo "fixture did not fold directory"; exit 1; }
+
+    HOME="$sandbox/home" "$sandbox/repo/script/stow-package" pkg > /dev/null
+
+    [ -d "$sandbox/home/.config" ] && [ ! -L "$sandbox/home/.config" ] \
+	|| { echo "owned directory symlink was not unfolded"; exit 1; }
+    [ -L "$sandbox/home/.config/demo/foo.conf" ] \
+	|| { echo "package file was not restowed"; exit 1; }
+    [ ! -d "$sandbox/home/.dotfiles-backup" ] \
+	|| { echo "owned directory symlink should not be backed up"; exit 1; }
+}
+
+test_stow_local_ignore_runtime_state() {
+    local sandbox=$1
+    set -e
+    make_stow_sandbox_repo "$sandbox"
+    mkdir -p "$sandbox/repo/pkg/.config/nvim" "$sandbox/home/.config/nvim"
+    cp "$REPO_ROOT/common/.stow-local-ignore" "$sandbox/repo/pkg/"
+    echo "pkg/.config/nvim/lazy-lock.json" > "$sandbox/repo/.gitignore"
+    (
+	cd "$sandbox/repo"
+	git init -q
+    )
+    echo "tracked" > "$sandbox/repo/pkg/.config/nvim/init.lua"
+    echo "source-runtime" > "$sandbox/repo/pkg/.config/nvim/lazy-lock.json"
+    echo "host-runtime" > "$sandbox/home/.config/nvim/lazy-lock.json"
+
+    HOME="$sandbox/home" "$sandbox/repo/script/stow-package" pkg > /dev/null
+
+    [ -L "$sandbox/home/.config/nvim/init.lua" ] || { echo "tracked file not stowed"; exit 1; }
+    [ ! -L "$sandbox/home/.config/nvim/lazy-lock.json" ] \
+	|| { echo "runtime file should not be linked"; exit 1; }
+    [ "$(cat "$sandbox/home/.config/nvim/lazy-lock.json")" = "host-runtime" ] \
+	|| { echo "host runtime file was not preserved"; exit 1; }
+    [ ! -d "$sandbox/home/.dotfiles-backup" ] \
+	|| { echo "ignored runtime file should not be backed up"; exit 1; }
+}
+
 test_stow_dangling_symlink_conflict() {
     local sandbox=$1
     set -e
@@ -204,47 +295,46 @@ test_stow_nonexistent_package() {
 #
 # setup-git-config hardcodes its template path relative to $REPO_ROOT
 # (via $(dirname "$0")/..), so we invoke the real script from the real
-# repo but stub $HOME so identity.env and the rendered config live in
-# the sandbox. This tests the real template rendering end-to-end.
+# repo but stub $HOME so the identity and rendered config live in the
+# sandbox. This tests the real template rendering end-to-end.
+
+write_test_identity() {
+    local home=$1 email=$2 key=$3
+    local identity="$home/.config/local/git/identity.gitconfig"
+    mkdir -p "$(dirname "$identity")"
+    git config --file "$identity" user.email "$email"
+    git config --file "$identity" user.signingkey "$key"
+}
 
 test_git_config_basic_render() {
     local sandbox=$1
     set -e
-    mkdir -p "$sandbox/home/.config/dotfiles"
-    cat > "$sandbox/home/.config/dotfiles/identity.env" <<'EOF'
-EMAIL=test@example.com
-SIGNINGKEY=ABCD1234DEADBEEF
-EOF
+    write_test_identity "$sandbox/home" "test@example.com" "ABCD1234DEADBEEF"
 
     HOME="$sandbox/home" "$REPO_ROOT/script/setup-git-config" > /dev/null
 
     local config="$sandbox/home/.config/git/config"
     [ -f "$config" ] || { echo "config not rendered"; exit 1; }
-    grep -q 'test@example.com'    "$config" || { echo "email not substituted"; exit 1; }
-    grep -q 'ABCD1234DEADBEEF'    "$config" || { echo "signingkey not substituted"; exit 1; }
-    if grep -q '{{EMAIL}}' "$config";      then echo "EMAIL placeholder left behind";      exit 1; fi
-    if grep -q '{{SIGNINGKEY}}' "$config"; then echo "SIGNINGKEY placeholder left behind"; exit 1; fi
+    [ "$(git config --file "$config" --get user.email)" = "test@example.com" ] \
+	|| { echo "email not injected"; exit 1; }
+    [ "$(git config --file "$config" --get user.signingkey)" = "ABCD1234DEADBEEF" ] \
+	|| { echo "signing key not injected"; exit 1; }
 }
 
-test_git_config_sed_metachars() {
+test_git_config_special_values() {
     local sandbox=$1
     set -e
-    mkdir -p "$sandbox/home/.config/dotfiles"
-    # Values contain sed metacharacters &, |, and \ — the script escapes
-    # them before substitution. Without the escaping, sed would corrupt
-    # the output or error out.
-    cat > "$sandbox/home/.config/dotfiles/identity.env" <<'EOF'
-EMAIL=weird&chars|here\test@example.com
-SIGNINGKEY=KEY&BAD|ID\WITHBACKSLASH
-EOF
+    local email='weird&chars|here\test@example.com'
+    local key='KEY&BAD|ID\WITHBACKSLASH'
+    write_test_identity "$sandbox/home" "$email" "$key"
 
     HOME="$sandbox/home" "$REPO_ROOT/script/setup-git-config" > /dev/null
 
     local config="$sandbox/home/.config/git/config"
-    grep -qF 'weird&chars|here\test@example.com' "$config" \
-        || { echo "email with sed metachars corrupted"; exit 1; }
-    grep -qF 'KEY&BAD|ID\WITHBACKSLASH' "$config" \
-        || { echo "signingkey with sed metachars corrupted"; exit 1; }
+    [ "$(git config --file "$config" --get user.email)" = "$email" ] \
+	|| { echo "email value did not round trip"; exit 1; }
+    [ "$(git config --file "$config" --get user.signingkey)" = "$key" ] \
+	|| { echo "signing key value did not round trip"; exit 1; }
 }
 
 test_git_config_codespaces_skip() {
@@ -254,26 +344,28 @@ test_git_config_codespaces_skip() {
     CODESPACES=1 HOME="$sandbox/home" "$REPO_ROOT/script/setup-git-config" > /dev/null
     [ -f "$sandbox/home/.config/git/config" ] \
         || { echo "codespaces path should render config"; exit 1; }
-    # [user] and [include] sections should be stripped
-    ! grep -q '\[user\]' "$sandbox/home/.config/git/config" \
-        || { echo "[user] section should be removed"; exit 1; }
-    ! grep -q '\[include\]' "$sandbox/home/.config/git/config" \
-        || { echo "[include] section should be removed"; exit 1; }
-    # gpgsign should be disabled
-    grep -q 'gpgsign = false' "$sandbox/home/.config/git/config" \
+    local config="$sandbox/home/.config/git/config"
+    if git config --file "$config" --get-regexp '^user\.' >/dev/null; then
+	echo "[user] section should be removed"
+	exit 1
+    fi
+    if git config --file "$config" --get-regexp '^include\.' >/dev/null; then
+	echo "[include] section should be removed"
+	exit 1
+    fi
+    [ "$(git config --file "$config" --get commit.gpgsign)" = "false" ] \
         || { echo "gpgsign should be false in codespaces mode"; exit 1; }
-    # aliases should still be present
-    grep -q '\[alias\]' "$sandbox/home/.config/git/config" \
+    git config --file "$config" --get alias.co >/dev/null \
         || { echo "aliases should be present in codespaces config"; exit 1; }
 }
 
 test_git_config_missing_email() {
     local sandbox=$1
     set -e
-    mkdir -p "$sandbox/home/.config/dotfiles"
-    echo "SIGNINGKEY=xxx" > "$sandbox/home/.config/dotfiles/identity.env"
+    mkdir -p "$sandbox/home/.config/local/git"
+    git config --file "$sandbox/home/.config/local/git/identity.gitconfig" user.signingkey xxx
     if HOME="$sandbox/home" "$REPO_ROOT/script/setup-git-config" 2>/dev/null; then
-        echo "expected nonzero exit when EMAIL missing"
+	echo "expected nonzero exit when user.email missing"
         exit 1
     fi
 }
@@ -281,10 +373,65 @@ test_git_config_missing_email() {
 test_git_config_missing_signingkey() {
     local sandbox=$1
     set -e
-    mkdir -p "$sandbox/home/.config/dotfiles"
-    echo "EMAIL=x@y.z" > "$sandbox/home/.config/dotfiles/identity.env"
+    mkdir -p "$sandbox/home/.config/local/git"
+    git config --file "$sandbox/home/.config/local/git/identity.gitconfig" user.email x@y.z
     if HOME="$sandbox/home" "$REPO_ROOT/script/setup-git-config" 2>/dev/null; then
-        echo "expected nonzero exit when SIGNINGKEY missing"
+	echo "expected nonzero exit when user.signingkey missing"
+	exit 1
+    fi
+}
+
+test_git_config_legacy_identity_migration() {
+    local sandbox=$1
+    set -e
+    mkdir -p "$sandbox/home/.config/dotfiles"
+    cat > "$sandbox/home/.config/dotfiles/identity.env" <<'EOF'
+EMAIL=legacy@example.com
+SIGNINGKEY=LEGACY1234
+EOF
+
+    HOME="$sandbox/home" "$REPO_ROOT/script/setup-git-config" > /dev/null
+
+    local identity="$sandbox/home/.config/local/git/identity.gitconfig"
+    [ -f "$identity" ] || { echo "legacy identity was not migrated"; exit 1; }
+    [ "$(git config --file "$identity" --get user.email)" = "legacy@example.com" ] \
+	|| { echo "migrated email is incorrect"; exit 1; }
+    [ "$(git config --file "$identity" --get user.signingkey)" = "LEGACY1234" ] \
+	|| { echo "migrated signing key is incorrect"; exit 1; }
+    [ -f "$sandbox/home/.config/local/git/identity.env.migrated" ] \
+	|| { echo "legacy identity should be archived"; exit 1; }
+    [ ! -e "$sandbox/home/.config/dotfiles/identity.env" ] \
+	|| { echo "legacy identity should leave the old directory"; exit 1; }
+}
+
+test_git_config_prior_git_identity_migration() {
+    local sandbox=$1
+    set -e
+    local old_identity="$sandbox/home/.config/dotfiles/identity.gitconfig"
+    mkdir -p "$(dirname "$old_identity")"
+    git config --file "$old_identity" user.email prior@example.com
+    git config --file "$old_identity" user.signingkey PRIOR1234
+
+    HOME="$sandbox/home" "$REPO_ROOT/script/setup-git-config" > /dev/null
+
+    local identity="$sandbox/home/.config/local/git/identity.gitconfig"
+    [ "$(git config --file "$identity" --get user.email)" = "prior@example.com" ] \
+	|| { echo "prior Git identity email is incorrect"; exit 1; }
+    [ "$(git config --file "$identity" --get user.signingkey)" = "PRIOR1234" ] \
+	|| { echo "prior Git identity signing key is incorrect"; exit 1; }
+    [ ! -e "$old_identity" ] || { echo "prior Git identity should be moved"; exit 1; }
+}
+
+test_git_config_check_detects_drift() {
+    local sandbox=$1
+    set -e
+    write_test_identity "$sandbox/home" "test@example.com" "ABCD1234"
+    HOME="$sandbox/home" "$REPO_ROOT/script/setup-git-config" > /dev/null
+    HOME="$sandbox/home" "$REPO_ROOT/script/setup-git-config" --check
+
+    git config --file "$sandbox/home/.config/git/config" alias.drift true
+    if HOME="$sandbox/home" "$REPO_ROOT/script/setup-git-config" --check; then
+	echo "expected drift check to fail"
         exit 1
     fi
 }
@@ -384,19 +531,26 @@ echo "=== stow-package ==="
 run_test "clean stow, no conflicts"         test_stow_clean
 run_test "real file conflict"               test_stow_real_file_conflict
 run_test "foreign symlink conflict"         test_stow_foreign_symlink_conflict
+run_test "foreign directory symlink"        test_stow_foreign_directory_symlink_conflict
 run_test "mixed conflicts and clean files"  test_stow_mixed_conflicts_and_clean
 run_test "re-stow is idempotent"            test_stow_restow_is_idempotent
-run_test "dangling symlink conflict"        test_stow_dangling_symlink_conflict
+run_test "re-stow prunes obsolete link"      test_stow_restow_prunes_obsolete_link
+run_test "re-stow unfolds owned directory"  test_stow_restow_unfolds_owned_directory
+run_test "runtime state is ignored"          test_stow_local_ignore_runtime_state
+run_test "dangling symlink conflict"         test_stow_dangling_symlink_conflict
 run_test "missing arg errors"               test_stow_missing_arg
 run_test "nonexistent package errors"       test_stow_nonexistent_package
 
 echo
 echo "=== setup-git-config ==="
 run_test "basic template render"            test_git_config_basic_render
-run_test "sed metacharacter escaping"       test_git_config_sed_metachars
-run_test "codespaces render"                  test_git_config_codespaces_skip
-run_test "missing EMAIL errors"             test_git_config_missing_email
-run_test "missing SIGNINGKEY errors"        test_git_config_missing_signingkey
+run_test "special values round trip"        test_git_config_special_values
+run_test "codespaces render"                test_git_config_codespaces_skip
+run_test "missing user.email errors"        test_git_config_missing_email
+run_test "missing signing key errors"       test_git_config_missing_signingkey
+run_test "legacy identity migration"        test_git_config_legacy_identity_migration
+run_test "prior Git identity migration"     test_git_config_prior_git_identity_migration
+run_test "drift check"                      test_git_config_check_detects_drift
 
 echo
 echo "=== tool_ready ==="

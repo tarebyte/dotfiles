@@ -1,0 +1,31 @@
+# A package-local ignore list replaces Stow's built-in defaults, so preserve
+# them here before adding runtime files that must remain host-local.
+RCS
+.+,v
+CVS
+\.\#.+
+\.cvsignore
+\.svn
+_darcs
+\.hg
+\.git
+\.gitignore
+\.gitmodules
+.+~
+\#.*\#
+^/README.*
+^/LICENSE.*
+^/COPYING
+
+# Fish universal variables, Fisher state, and machine-local environment.
+^/\.config/fish/fish_variables$
+^/\.config/fish/conf\.d$
+^/\.config/fish/completions$
+^/\.config/fish/local_env\.fish$
+
+# fzf runtime state.
+^/\.config/fzf/history$
+^/\.config/fzf/tmp$
+
+# Per-host lazy.nvim resolution.
+^/\.config/nvim/lazy-lock\.json$

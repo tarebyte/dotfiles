@@ -2,12 +2,11 @@
 #
 # script/stow-package <package>
 #
-# Wrapper around `stow --no-folding` that handles pre-existing files in $HOME
-# by moving them into a timestamped backup dir before stowing. Intended for
-# the first-time install / migration case where $HOME already contains real
-# config files (from a previous dotfile manager or hand-authored) that would
-# otherwise make stow abort with "existing target is neither a link nor a
-# directory".
+# Wrapper around `stow --restow --no-folding` that handles pre-existing files
+# in $HOME by moving them into a timestamped backup dir before stowing.
+# Intended for the first-time install / migration case where $HOME already
+# contains real config files or foreign symlinks (from a previous dotfile
+# manager or hand-authored) that would otherwise make stow abort.
 #
 # Behavior:
 #   1. Scans the package for target paths in $HOME that are already occupied.
@@ -15,9 +14,10 @@
 #      ~/.dotfiles-backup/<timestamp>/<relative-path>/, preserving structure.
 #   3. Runs the real stow.
 #
-# Nothing is ever deleted — if the new setup is wrong you can rsync the
-# backup dir back over $HOME. Invoked by the Makefile's stow targets and by
-# script/install-darwin.
+# Conflicting user files are never deleted — if the new setup is wrong you can
+# rsync the backup dir back over $HOME. Restowing only removes obsolete
+# symlinks owned by this package. Invoked by the Makefile's stow targets and
+# by script/install-darwin.
 
 set -euo pipefail
 
@@ -42,12 +42,24 @@ conflicts=$(
     find "$pkg" -mindepth 1 -print0 | while IFS= read -r -d '' src; do
         rel="${src#"$pkg"/}"
         target="$HOME/$rel"
+	# Stow always ignores its package-local ignore file. Runtime paths in
+	# that file are mirrored in the repository's .gitignore, so skip them
+	# here too instead of moving aside host-local state Stow will not link.
+	[ "$rel" = ".stow-local-ignore" ] && continue
+	git check-ignore -q -- "$src" 2>/dev/null && continue
         # -e is false for a dangling symlink, so test -L too: a broken link
         # still occupies the path and still has to be moved aside.
         [ -e "$target" ] || [ -L "$target" ] || continue
         if [ -d "$src" ] && [ ! -L "$src" ]; then
-            # stow just needs a directory here; anything else blocks it.
-            [ -d "$target" ] || printf '%s\n' "$rel"
+	    if [ -L "$target" ]; then
+		# An owned folded directory is safe: --restow combined with
+		# --no-folding will replace it with real target directories.
+		# A link to any other directory is a migration conflict.
+		[ "$target" -ef "$src" ] || printf '%s\n' "$rel"
+	    else
+		# stow just needs a real directory here; anything else blocks it.
+		[ -d "$target" ] || printf '%s\n' "$rel"
+	    fi
         else
             # -ef compares device+inode through symlinks, so this is true
             # when the target is already the very file the package provides
@@ -71,5 +83,5 @@ if [ -n "$conflicts" ]; then
     done <<< "$conflicts"
 fi
 
-stow --no-folding -t "$HOME" "$pkg"
+stow --restow --no-folding -t "$HOME" "$pkg"
 echo "stow-package: stowed $pkg"

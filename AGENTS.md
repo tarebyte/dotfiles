@@ -12,11 +12,11 @@ Personal dotfiles. **GNU stow**-managed — source tree is organized into packag
 | `script/doctor` | Health check — core tools, shell, git, mise, Neovim, tmux/TPM. Also checks that `~/.config/git/config` matches the template (warns on drift). |
 | `make test` | Run `shellcheck -x` on every script under `script/` and then execute `script/test` (functional tests for `stow-package` and `setup-git-config`, plus unit tests for `tool_ready`). |
 | `make install` | Generate `~/.config/git/config` from the template (prompting for identity on first run), stow `common`. On macOS also stow `darwin`, install brew bundle, update fisher, chsh to fish. |
-| `make regen-git-config` | Re-render `~/.config/git/config` from `templates/git-config.tmpl` + `~/.config/dotfiles/identity.env`. Run this after editing the template. |
+| `make regen-git-config` | Re-render `~/.config/git/config` from `templates/git-config.tmpl` + `~/.config/local/git/identity.gitconfig`. Run this after editing either source. |
 | `make brew` | Re-run `brew bundle --global` after editing `darwin/.Brewfile`. |
 | `make fisher` | Bootstrap fisher if needed and run `fisher update` after editing `common/.config/fish/fish_plugins`. |
 | `make mise` | `mise trust && mise install` after editing `common/.config/mise/config.toml`. |
-| `make clean` | `stow -D` the active packages — always `common`, plus `darwin` on macOS and `codespaces` when `$CODESPACES` is set. Does NOT delete `~/.config/git/config` or `~/.config/dotfiles/identity.env`. |
+| `make clean` | `stow -D` the active packages — always `common`, plus `darwin` on macOS and `codespaces` when `$CODESPACES` is set. Does NOT delete `~/.config/git/config` or the per-host identity file. |
 | `:Lazy sync` | Update/install Neovim plugins via lazy.nvim. `lazy-lock.json` is intentionally gitignored — see the Neovim section. |
 
 `make install` is also the recovery incantation — re-running it after a broken state is safe because `script/stow-package` handles pre-existing files by moving them aside, and every other step is idempotent.
@@ -31,7 +31,7 @@ If you ever need to invoke `stow` manually (e.g. for dry-run debugging), always 
 - *New* files written at runtime (`fish_variables`, `conf.d/foo.fish`, `completions/bar.fish`, whatever) land in real `$HOME` paths and never enter the repo. They're the same as any other per-machine file.
 - Adding a new tracked file is deliberate: create it in the package, run `stow -R` (or `make install`), and the per-file symlink appears in `$HOME`.
 
-Defense-in-depth: the root `.gitignore` also lists a handful of known runtime-state paths inside packages, so if `--no-folding` is ever accidentally dropped, those files still won't get committed.
+Defense-in-depth: `common/.stow-local-ignore` prevents Stow from linking known runtime-state paths even if they appear inside the package, while the root `.gitignore` prevents those paths from being committed.
 
 **The one exception is git config**, which is generated at install time rather than stow-symlinked. See "Git identity layout" below.
 
@@ -42,13 +42,13 @@ The `Makefile` is a thin dispatcher; real logic lives in `script/` so each piece
 | Script | Purpose |
 |---|---|
 | `script/setup` | Bootstrap — installs `stow` if missing, then runs `make install`. `#!/bin/sh` (POSIX). |
-| `script/setup-git-config` | Renders `templates/git-config.tmpl` → `~/.config/git/config` using `~/.config/dotfiles/identity.env`. Prompts on first run (TTY-guarded), atomic temp+mv write, sed-escaped substitution. Bash. |
-| `script/stow-package` | `stow --no-folding` wrapper. Walks the package to find target paths in `$HOME` that are already occupied, moves those files to `~/.dotfiles-backup/<timestamp>/<relative-path>/`, then stows. Conflicts are detected by inspecting the filesystem rather than parsing stow's diagnostics, whose wording differs between stow 2.3.x and 2.4+ and isn't a stable interface. A target that's already the symlink the package would create is not a conflict, so re-stowing is a clean no-op. Nothing is ever deleted. Used by `make stow-common`, `make install-codespaces`, and `script/install-darwin` so first-time migrations off a prior dotfile manager don't abort on pre-existing files. Bash. |
+| `script/setup-git-config` | Copies `templates/git-config.tmpl` to a temporary file and uses `git config --file` to inject values from `~/.config/local/git/identity.gitconfig` before an atomic move to `~/.config/git/config`. Prompts on first run (TTY-guarded), migrates prior identity formats, and provides `--check` for drift detection. Bash. |
+| `script/stow-package` | `stow --restow --no-folding` wrapper. Walks the package to find target paths in `$HOME` that are already occupied, moves those files to `~/.dotfiles-backup/<timestamp>/<relative-path>/`, then restows. Conflicts are detected by inspecting the filesystem rather than parsing stow's diagnostics, whose wording differs between stow 2.3.x and 2.4+ and isn't a stable interface. Existing links owned by the package are not conflicts; restowing also prunes obsolete links and unfolds old directory-level links. User files are never deleted, while obsolete package-owned symlinks are removed. Used by `make stow-common`, `make install-codespaces`, and `script/install-darwin` so first-time migrations off a prior dotfile manager don't abort on pre-existing files. Bash. |
 | `script/install-darwin` | macOS bootstrap: installs Homebrew if missing + sources `brew shellenv`, stows `darwin` (via `script/stow-package`), runs `make brew fisher`, registers fish in `/etc/shells` (line-exact match), chsh to fish. Bash. |
 | `script/install-codespace-tools` | Codespaces bootstrap **provision phase**: downloads nvim/rg/bat/fzf/lazygit/diff-so-fancy/tree-sitter via `gh release download`. Data-driven: a flat list of `install_tool` calls at the bottom names each tool, its version-flag probe, and an installer function (`via_deb`, `via_tarball_bin`, `via_raw_bin`, `via_nvim`, `via_apt`, or `install_tree_sitter`); the `install_tool` driver centralizes the skip/reinstall/time/log boilerplate. Readiness uses `tool_ready` (on PATH **and** the probe flag runs), so a binary broken by a glibc mismatch is detected and reinstalled instead of skipped — tree-sitter additionally falls back to a cargo build whenever the prebuilt binary can't run here: the freshly-installed binary is run once and the build kicks in if it fails. There is deliberately no glibc version check; the prebuilt binary's floor keeps rising (GLIBC_2.39 as of tree-sitter 0.26), so any hardcoded threshold goes stale, whereas "try it and see if it runs" stays correct. tree-sitter is non-negotiable, not a nicety: nvim-treesitter shells out to `tree-sitter build` for every parser it installs and its health check hard-errors without it. diff-so-fancy has no version flag, so it uses the `none` probe (presence only). Installs binaries only — plugin state is `sync-codespace-plugins`' job. Bash, `set -euo pipefail`. |
 | `script/sync-codespace-plugins` | Codespaces bootstrap **sync phase**: reconciles editor + terminal plugin state. `setup_neovim` runs headless `+Lazy! sync` + `+TSUpdateSync` (bounded by `nvim_headless`'s `timeout`); `setup_tmux` clones TPM and runs `install_plugins` from `~/.tmux.conf`. Both guard-skip when the tool or its stowed config is missing, are non-fatal, and are idempotent. Split from tool provisioning because populating plugin state is a different lifecycle phase — re-run it alone via `make sync-codespace-plugins` whenever the declared plugin set changes. Since `stow-common` runs before this script, `~/.config/nvim` and `~/.tmux.conf` are already symlinked. Bash, `set -euo pipefail`. |
-| `script/doctor` | Health check. Includes a template-drift check that re-renders `templates/git-config.tmpl` against `identity.env` and `cmp -s`'s against the live file; warns if they differ. Bash. |
-| `script/test` | Functional test suite for the scripts with non-trivial logic (`stow-package` conflict detection + backup moves, `setup-git-config` template substitution + sed escaping) plus unit tests for the `tool_ready` helper extracted from `install-codespace-tools`. Each test runs inside its own `mktemp` sandbox with a stubbed `$HOME`; nothing touches the real system. Bash. |
+| `script/doctor` | Health check. Uses `setup-git-config --check` to compare the expected Git config with the live file and warns on drift. Bash. |
+| `script/test` | Functional test suite for the scripts with non-trivial logic (`stow-package` conflict detection, restowing, and backup moves; `setup-git-config` rendering, migration, and drift detection) plus unit tests for the `tool_ready` helper extracted from `install-codespace-tools`. Each test runs inside its own `mktemp` sandbox with a stubbed `$HOME`; nothing touches the real system. Bash. |
 
 All pass `shellcheck -x` and are exercised by `make test`, which runs both the linter and `script/test`:
 ```sh
@@ -75,36 +75,38 @@ Script discovery goes through `git ls-files`, same as the CI linting jobs — ad
 
 ## Git identity layout
 
-Git config is the one dotfile that **isn't** stow-symlinked. Instead, it's rendered from a template at install time, because VS Code Dev Containers copies `~/.config/git/config` **verbatim** but does NOT follow `[include]` directives ([vscode-remote-release#3331](https://github.com/microsoft/vscode-remote-release/issues/3331)). To give devcontainers a working git config with aliases, colors, filters, AND identity all inlined in one file, the template has everything inlined and identity gets substituted at install time.
+Git config is the one dotfile that **isn't** stow-symlinked. Instead, it's rendered from a template at install time, because VS Code Dev Containers copies `~/.config/git/config` **verbatim** but does NOT follow `[include]` directives ([vscode-remote-release#3331](https://github.com/microsoft/vscode-remote-release/issues/3331)). To give devcontainers a working Git config with aliases, colors, filters, AND identity in one file, `script/setup-git-config` copies the static template and injects per-host values with `git config --file`.
 
 ### Files
 
-- `templates/git-config.tmpl` — committed plain text, the full static git config (aliases, colors, filters, core, pull, push, etc.) plus hardcoded `[user] name = Mark Tareshawty`, `[commit] gpgsign = true`, `[github] user = tarebyte`, with two placeholders `{{EMAIL}}` and `{{SIGNINGKEY}}` in the `[user]` section. Ends with `[include] path = ~/.config/git/config.darwin`. Not in any stow package — it's a source file for code generation.
-- `~/.config/dotfiles/identity.env` — **per-host, not in the repo**. Plain shell-sourceable file with `EMAIL=...` and `SIGNINGKEY=...`. Created on first `make install` by prompts; mode 600. Edit this file to rotate keys or change emails, then run `make regen-git-config`.
-- `~/.config/git/config` — **generated at install time**, real file (NOT a symlink). Rendered by substituting the two placeholders from `identity.env` into the template. This is the file devcontainers copy.
+- `templates/git-config.tmpl` — committed, valid Git config containing all static settings plus hardcoded `[user] name = Mark Tareshawty`, `[commit] gpgsign = true`, and `[github] user = tarebyte`. Its `[user]` section deliberately omits email and signing key. It ends with `[include] path = ~/.config/git/config.darwin`.
+- `~/.config/local/git/identity.gitconfig` — **per-host, not in the repo**. Standard Git config containing `user.email` and `user.signingkey`. Created on first `make install` by prompts with mode 600; read and written exclusively through `git config --file`.
+- `~/.config/git/config` — **generated at install time**, real file (NOT a symlink). Built by copying the template and injecting the two per-host values with `git config --file`. This is the file devcontainers copy.
 - `darwin/.config/git/config.darwin` — macOS-only credential helper (`osxkeychain`) and `gpg.program` path. Still stow-symlinked from the `darwin` package, `[include]`d from the generated `~/.config/git/config`. Inside Linux devcontainers the include silently no-ops (correct — osxkeychain doesn't exist there).
 - `common/.config/git/ignore` — global gitignore, regular stow symlink.
 
+Older hosts using `~/.config/dotfiles/identity.gitconfig` have that file moved automatically on the next render. The original `identity.env` format is converted and archived as `~/.config/local/git/identity.env.migrated`.
+
 ### Codespaces
 
-`script/setup-git-config` takes a second path when `$CODESPACES` is set, because Codespaces injects its own `~/.gitconfig` carrying identity and a credential helper. Rather than prompt for an identity the environment already has, it renders the template with three edits and skips `identity.env` entirely:
+`script/setup-git-config` takes a second path when `$CODESPACES` is set, because Codespaces injects its own `~/.gitconfig` carrying identity and a credential helper. Rather than prompt for an identity the environment already has, it copies the template, makes three edits with `git config --file`, and skips `identity.gitconfig` entirely:
 
 - the `[user]` block is stripped — name and email come from the injected `~/.gitconfig`;
 - `commit.gpgsign` is flipped to `false`, since there's no GPG key in the container;
 - the trailing `[include]` of `config.darwin` is dropped.
 
-Everything else — aliases, colors, filters — renders as usual, which is the point: the container still gets the full config rather than bare identity. Because this path returns before the TTY check, an unattended Codespaces bootstrap can't hang on a prompt. `script/doctor`'s template-drift check is inert there for the same reason: it requires `identity.env`, which this path never creates.
+Everything else — aliases, colors, filters — renders as usual, which is the point: the container still gets the full config rather than bare identity. This path never checks or prompts for a local identity, so an unattended Codespaces bootstrap can't hang. `script/setup-git-config --check` and `script/doctor` use the same Codespaces rendering path for drift detection.
 
 ### Edit flow
 
 - **Add an alias / change a color / edit a filter:** edit `templates/git-config.tmpl`, run `make regen-git-config` to propagate to `~/.config/git/config` on this host. To propagate to another host, pull and run `make regen-git-config` there.
-- **Rotate a GPG signing key or change email:** edit `~/.config/dotfiles/identity.env`, run `make regen-git-config`. The template is unchanged; only the generated output picks up the new values.
-- **First-time install on a fresh host:** `make install` sees the missing `identity.env`, prompts once for email and GPG key, writes `identity.env` (mode 600), renders the config, continues with stow + brew bundle. Subsequent `make install` runs are silent because `identity.env` already exists.
-- **Inspect live config:** `cat ~/.config/git/config` or `git config --list --show-origin`. The file is regular and readable — just don't edit it directly, or your edits will be clobbered by the next `make regen-git-config`. `script/doctor` catches this: it re-renders the template against `identity.env` and warns if it differs from the live file.
+- **Rotate a GPG signing key or change email:** edit `~/.config/local/git/identity.gitconfig` with `git config --file`, then run `make regen-git-config`. The template is unchanged; only the generated output picks up the new values.
+- **First-time install on a fresh host:** `make install` sees the missing `identity.gitconfig`, prompts once for email and GPG key, writes it with mode 600, renders the config, and continues with stow + brew bundle. Subsequent runs are silent because the identity file already exists.
+- **Inspect live config:** `cat ~/.config/git/config` or `git config --list --show-origin`. The file is regular and readable — just don't edit it directly, or your edits will be clobbered by the next `make regen-git-config`. `script/doctor` catches this through `setup-git-config --check`.
 
 ### Why not stow-symlink it?
 
-Because the template has placeholders (`{{EMAIL}}`, `{{SIGNINGKEY}}`) that need to become real values before git can read the file. Stow would symlink the placeholder-bearing file straight into `$HOME`, and git would break on the invalid `user.email`. An intermediate substitution step is required, and the cleanest place to do it is at install time.
+Because email and signing key vary by host but must appear directly in the top-level config copied by Dev Containers. A static Stow symlink cannot provide both per-host values and a flattened config, so the install step copies the valid static template and injects those values with Git itself.
 
 ### Why inline everything instead of using `[include]` for the static parts?
 
@@ -114,9 +116,9 @@ The one exception is `darwin/.config/git/config.darwin` which IS `[include]`d, a
 
 ### Why is identity not committed to the repo?
 
-It could be — name, email, signing key ID, and GitHub username are all already public via `git log` and `git log --show-signature` on github.com, so committing them leaks nothing new. But keeping them in a per-host `identity.env` outside the repo means:
+It could be — name, email, signing key ID, and GitHub username are all already public via `git log` and `git log --show-signature` on github.com, so committing them leaks nothing new. But keeping email and signing key in a per-host `identity.gitconfig` outside the repo means:
 1. Different hosts can use different values (work mac with work GPG key + work email, personal mac with personal values) without committing both to the repo.
-2. A forker of this repo gets prompted for their own values on first `make install` instead of inheriting Mark's.
+2. Those values stay out of the repository while the shared config remains readable and directly editable.
 
 The tradeoff is the one "generated file with a source of truth elsewhere" in the setup. Everything else is stow-symlinked and edit-in-place.
 
@@ -128,7 +130,7 @@ The tradeoff is the one "generated file with a source of truth elsewhere" in the
 - **`darwin/`** — any macOS host: `.Brewfile`, macOS-only scripts (`pb-pem`, `ssh-copy-id`, `touchid-enable-pam-sudo`), `git/config.darwin` (osxkeychain + gpg.program).
 - **`codespaces/`** — Codespaces only: `.bash_aliases`, `.oh-my-zsh/`, Linux-only scripts (`gh-prepare`).
 
-Git config isn't in any stow package — it's rendered from `templates/git-config.tmpl` + `~/.config/dotfiles/identity.env` at `make install` time. See the "Git identity layout" section above.
+Git config isn't in any stow package — it's rendered from `templates/git-config.tmpl` + `~/.config/local/git/identity.gitconfig` at `make install` time. See the "Git identity layout" section above.
 
 `make install` picks the right packages based on `uname -s` (darwin gates `install-darwin`) and `$CODESPACES` (gates `install-codespaces`). No `CONTEXT` env var — each host's identity file is what makes it "personal" or "work".
 
@@ -163,7 +165,7 @@ Layout under `common/.config/nvim/`:
 - `lua/plugins/editing.lua` — vim-surround, vim-repeat, vim-eunuch, vim-projectionist, vim-rails, vim-better-whitespace, vim-dirvish + dirvish-git.
 - `lua/plugins/treesitter.lua` — parser list additions and endwise. Treesitter context is enabled through the `lazyvim.plugins.extras.ui.treesitter-context` entry in `lazyvim.json`; textobjects are not configured locally in this file.
 - `ftplugin/`, `ftdetect/`, `after/` — standard.
-- `lazy-lock.json` — **gitignored on purpose.** On a fresh clone it is absent from the stow package, so lazy.nvim writes a host-local `~/.config/nvim/lazy-lock.json`; if an ignored source-tree copy already exists, stow may symlink that copy instead. Either way it isn't tracked, so plugin versions are deliberately not pinned across machines. To make versions reproducible, remove the `.gitignore` entry, move or copy the host lockfile into `common/.config/nvim/`, add it to git, and run `make install`.
+- `lazy-lock.json` — **gitignored and Stow-ignored on purpose.** lazy.nvim writes a host-local `~/.config/nvim/lazy-lock.json`, so plugin versions are deliberately not pinned across machines. To make versions reproducible, remove its entries from `.gitignore` and `common/.stow-local-ignore`, move or copy the host lockfile into `common/.config/nvim/`, add it to git, and run `make install`.
 
 Conventions (intentional — don't "fix"):
 - Leader: `,` (not space — set in `init.lua` before `require("config.lazy")`).
