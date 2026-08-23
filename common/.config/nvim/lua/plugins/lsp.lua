@@ -59,6 +59,26 @@ return {
           filetypes = { "ruby" },
           root_markers = { ".vscode/run-sorbet" },
         },
+        -- Prose/grammar checking. Attaches to markdown and to comments and
+        -- strings in the ~28 filetypes nvim-lspconfig declares by default.
+        --
+        -- userDictPath points at the same word list `setlocal spell` uses in
+        -- ftplugin/markdown.vim, so there is one personal dictionary rather
+        -- than two. Note that words added through harper's code action land
+        -- in that file but do not regenerate the compiled `.spl`; run
+        -- `:mkspell! %` on it if Vim's own spell checker needs to agree.
+        harper_ls = {
+          settings = {
+            ["harper-ls"] = {
+              userDictPath = vim.fn.stdpath("config") .. "/spell/en.utf-8.add",
+              linters = {
+                -- Off by default here: code comments and commit subjects
+                -- routinely start lowercase, which this flags on every line.
+                SentenceCapitalization = false,
+              },
+            },
+          },
+        },
       },
     },
   },

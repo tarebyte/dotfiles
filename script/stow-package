@@ -10,7 +10,7 @@
 # directory".
 #
 # Behavior:
-#   1. Dry-runs stow to enumerate conflicts.
+#   1. Scans the package for target paths in $HOME that are already occupied.
 #   2. Moves every conflicting real file into
 #      ~/.dotfiles-backup/<timestamp>/<relative-path>/, preserving structure.
 #   3. Runs the real stow.
@@ -31,29 +31,31 @@ if [ ! -d "$pkg" ]; then
     exit 1
 fi
 
-# Dry-run stow. It exits non-zero when conflicts are present, which would
-# abort this script under `set -e` — wrap in `|| true` so we can inspect
-# the diagnostic output either way.
-dryrun=$(stow -n --no-folding -v -t "$HOME" "$pkg" 2>&1 || true)
-
-# Stow emits three conflict diagnostics we care about. The first two
-# are both "real file already at the target" — stow 2.3.x (shipped by
-# Debian/Ubuntu) prints the second, shorter form; stow 2.4+ (current
-# Homebrew) prints the longer "cannot stow" form. Cover both so this
-# script works across CI runners and dev machines.
-#
-#   stow 2.4+:
-#     * cannot stow <src> over existing target <target> since neither
-#       a link nor a directory and --adopt not specified
-#   stow 2.3.x:
-#     * existing target is neither a link nor a directory: <target>
-#   both versions:
-#     * existing target is not owned by stow: <target>
-#       → target is already a symlink, but points outside any stow package
-conflicts=$(printf '%s\n' "$dryrun" | sed -n \
-    -e 's|.*cannot stow .* over existing target \(.*\) since neither a link nor a directory.*|\1|p' \
-    -e 's|.*existing target is neither a link nor a directory: \(.*\)|\1|p' \
-    -e 's|.*existing target is not owned by stow: \(.*\)|\1|p')
+# Enumerate conflicts by inspecting the filesystem directly. With
+# --no-folding every file in the package becomes its own symlink in $HOME,
+# so a conflict is simply: something already occupies a target path and it
+# isn't what we're about to put there. Deriving this ourselves keeps the
+# script independent of stow's human-readable diagnostics, whose wording
+# differs between stow 2.3.x (Debian/Ubuntu) and 2.4+ (Homebrew) and is not
+# a stable interface in any case.
+conflicts=$(
+    find "$pkg" -mindepth 1 -print0 | while IFS= read -r -d '' src; do
+        rel="${src#"$pkg"/}"
+        target="$HOME/$rel"
+        # -e is false for a dangling symlink, so test -L too: a broken link
+        # still occupies the path and still has to be moved aside.
+        [ -e "$target" ] || [ -L "$target" ] || continue
+        if [ -d "$src" ] && [ ! -L "$src" ]; then
+            # stow just needs a directory here; anything else blocks it.
+            [ -d "$target" ] || printf '%s\n' "$rel"
+        else
+            # -ef compares device+inode through symlinks, so this is true
+            # when the target is already the very file the package provides
+            # — a re-stow, not a conflict.
+            [ "$target" -ef "$src" ] || printf '%s\n' "$rel"
+        fi
+    done
+)
 
 if [ -n "$conflicts" ]; then
     ts=$(date +%Y%m%d-%H%M%S)

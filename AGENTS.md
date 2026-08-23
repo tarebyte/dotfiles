@@ -17,7 +17,7 @@ Personal dotfiles. **GNU stow**-managed — source tree is organized into packag
 | `make fisher` | Bootstrap fisher if needed and run `fisher update` after editing `common/.config/fish/fish_plugins`. |
 | `make mise` | `mise trust && mise install` after editing `common/.config/mise/config.toml`. |
 | `make clean` | `stow -D` every package — cleanly unlinks everything from `$HOME`. Does NOT delete `~/.config/git/config` or `~/.config/dotfiles/identity.env`. |
-| `:Lazy sync` | Update/install Neovim plugins via lazy.nvim; commit `lazy-lock.json`. |
+| `:Lazy sync` | Update/install Neovim plugins via lazy.nvim. `lazy-lock.json` is intentionally gitignored — see the Neovim section. |
 
 `make install` is also the recovery incantation — re-running it after a broken state is safe because `script/stow-package` handles pre-existing files by moving them aside, and every other step is idempotent.
 
@@ -27,7 +27,7 @@ If you ever need to invoke `stow` manually (e.g. for dry-run debugging), always 
 
 **Why `--no-folding`:** every `stow` invocation in this repo passes `--no-folding` (see the `STOW` variable in the Makefile). With folding enabled, stow creates a single directory-level symlink when a package subtree is new in `$HOME` — e.g. `~/.config/fish` would become a symlink pointing at `common/.config/fish`. That's minimal-symlink-count, but it means any runtime write a tool does inside `~/.config/fish/` (fish writing `fish_variables`, fisher writing `conf.d/` and `completions/`) silently propagates *through the symlink into the repo source*, polluting the stow package with untracked files. `--no-folding` makes every directory in `$HOME` a real directory containing individual per-file symlinks, so:
 
-- Edits to *tracked* files (`config.fish`, `lazy-lock.json`, etc.) still go through their per-file symlinks into the repo source, exactly as before.
+- Edits to *tracked* files (`config.fish`, `init.lua`, etc.) still go through their per-file symlinks into the repo source, exactly as before.
 - *New* files written at runtime (`fish_variables`, `conf.d/foo.fish`, `completions/bar.fish`, whatever) land in real `$HOME` paths and never enter the repo. They're the same as any other per-machine file.
 - Adding a new tracked file is deliberate: create it in the package, run `stow -R` (or `make install`), and the per-file symlink appears in `$HOME`.
 
@@ -43,31 +43,33 @@ The `Makefile` is a thin dispatcher; real logic lives in `script/` so each piece
 |---|---|
 | `script/setup` | Bootstrap — installs `stow` if missing, then runs `make install`. `#!/bin/sh` (POSIX). |
 | `script/setup-git-config` | Renders `templates/git-config.tmpl` → `~/.config/git/config` using `~/.config/dotfiles/identity.env`. Prompts on first run (TTY-guarded), atomic temp+mv write, sed-escaped substitution. Bash. |
-| `script/stow-package` | `stow --no-folding` wrapper. Dry-runs first, moves any conflicting real files in `$HOME` to `~/.dotfiles-backup/<timestamp>/<relative-path>/`, then stows. Nothing is ever deleted. Used by `make stow-common`, `make install-codespaces`, and `script/install-darwin` so first-time migrations off a prior dotfile manager don't abort on pre-existing files. Bash. |
+| `script/stow-package` | `stow --no-folding` wrapper. Walks the package to find target paths in `$HOME` that are already occupied, moves those files to `~/.dotfiles-backup/<timestamp>/<relative-path>/`, then stows. Conflicts are detected by inspecting the filesystem rather than parsing stow's diagnostics, whose wording differs between stow 2.3.x and 2.4+ and isn't a stable interface. A target that's already the symlink the package would create is not a conflict, so re-stowing is a clean no-op. Nothing is ever deleted. Used by `make stow-common`, `make install-codespaces`, and `script/install-darwin` so first-time migrations off a prior dotfile manager don't abort on pre-existing files. Bash. |
 | `script/install-darwin` | macOS bootstrap: installs Homebrew if missing + sources `brew shellenv`, stows `darwin` (via `script/stow-package`), runs `make brew fisher`, registers fish in `/etc/shells` (line-exact match), chsh to fish. Bash. |
-| `script/install-codespace-tools` | Codespaces bootstrap **provision phase**: downloads nvim/rg/bat/fzf/lazygit/diff-so-fancy/tree-sitter via `gh release download`. Data-driven: a flat list of `install_tool` calls at the bottom names each tool, its version-flag probe, and an installer function (`via_deb`, `via_tarball_bin`, `via_raw_bin`, `via_nvim`, `via_apt`, or `install_tree_sitter`); the `install_tool` driver centralizes the skip/reinstall/time/log boilerplate. Readiness uses `tool_ready` (on PATH **and** the probe flag runs), so a binary broken by a glibc mismatch is detected and reinstalled instead of skipped — tree-sitter additionally falls back to a cargo build whenever the prebuilt binary can't run here: a `< 2.35` glibc fast-path skips a doomed download, and for anything newer the freshly-installed binary is run once and the build kicks in if it fails (the prebuilt binary's glibc floor keeps rising — GLIBC_2.39 as of tree-sitter 0.26 — so a static threshold alone goes stale). diff-so-fancy has no version flag, so it uses the `none` probe (presence only). Installs binaries only — plugin state is `sync-codespace-plugins`' job. Bash, `set -euo pipefail`. |
+| `script/install-codespace-tools` | Codespaces bootstrap **provision phase**: downloads nvim/rg/bat/fzf/lazygit/diff-so-fancy/tree-sitter via `gh release download`. Data-driven: a flat list of `install_tool` calls at the bottom names each tool, its version-flag probe, and an installer function (`via_deb`, `via_tarball_bin`, `via_raw_bin`, `via_nvim`, `via_apt`, or `install_tree_sitter`); the `install_tool` driver centralizes the skip/reinstall/time/log boilerplate. Readiness uses `tool_ready` (on PATH **and** the probe flag runs), so a binary broken by a glibc mismatch is detected and reinstalled instead of skipped — tree-sitter additionally falls back to a cargo build whenever the prebuilt binary can't run here: the freshly-installed binary is run once and the build kicks in if it fails. There is deliberately no glibc version check; the prebuilt binary's floor keeps rising (GLIBC_2.39 as of tree-sitter 0.26), so any hardcoded threshold goes stale, whereas "try it and see if it runs" stays correct. tree-sitter is non-negotiable, not a nicety: nvim-treesitter shells out to `tree-sitter build` for every parser it installs and its health check hard-errors without it. diff-so-fancy has no version flag, so it uses the `none` probe (presence only). Installs binaries only — plugin state is `sync-codespace-plugins`' job. Bash, `set -euo pipefail`. |
 | `script/sync-codespace-plugins` | Codespaces bootstrap **sync phase**: reconciles editor + terminal plugin state. `setup_neovim` runs headless `+Lazy! sync` + `+TSUpdateSync` (bounded by `nvim_headless`'s `timeout`); `setup_tmux` clones TPM and runs `install_plugins` from `~/.tmux.conf`. Both guard-skip when the tool or its stowed config is missing, are non-fatal, and are idempotent. Split from tool provisioning because populating plugin state is a different lifecycle phase — re-run it alone via `make sync-codespace-plugins` whenever the declared plugin set changes. Since `stow-common` runs before this script, `~/.config/nvim` and `~/.tmux.conf` are already symlinked. Bash, `set -euo pipefail`. |
 | `script/doctor` | Health check. Includes a template-drift check that re-renders `templates/git-config.tmpl` against `identity.env` and `cmp -s`'s against the live file; warns if they differ. Bash. |
-| `script/test` | Functional test suite for the scripts with non-trivial logic (`stow-package` conflict parsing + backup moves, `setup-git-config` template substitution + sed escaping) plus unit tests for the `glibc_version_lt` and `tool_ready` helpers extracted from `install-codespace-tools`. Each test runs inside its own `mktemp` sandbox with a stubbed `$HOME`; nothing touches the real system. Bash. |
+| `script/test` | Functional test suite for the scripts with non-trivial logic (`stow-package` conflict detection + backup moves, `setup-git-config` template substitution + sed escaping) plus unit tests for the `tool_ready` helper extracted from `install-codespace-tools`. Each test runs inside its own `mktemp` sandbox with a stubbed `$HOME`; nothing touches the real system. Bash. |
 
 All pass `shellcheck -x` and are exercised by `make test`, which runs both the linter and `script/test`:
 ```sh
 make test
 # equivalent to:
-shellcheck -x script/setup script/setup-git-config script/stow-package script/install-darwin script/doctor script/install-codespace-tools script/sync-codespace-plugins script/test
+git ls-files -z 'script/*' | xargs -0 -r shellcheck -x
 ./script/test
 ```
+
+Script discovery goes through `git ls-files`, same as the CI linting jobs — adding a script to `script/` can't silently go unlinted. `shellcheck` comes from Homebrew (`darwin/.Brewfile`); see "Tool provisioning" below.
 
 ### CI
 
 `.github/workflows/ci.yml` has four jobs:
 
-- **`test`** (`ubuntu-latest`) — installs `stow` via apt, runs `make test`. Mirrors the local `make test` exactly.
+- **`test`** (`ubuntu-latest`) — installs `stow` via apt, then runs `make test`. `shellcheck` needs no install step: the runner image ships it preinstalled. That version trails Homebrew's, so CI is the more permissive of the two linters — a check added in a newer shellcheck release can fire on your Mac without failing CI.
 - **`fish`** (`ubuntu-latest`) — `git ls-files -z '*.fish' | xargs -0 -r -n1 fish -n`. `-n1` so a syntax error in any single file propagates through xargs as a nonzero exit (without it, xargs batches all files into one `fish -n` call and you only see the last file's status).
-- **`lua`** (`ubuntu-latest`) — discovers the directory containing `stylua.toml` via `git ls-files` and passes it to `JohnnyMorganz/stylua-action`. stylua walks upward from each target file to find its own config, so no `-f` path is hardcoded.
-- **`codespace-tools`** — matrix over `ubuntu:20.04`/`ubuntu:22.04`/`debian:12`/`ubuntu:24.04` containers, chosen as glibc representatives (2.31/2.35/2.36/2.39) spanning the prebuilt tree-sitter binary's floor (GLIBC_2.39). `debian:12` (glibc 2.36) guards the 2.35–2.39 gap where a stale version threshold would install a binary the system can't run. Each job installs the `gh` CLI, installs the Rust toolchain on every image except 24.04 (glibc `< 2.39` needs the tree-sitter cargo fallback), runs `script/install-codespace-tools`, then verifies all 8 tools (`nvim`, `tree-sitter`, `tmux`, `rg`, `bat`, `fzf`, `lazygit`, `diff-so-fancy`) are on PATH **and** actually run (each tool's own version-flag exit status is checked, unpiped, so a present-but-broken binary fails the job). This is the end-to-end guard for the glibc-aware provisioning logic.
+- **`lua`** (`ubuntu-latest`) — discovers the directory containing `stylua.toml` via `git ls-files`, installs `stylua` from the tracked mise config, and runs `--check` against that directory. stylua walks upward from each target file to find its own config, so no `-f` path is hardcoded.
+- **`codespace-tools`** — matrix over `ubuntu:22.04`/`ubuntu:24.04` containers, chosen as glibc representatives (2.35/2.39) sitting either side of the prebuilt tree-sitter binary's floor (GLIBC_2.39), so one image exercises the cargo fallback and the other the prebuilt path. Older images (`ubuntu:20.04`, `debian:12`) were dropped because they drive the identical fallback branch and only add cargo build time. Each job installs the `gh` CLI, installs the Rust toolchain on every image except 24.04 (glibc `< 2.39` needs the tree-sitter cargo fallback), runs `script/install-codespace-tools`, then verifies all 8 tools (`nvim`, `tree-sitter`, `tmux`, `rg`, `bat`, `fzf`, `lazygit`, `diff-so-fancy`) are on PATH **and** actually run (each tool's own version-flag exit status is checked, unpiped, so a present-but-broken binary fails the job). This is the end-to-end guard for the glibc-aware provisioning logic.
 
-**Design constraint: every file-linting job (`test`, `fish`, `lua`) discovers files via `git ls-files`, never via hardcoded paths.** Moving `common/` → `whatever/` should not require a CI edit. If you add a new validator, follow the same pattern. The one exception is the stylua version pin (`version: v2.4.1` in the `stylua-action` step) — bumping it may require reformatting the tracked `.lua` files, because stylua is not backwards-compatible on formatting across major versions. When bumping, run `mise exec stylua@<new-version> -- stylua common/.config/nvim` locally first and commit the reflow in the same change.
+**Design constraint: every file-linting job (`test`, `fish`, `lua`) discovers files via `git ls-files`, never via hardcoded paths.** Moving `common/` → `whatever/` should not require a CI edit. If you add a new validator, follow the same pattern. Where a tool *is* mise-managed, its version follows the same rule — the `lua` job installs `stylua` from `common/.config/mise/config.toml` rather than pinning a version in an action input. (`shellcheck` is not mise-managed and so is not pinned anywhere: CI uses the runner's preinstalled copy, macOS uses Homebrew's.) Bumping the `stylua` pin may require reformatting the tracked `.lua` files, because stylua is not backwards-compatible on formatting across major versions — run `mise exec stylua@<new-version> -- stylua common/.config/nvim` locally first and commit the reflow in the same change.
 
 `.github/workflows/license-year.yml` is a separate scheduled workflow that bumps the copyright year in `LICENSE` each January and opens a PR via `peter-evans/create-pull-request`. Unrelated to the test pipeline.
 
@@ -82,6 +84,16 @@ Git config is the one dotfile that **isn't** stow-symlinked. Instead, it's rende
 - `~/.config/git/config` — **generated at install time**, real file (NOT a symlink). Rendered by substituting the two placeholders from `identity.env` into the template. This is the file devcontainers copy.
 - `darwin/.config/git/config.darwin` — macOS-only credential helper (`osxkeychain`) and `gpg.program` path. Still stow-symlinked from the `darwin` package, `[include]`d from the generated `~/.config/git/config`. Inside Linux devcontainers the include silently no-ops (correct — osxkeychain doesn't exist there).
 - `common/.config/git/ignore` — global gitignore, regular stow symlink.
+
+### Codespaces
+
+`script/setup-git-config` takes a second path when `$CODESPACES` is set, because Codespaces injects its own `~/.gitconfig` carrying identity and a credential helper. Rather than prompt for an identity the environment already has, it renders the template with three edits and skips `identity.env` entirely:
+
+- the `[user]` block is stripped — name and email come from the injected `~/.gitconfig`;
+- `commit.gpgsign` is flipped to `false`, since there's no GPG key in the container;
+- the trailing `[include]` of `config.darwin` is dropped.
+
+Everything else — aliases, colors, filters — renders as usual, which is the point: the container still gets the full config rather than bare identity. Because this path returns before the TTY check, an unattended Codespaces bootstrap can't hang on a prompt. `script/doctor`'s template-drift check is inert there for the same reason: it requires `identity.env`, which this path never creates.
 
 ### Edit flow
 
@@ -127,7 +139,7 @@ Git config isn't in any stow package — it's rendered from `templates/git-confi
 
 Shared: `common/.config/mise/config.toml`, `EDITOR=nvim`, core aliases (`lg`, `gp`, `vi`, `vim`). Shell-level features usually need both `config.fish` and `codespaces/.bash_aliases`.
 
-Machine-local secrets on Codespaces come from user-defined Codespaces secrets. On Darwin, add them yourself — there is currently no machine-local env file in the tracked layout.
+Machine-local secrets on Codespaces come from user-defined Codespaces secrets. On Darwin, put per-host values in `~/.config/fish/local_env.fish`, which `config.fish` sources when present — copy `common/.config/fish/local_env.fish.example` to create one. The real file is gitignored; only the `.example` template is tracked.
 
 ### Neovim — LazyVim base + manual LSP
 
@@ -145,11 +157,11 @@ Layout under `common/.config/nvim/`:
 - `lua/plugins/disabled.lua` — single place for LazyVim plugins we turn off: `bufferline.nvim`, `mason.nvim`, `mason-lspconfig.nvim`, `neo-tree.nvim`.
 - `lua/plugins/coding.lua` — blink.cmp Tab/S-Tab cycling + sources, disable for mini.surround.
 - `lua/plugins/gitsigns.lua` — gitsigns `numhl` only (no current-line blame).
-- `lua/plugins/lsp.lua` — registers the Ruby servers (`ruby_lsp`, `vscode_sorbet`, `vscode_sorbet_rubocop`) via `opts.servers`, and sets `opts.diagnostics`. Mason itself is disabled in `disabled.lua`.
+- `lua/plugins/lsp.lua` — registers the Ruby servers (`ruby_lsp`, `vscode_sorbet`, `vscode_sorbet_rubocop`) and `harper_ls` (prose/grammar) via `opts.servers`, and sets `opts.diagnostics`. Mason itself is disabled in `disabled.lua`.
 - `lua/plugins/editing.lua` — vim-surround, vim-repeat, vim-eunuch, vim-projectionist, vim-rails, vim-better-whitespace, vim-dirvish + dirvish-git.
 - `lua/plugins/treesitter.lua` — parser list additions, treesitter-context, treesitter-textobjects, endwise.
 - `ftplugin/`, `ftdetect/`, `after/` — standard.
-- `lazy-lock.json` — pinned plugin versions; commit on update.
+- `lazy-lock.json` — **gitignored on purpose.** lazy.nvim writes it through the stow symlink, but it isn't tracked, so plugin versions are deliberately not pinned across machines: each host resolves to whatever `:Lazy sync` fetches. If you ever want reproducible plugin versions, drop the entry from `.gitignore` and `git add` it — the symlink already exists, so nothing else has to change.
 
 Conventions (intentional — don't "fix"):
 - Leader: `,` (not space — set in `init.lua` before `require("config.lazy")`).
@@ -159,8 +171,9 @@ Conventions (intentional — don't "fix"):
 - Theme: Catppuccin Mocha (matches tmux).
 - File explorer: vim-dirvish (neo-tree disabled).
 - Surround: vim-surround (mini.surround disabled).
+- Prose: `harper_ls` and `setlocal spell` (in `ftplugin/markdown.vim`) share one word list — `spell/en.utf-8.add`, wired into harper via `userDictPath`. Add words in one place, not two.
 
-Adding a plugin: create/edit a spec file under `lua/plugins/` returning a lazy.nvim spec table. Run `:Lazy sync`, commit `lazy-lock.json`.
+Adding a plugin: create/edit a spec file under `lua/plugins/` returning a lazy.nvim spec table. Run `:Lazy sync`.
 
 Adding an LSP: add `<name> = { ... }` to `opts.servers` in `lua/plugins/lsp.lua` with the full `vim.lsp.Config` table inline.
 
@@ -168,11 +181,27 @@ Formatting: LazyVim's default `conform.nvim` wiring, untouched. Format-on-save r
 
 ### Fish
 
-`common/.config/fish/` = `config.fish`, `fish_plugins` (Fisher), `functions/` (one fn per file, filename must match function name). Non-obvious helpers: `gloan` (clones into `~/src/{owner}/{repo}`), `github_token` / `set_github_token` / `refresh_github_token` (gh keyring, cached).
+`common/.config/fish/` = `config.fish`, `fish_plugins` (Fisher), and `functions/` (one fn per file, filename must match function name). Nothing under `conf.d/` is tracked — it's ignored in `.gitignore` because fisher and fish itself write there at runtime. Non-obvious helpers: `gloan` (clones into `~/src/{owner}/{repo}`), `github_token` / `set_github_token` / `refresh_github_token` (gh keyring, cached).
 
-**GitHub token helpers.** `refresh_github_token` reads the token from the `gh` keyring and caches it at `~/.cache/gh-token` (mode 600); `github_token` prints it, preferring `$GITHUB_TOKEN`, then a cache newer than 7 days, then a refresh; `set_github_token` exports it. All three call `gh` as `env -u GH_TOKEN -u GITHUB_TOKEN gh auth token` — tools like the Copilot app inject a narrowly-scoped `GH_TOKEN` that `gh auth token` would otherwise echo back, masking the keyring credential that actually carries `read:packages`. Run `refresh_github_token` by hand after `gh auth login`/`gh auth refresh`. Exporting `GITHUB_TOKEN` at startup is opt-in per host via `~/.config/fish/local_env.fish` (untracked), since it puts a live token in every shell's environment.
+**GitHub token helpers.** `refresh_github_token` reads the token from the `gh` keyring and caches it at `~/.cache/gh-token` (mode 600); `github_token` prints it, preferring `$GITHUB_TOKEN`, then a cache newer than 7 days, then a refresh; `set_github_token` exports it. All three call `gh` as `env -u GH_TOKEN -u GITHUB_TOKEN gh auth token` — tools like the Copilot app inject a narrowly-scoped `GH_TOKEN` that `gh auth token` would otherwise echo back, masking the keyring credential that actually carries `read:packages`. Run `refresh_github_token` by hand after `gh auth login`/`gh auth refresh`. Exporting `GITHUB_TOKEN` at startup is opt-in per host via `~/.config/fish/local_env.fish` (untracked — copy `local_env.fish.example` to start), since it puts a live token in every shell's environment.
 
 **Don't replace the inlined Homebrew env block in `config.fish` with `eval (brew shellenv)`.** The top of `config.fish` sets `HOMEBREW_PREFIX` (via a `uname -m` switch) plus `HOMEBREW_CELLAR`, `HOMEBREW_REPOSITORY`, and the PATH/MANPATH/INFOPATH entries by hand. This is deliberate: `brew shellenv` shells out to a Bash/Ruby subprocess on every shell startup, and inlining the values avoids that latency. Keep the block hand-written and update it only if Homebrew's env layout changes.
+
+### Tool provisioning (mise vs Homebrew)
+
+`common/.config/mise/config.toml` is the source of truth for **language runtimes and everything Neovim needs** — language servers, and the formatters `conform.nvim` invokes. Because Mason is disabled in the Neovim config, nothing else installs them: if a tool isn't declared in `[tools]`, the LSP simply never attaches. `darwin/.Brewfile` owns the rest — GUI apps, casks, shell/terminal infrastructure (fish, tmux, git, gh, starship, zoxide), `mise` itself, and CLI tools invoked by this repo's own scripts rather than by the editor.
+
+The dividing question is **"does Neovim invoke it?"** If yes, it goes in mise — Codespaces has no Homebrew, and CI can't reproduce a brew-pinned version. If it's only ever run by a script or by you at a prompt, Homebrew is fine. `shellcheck` is the worked example of the second case: `make test` is its only consumer, and every platform ships its own copy (Homebrew on macOS, preinstalled on the CI runner), so routing it through mise bought nothing but a second declaration to keep in sync. `harper-ls` is the worked example of the first: it backs the `harper_ls` LSP, so it's declared in mise and deliberately *not* in the Brewfile.
+
+`mise` is the last prerequisite of the `install` target, so under `.NOTPARALLEL` it runs after `install-darwin` has brew-installed the `mise` binary, and guard-skips on hosts without it. CI installs individual tools from this same tracked file by setting `MISE_GLOBAL_CONFIG_FILE` — pins live in one place, never duplicated into a workflow input.
+
+**This is macOS-only in practice.** Codespaces has no mise; `script/install-codespace-tools` provisions its own (smaller) binary set and none of the language servers, so the stowed `lsp.lua` degrades there. If that starts to matter, the fix is to provision `mise` in the Codespaces path and let `make mise` cover both, not to duplicate the tool list in shell.
+
+**mise uses its stock `mise activate` setup — nothing here overrides it.** Homebrew's mise formula ships `$HOMEBREW_PREFIX/share/fish/vendor_conf.d/mise-activate.fish`, and fish sources `conf.d` before `config.fish`, so activation happens on every login shell with no help from this repo. Keeping it stock is deliberate: it's what mise's own docs describe, so it stays debuggable and survives formula changes.
+
+One consequence is worth knowing. Activation runs *first*, and `config.fish` then prepends `$HOMEBREW_PREFIX/bin` via `fish_add_path -gp` — so Homebrew's bin directory ends up ahead of mise's install paths. A brew-installed copy of a mise-managed tool therefore wins on `PATH` even though mise has its own pinned copy, silently. No tool is in that state today (`shellcheck` was, until it moved to the Brewfile and stopped being dual-sourced), and keeping it that way is the real reason the mise/Homebrew split above is worth respecting.
+
+If you see the wrong version of a tool, compare `mise which <tool>` (what mise resolves) against `type -a <tool>` (what the shell will actually run) — a stray `brew install` or `cargo install` copy is the usual cause. Note that mise's `rust` tool puts `~/.cargo/bin` on PATH ahead of other tools' install dirs, so a `cargo install`ed binary can shadow a mise-pinned one even through `mise exec`.
 
 ### Git / Tmux / Terminal
 
@@ -200,4 +229,4 @@ make install
 
 ## Dev focus
 
-Ruby/Rails primary — Sorbet (`vscode_sorbet`, `vscode_sorbet_rubocop`), ruby-lsp, Rubocop (`common/.rubocop.yml`), vim-rails, `common/.pryrc`. Also Go (gopls + gofumpt + goimports via the `lang.go` LazyVim extra, binaries from mise), Lua (lua_ls, stylua), Node, Rust, Python, and .NET via mise. Because Mason is disabled, the `ensure_installed` entries inside LazyVim language extras are silent no-ops — any tool they want must be provided by mise or the system.
+Ruby/Rails primary — Sorbet (`vscode_sorbet`, `vscode_sorbet_rubocop`), ruby-lsp, Rubocop (`common/.rubocop.yml`), vim-rails, `common/.pryrc`. Also Go (gopls + gofumpt + goimports via the `lang.go` LazyVim extra, binaries from mise), Lua (lua_ls, stylua), Node, Rust, Python, and .NET via mise. Because Mason is disabled, the `ensure_installed` entries inside LazyVim language extras are silent no-ops — any tool they want must be declared in `common/.config/mise/config.toml`. See "Tool provisioning" above.

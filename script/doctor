@@ -71,8 +71,20 @@ check_cmd gh
 echo
 
 # -------------------------
+# Mason is disabled in the Neovim config, so these come from mise
+# (common/.config/mise/config.toml) — `make mise` installs them.
 echo "Language servers:"
 check_cmd lua-language-server
+check_cmd harper-ls
+check_cmd bash-language-server
+echo
+
+# -------------------------
+echo "Linters & formatters:"
+check_cmd shellcheck
+check_cmd stylua
+check_cmd gofumpt
+check_cmd goimports
 echo
 
 # -------------------------
@@ -197,7 +209,8 @@ printf "  ${RED}Failed:${NC}  %d\n" "$failed"
 echo
 
 if [[ $failed -gt 0 ]]; then
-    echo "Run 'brew bundle --global' to install missing tools."
+    echo "Run 'make brew' for shell/terminal tools, 'make mise' for runtimes,"
+    echo "language servers, linters, and formatters."
     exit 1
 elif [[ $warned -gt 0 ]]; then
     echo "Some optional items need attention."

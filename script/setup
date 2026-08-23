@@ -4,8 +4,7 @@
 # pre-cloned dotfiles directory; run manually on a fresh macOS machine
 # after `git clone`.
 #
-# On a fresh personal Mac:   ./script/setup
-# On a fresh work Mac:        CONTEXT=work ./script/setup
+# On a fresh Mac:  ./script/setup
 
 set -e
 

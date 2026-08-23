@@ -71,39 +71,6 @@ version_paren() {
   fi
 }
 
-# Return 0 (true) if system glibc is older than the given version.
-# Usage: glibc_version_lt 2.35
-glibc_version_lt() {
-  local threshold="$1"
-  local ver
-  ver=$(getconf GNU_LIBC_VERSION 2>/dev/null || true)
-  ver=$(echo "$ver" | awk '{print $2}')
-  if [ -z "$ver" ]; then
-    # Can't determine glibc version; assume old to be safe
-    return 0
-  fi
-  local sys_major sys_minor thr_major thr_minor
-  sys_major="${ver%%.*}"
-  sys_minor="${ver#*.}"
-  thr_major="${threshold%%.*}"
-  thr_minor="${threshold#*.}"
-  [ "$sys_major" -lt "$thr_major" ] || \
-    { [ "$sys_major" -eq "$thr_major" ] && [ "$sys_minor" -lt "$thr_minor" ]; }
-}
-
-# Check GitHub API rate limit before downloading a release asset.
-# Skips the download (returns 1) when remaining quota is too low.
-# The rate_limit endpoint itself is free and never counts against quota.
-gh_download() {
-  local remaining
-  remaining=$(gh api rate_limit --jq '.resources.core.remaining' 2>/dev/null || echo "0")
-  if [ "$remaining" -lt 5 ]; then
-    echo "    ⚠ GitHub API rate limit low (remaining: $remaining) — skipping download"
-    return 1
-  fi
-  gh release download "$@"
-}
-
 # --- installers: each downloads and installs one tool, returning nonzero
 # --- (a "skip") when the download is unavailable. The install_tool driver
 # --- wraps these with the shared guard/timing/logging.
@@ -111,7 +78,7 @@ gh_download() {
 # neovim: extract the release tarball to /opt/nvim and symlink onto PATH (sudo).
 via_nvim() {
   local asset="nvim-linux-${ARCH_ALT}.tar.gz"
-  gh_download --clobber --dir /tmp/ --repo neovim/neovim --pattern "$asset" || return 1
+  gh release download --clobber --dir /tmp/ --repo neovim/neovim --pattern "$asset" || return 1
   echo "    sudo: extracting to /opt/nvim..."
   sudo mkdir -p /opt/nvim
   sudo tar -xzf "/tmp/$asset" --strip-components=1 -C /opt/nvim
@@ -122,7 +89,7 @@ via_nvim() {
 # Download a .deb and install it (sudo). Args: repo asset
 via_deb() {
   local repo=$1 asset=$2 tmp=/tmp/pkg.deb
-  gh_download --clobber --output "$tmp" --repo "$repo" --pattern "$asset" || return 1
+  gh release download --clobber --output "$tmp" --repo "$repo" --pattern "$asset" || return 1
   echo "    sudo: installing .deb package..."
   sudo dpkg -i "$tmp"
   rm -f "$tmp"
@@ -132,7 +99,7 @@ via_deb() {
 # Args: repo asset binname
 via_tarball_bin() {
   local repo=$1 asset=$2 binname=$3 tmp=/tmp/dl.tar.gz
-  gh_download --clobber --output "$tmp" --repo "$repo" --pattern "$asset" || return 1
+  gh release download --clobber --output "$tmp" --repo "$repo" --pattern "$asset" || return 1
   tar -xzf "$tmp" -C /tmp/
   install "/tmp/$binname" "$LOCAL_BIN/$binname"
   rm -f "$tmp" "/tmp/$binname"
@@ -143,7 +110,7 @@ via_tarball_bin() {
 via_raw_bin() {
   local repo=$1 asset=$2 binname=$3
   local tmp="/tmp/$binname"
-  gh_download --clobber --output "$tmp" --repo "$repo" --pattern "$asset" || return 1
+  gh release download --clobber --output "$tmp" --repo "$repo" --pattern "$asset" || return 1
   install "$tmp" "$LOCAL_BIN/$binname"
   rm -f "$tmp"
 }
@@ -154,9 +121,10 @@ via_apt() {
   sudo apt-get install -yq "$1" >/dev/null 2>&1
 }
 
-# Build tree-sitter-cli from source. Used when the system glibc is too old
-# (< 2.35) to link the prebuilt binary. Prints a reason and returns nonzero
-# if the Rust toolchain isn't available.
+# Build tree-sitter-cli from source. Used when the prebuilt release binary
+# can't run here — typically because it's linked against a newer glibc than
+# the system provides. Prints a reason and returns nonzero if the Rust
+# toolchain isn't available.
 install_tree_sitter_cargo() {
   if ! command -v cargo >/dev/null 2>&1; then
     echo "    cargo not found; install Rust to build tree-sitter from source"
@@ -169,15 +137,14 @@ install_tree_sitter_cargo() {
   cargo install tree-sitter-cli --root "$HOME/.local"
 }
 
-# Install the prebuilt tree-sitter release binary into ~/.local/bin. Used
-# when glibc is new enough to link it.
+# Install the prebuilt tree-sitter release binary into ~/.local/bin.
 install_tree_sitter_release() {
   local ts_arch
   case "$ARCH_GO" in
     amd64) ts_arch="x64"   ;;
     arm64) ts_arch="arm64" ;;
   esac
-  gh_download --clobber --output /tmp/tree-sitter.gz --repo tree-sitter/tree-sitter \
+  gh release download --clobber --output /tmp/tree-sitter.gz --repo tree-sitter/tree-sitter \
     --pattern "tree-sitter-linux-${ts_arch}.gz" || return 1
   gunzip -f /tmp/tree-sitter.gz
   install /tmp/tree-sitter "$LOCAL_BIN/tree-sitter"
@@ -185,23 +152,17 @@ install_tree_sitter_release() {
 }
 
 # tree-sitter: prebuilt release binary, with a from-source cargo build as the
-# fallback. The prebuilt binary's glibc floor keeps rising (GLIBC_2.39 as of
-# tree-sitter 0.26), so a hardcoded threshold goes stale and installs a binary
-# the system can't run. Two things route to the cargo build instead:
-#   1. a fast-path for clearly-too-old glibc (< 2.35), to skip a doomed
-#      download entirely, and
-#   2. a runtime check that the freshly-installed prebuilt binary actually
-#      runs — this catches a glibc newer than the fast-path threshold but
-#      still older than what the binary needs (e.g. 2.35 vs 2.39).
+# fallback. nvim-treesitter shells out to `tree-sitter build` for every parser
+# it installs, so the CLI is a hard requirement, not a nicety.
+#
+# The prebuilt binary's glibc floor keeps rising (GLIBC_2.39 as of tree-sitter
+# 0.26), which rules out comparing the system glibc against a hardcoded
+# threshold — the threshold silently goes stale with each release and installs
+# a binary the system can't run. Instead, install the prebuilt binary and run
+# it once: if it executes, it works here; if it doesn't, build from source.
+# That test stays correct however high the floor climbs, at the cost of one
+# wasted download on systems too old to run it.
 install_tree_sitter() {
-  if glibc_version_lt 2.35; then
-    local glibc_ver
-    glibc_ver=$(getconf GNU_LIBC_VERSION 2>/dev/null | awk '{print $2}' || echo "unknown")
-    echo "    glibc ${glibc_ver} < 2.35 — building from source via cargo..."
-    install_tree_sitter_cargo
-    return
-  fi
-
   if install_tree_sitter_release && \
      "$LOCAL_BIN/tree-sitter" --version </dev/null >/dev/null 2>&1; then
     return

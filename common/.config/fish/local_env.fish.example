@@ -1,0 +1,27 @@
+# Machine-local fish environment. Copy this file, then edit the copy:
+#
+#     cp ~/.config/fish/local_env.fish.example ~/.config/fish/local_env.fish
+#
+# config.fish sources ~/.config/fish/local_env.fish when it exists, after the
+# shared ENV block and before the extra PATH entries. So values set here
+# override the tracked defaults, and PATH additions land ahead of ~/.bin and
+# ~/.local/bin.
+#
+# The copy is per-machine and deliberately untracked — `local_env.fish` is
+# listed in the repo's .gitignore so one written inside the stow package can't
+# be committed by accident. Keep real secrets here or in a keychain, never in
+# a tracked file.
+#
+# Everything below is commented out; uncomment only what a given host needs.
+
+# GITHUB_TOKEN is normally fetched from 1Password on demand — see the
+# `github_token` / `set_github_token` functions. Setting it here is only
+# worth doing on a host without the 1Password CLI.
+# set -gx GITHUB_TOKEN ghp_replace_me
+
+# Host-specific network or registry settings.
+# set -gx HTTPS_PROXY http://proxy.internal:3128
+# set -gx NPM_CONFIG_REGISTRY https://registry.internal/
+
+# PATH entries that belong to this machine only.
+# fish_add_path -aP $HOME/.company/bin

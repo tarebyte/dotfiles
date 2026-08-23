@@ -34,7 +34,11 @@ ifneq ($(CODESPACES),)
 EXTRA_INSTALL += install-codespaces
 endif
 
-install: setup-git-config stow-common $(EXTRA_INSTALL)
+# `mise` runs last: under .NOTPARALLEL prerequisites run left-to-right, so
+# it lands after install-darwin has brew-installed the mise binary. On hosts
+# without mise the target guard-skips, so it stays platform-neutral here
+# rather than being wired into a per-platform script.
+install: setup-git-config stow-common $(EXTRA_INSTALL) mise
 
 stow-common:
 	./script/stow-package common
@@ -94,9 +98,10 @@ doctor:
 
 # Static check every script, then run the functional test suite.
 # shellcheck is cheap — run it first so a lint failure short-circuits
-# before we spin up mktemp sandboxes.
+# before we spin up mktemp sandboxes. Scripts are discovered via
+# git ls-files so adding one to script/ can't silently go unlinted.
 test:
-	shellcheck -x script/setup script/setup-git-config script/stow-package script/install-darwin script/doctor script/install-codespace-tools script/sync-codespace-plugins script/test
+	git ls-files -z 'script/*' | xargs -0 -r shellcheck -x
 	./script/test
 
 # Uninstall all stowed packages from $HOME. Does NOT delete the repo,

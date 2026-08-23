@@ -1,21 +1,21 @@
 # vi: ft=toml
 [tools]
+bun = "latest"
 go = "latest"
 gofumpt = "latest"
-golangci-lint = "v2.11.4"
+golangci-lint = "v2.12.2"
+harper-ls = "latest"
 lua = "latest"
-node = "lts"
-python = "latest"
-ruby = "latest"
+node = "latest"
+ruby = "4.0.6"
 rust = "latest"
-shellcheck = "latest"
-stylua = "v2.4.1"
+stylua = "v2.5.2"
+uv = "latest"
 "aqua:LuaLS/lua-language-server" = "latest"
 "go:golang.org/x/tools/cmd/goimports" = "latest"
 "npm:@tailwindcss/language-server" = "latest"
 "npm:bash-language-server" = "latest"
 "npm:markdown-toc" = "latest"
-bun = "latest"
 
 [settings.ruby]
 compile = false

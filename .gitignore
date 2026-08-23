@@ -8,6 +8,10 @@ common/.config/fish/fish_variables
 common/.config/fish/conf.d/
 common/.config/fish/completions/
 
+# Machine-local env (secrets, per-host overrides). Only the tracked
+# .example template belongs in the repo — never a real copy.
+common/.config/fish/local_env.fish
+
 # fzf's own state (history, etc.) — config is the only tracked file.
 common/.config/fzf/history
 common/.config/fzf/tmp/
