@@ -59,8 +59,7 @@ return {
           filetypes = { "ruby" },
           root_markers = { ".vscode/run-sorbet" },
         },
-        -- Prose/grammar checking. Attaches to markdown and to comments and
-        -- strings in the ~28 filetypes nvim-lspconfig declares by default.
+        -- Prose/grammar checking for prose documents only.
         --
         -- userDictPath points at the same word list `setlocal spell` uses in
         -- ftplugin/markdown.vim, so there is one personal dictionary rather
@@ -68,6 +67,7 @@ return {
         -- in that file but do not regenerate the compiled `.spl`; run
         -- `:mkspell! %` on it if Vim's own spell checker needs to agree.
         harper_ls = {
+          filetypes = { "markdown", "text" },
           settings = {
             ["harper-ls"] = {
               userDictPath = vim.fn.stdpath("config") .. "/spell/en.utf-8.add",
