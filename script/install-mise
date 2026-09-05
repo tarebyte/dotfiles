@@ -1,0 +1,28 @@
+#!/bin/bash
+#
+# Install the official mise release on macOS, then install the tools declared
+# in the stowed global configuration. Other platforms use an existing mise
+# binary when available and otherwise retain the existing no-op behavior.
+
+set -euo pipefail
+
+MISE_BIN="$HOME/.local/bin/mise"
+
+if [[ "$(uname -s)" == "Darwin" ]]; then
+    if [[ ! -x "$MISE_BIN" ]]; then
+	curl -fsSL https://mise.run | MISE_INSTALL_PATH="$MISE_BIN" sh
+    fi
+elif command -v mise >/dev/null 2>&1; then
+    MISE_BIN="$(command -v mise)"
+else
+    echo "mise not on PATH; skipping"
+    exit 0
+fi
+
+if [[ ! -x "$MISE_BIN" ]]; then
+    echo "mise installer did not create an executable at $MISE_BIN" >&2
+    exit 1
+fi
+
+"$MISE_BIN" trust
+"$MISE_BIN" install

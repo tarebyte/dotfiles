@@ -3,10 +3,10 @@
 # script/test
 #
 # Functional tests for the scripts that have non-trivial logic:
-# stow-package (conflict parsing + backup moves) and setup-git-config
-# (Git-native rendering, migration, and drift detection). Each test runs
-# inside its own mktemp sandbox with a stubbed $HOME; nothing touches the real
-# system.
+# stow-package (conflict parsing + backup moves), setup-git-config
+# (Git-native rendering, migration, and drift detection), and install-mise
+# (platform-aware mainline installation). Each test runs inside its own mktemp
+# sandbox with a stubbed $HOME; nothing touches the real system.
 #
 # The runner does NOT use `set -e` globally so that a failing assertion
 # in one test reports and continues instead of aborting the whole suite.
@@ -436,6 +436,115 @@ test_git_config_check_detects_drift() {
     fi
 }
 
+# ------- install-mise -------
+
+make_mise_test_path() {
+    local sandbox=$1 os=$2
+    mkdir -p "$sandbox/bin"
+    cat > "$sandbox/bin/uname" <<EOF
+#!/bin/sh
+printf '%s\n' '$os'
+EOF
+    chmod +x "$sandbox/bin/uname"
+    printf '%s:%s' "$sandbox/bin" "$PATH"
+}
+
+write_fake_mise() {
+    local path=$1 log=$2 marker=$3
+    mkdir -p "$(dirname "$path")"
+    cat > "$path" <<EOF
+#!/bin/sh
+printf '%s\n' '$marker' >> '$log'
+printf '%s\n' "\$*" >> '$log'
+EOF
+    chmod +x "$path"
+}
+
+test_mise_installs_mainline_on_darwin() {
+    local sandbox=$1
+    set -e
+    local path log
+    path=$(make_mise_test_path "$sandbox" Darwin)
+    log="$sandbox/mise.log"
+    cat > "$sandbox/bin/curl" <<EOF
+#!/bin/sh
+cat <<'INSTALLER'
+mkdir -p "\$(dirname "\$MISE_INSTALL_PATH")"
+cat > "\$MISE_INSTALL_PATH" <<'MISE'
+#!/bin/sh
+printf '%s\n' installed >> '$log'
+printf '%s\n' "\$*" >> '$log'
+MISE
+chmod +x "\$MISE_INSTALL_PATH"
+INSTALLER
+EOF
+    chmod +x "$sandbox/bin/curl"
+
+    HOME="$sandbox/home" PATH="$path" "$REPO_ROOT/script/install-mise"
+
+    [ -x "$sandbox/home/.local/bin/mise" ] \
+	|| { echo "mainline mise binary was not installed"; exit 1; }
+    [ "$(cat "$log")" = "$(printf 'installed\ntrust\ninstalled\ninstall')" ] \
+	|| { echo "installed mise did not configure runtimes"; exit 1; }
+}
+
+test_mise_skips_installer_when_mainline_exists() {
+    local sandbox=$1
+    set -e
+    local path log
+    path=$(make_mise_test_path "$sandbox" Darwin)
+    log="$sandbox/mise.log"
+    write_fake_mise "$sandbox/home/.local/bin/mise" "$log" existing
+    cat > "$sandbox/bin/curl" <<'EOF'
+#!/bin/sh
+echo "curl should not run" >&2
+exit 99
+EOF
+    chmod +x "$sandbox/bin/curl"
+
+    HOME="$sandbox/home" PATH="$path" "$REPO_ROOT/script/install-mise"
+
+    [ "$(cat "$log")" = "$(printf 'existing\ntrust\nexisting\ninstall')" ] \
+	|| { echo "existing mainline mise was not used"; exit 1; }
+}
+
+test_mise_errors_when_installer_produces_no_binary() {
+    local sandbox=$1
+    set -e
+    local path
+    path=$(make_mise_test_path "$sandbox" Darwin)
+    cat > "$sandbox/bin/curl" <<'EOF'
+#!/bin/sh
+printf '%s\n' 'exit 0'
+EOF
+    chmod +x "$sandbox/bin/curl"
+
+    if HOME="$sandbox/home" PATH="$path" "$REPO_ROOT/script/install-mise" 2>/dev/null; then
+	echo "expected failure when installer produced no executable"
+	exit 1
+    fi
+}
+
+test_mise_does_not_install_on_linux() {
+    local sandbox=$1
+    set -e
+    local path
+    path=$(make_mise_test_path "$sandbox" Linux)
+    cat > "$sandbox/bin/curl" <<'EOF'
+#!/bin/sh
+echo "curl should not run" >&2
+exit 99
+EOF
+    chmod +x "$sandbox/bin/curl"
+
+    HOME="$sandbox/home" PATH="$sandbox/bin" "$REPO_ROOT/script/install-mise" > "$sandbox/output"
+
+    [ ! -e "$sandbox/home/.local/bin/mise" ] \
+	|| { echo "Linux bootstrap should not install mise"; exit 1; }
+    grep -q "mise not on PATH; skipping" "$sandbox/output" \
+	|| { echo "missing skip message"; exit 1; }
+}
+
 # ------- tool_ready -------
 #
 # tool_ready lives in install-codespace-tools. With a version-flag probe it
@@ -551,6 +660,13 @@ run_test "missing signing key errors"       test_git_config_missing_signingkey
 run_test "legacy identity migration"        test_git_config_legacy_identity_migration
 run_test "prior Git identity migration"     test_git_config_prior_git_identity_migration
 run_test "drift check"                      test_git_config_check_detects_drift
+
+echo
+echo "=== install-mise ==="
+run_test "installs mainline on Darwin"       test_mise_installs_mainline_on_darwin
+run_test "skips existing mainline binary"   test_mise_skips_installer_when_mainline_exists
+run_test "errors without installed binary"  test_mise_errors_when_installer_produces_no_binary
+run_test "does not install on Linux"         test_mise_does_not_install_on_linux
 
 echo
 echo "=== tool_ready ==="

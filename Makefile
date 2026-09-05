@@ -35,9 +35,9 @@ EXTRA_INSTALL += install-codespaces
 endif
 
 # `mise` runs last: under .NOTPARALLEL prerequisites run left-to-right, so
-# it lands after install-darwin has brew-installed the mise binary. On hosts
-# without mise the target guard-skips, so it stays platform-neutral here
-# rather than being wired into a per-platform script.
+# the stowed global config is available before runtimes are installed.
+# The script installs the official mise release on macOS and guard-skips on
+# other hosts where mise is unavailable.
 install: setup-git-config stow-common $(EXTRA_INSTALL) mise
 
 stow-common:
@@ -82,16 +82,10 @@ fisher:
 		echo "fish not on PATH; skipping"; \
 	fi
 
-# Trust mise config and install all runtimes. No-op if mise is absent.
-# The guard must be a single if/then/else: an `|| { exit 0; }` on a
-# separate recipe line only exits the subshell, and Make proceeds to
-# the next line and fails.
+# Install mise on macOS, then trust the config and install all runtimes.
+# Other platforms use an existing mise binary or guard-skip when absent.
 mise:
-	@if command -v mise >/dev/null 2>&1; then \
-		mise trust && mise install; \
-	else \
-		echo "mise not on PATH; skipping"; \
-	fi
+	./script/install-mise
 
 doctor:
 	./script/doctor

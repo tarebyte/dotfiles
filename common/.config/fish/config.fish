@@ -95,5 +95,7 @@ if test -f /Applications/Tailscale.app/Contents/MacOS/Tailscale
     alias tailscale /Applications/Tailscale.app/Contents/MacOS/Tailscale
 end
 
+test -x "$HOME/.local/bin/mise"; and "$HOME/.local/bin/mise" activate fish | source
+
 type -q zoxide; and zoxide init fish | source
 type -q starship; and starship init fish | source
