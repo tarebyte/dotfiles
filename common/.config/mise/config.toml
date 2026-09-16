@@ -3,7 +3,7 @@
 bun = "latest"
 go = "latest"
 gofumpt = "latest"
-golangci-lint = "v2.12.2"
+golangci-lint = "v2.13.2"
 harper-ls = "latest"
 lua = "latest"
 node = "latest"
