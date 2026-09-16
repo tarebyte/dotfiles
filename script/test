@@ -436,6 +436,78 @@ test_git_config_check_detects_drift() {
     fi
 }
 
+TEST_SSH_KEY="ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAITESTKEY"
+
+test_git_config_allowed_signers_render() {
+    local sandbox=$1
+    set -e
+    write_test_identity "$sandbox/home" "test@example.com" "$TEST_SSH_KEY"
+
+    HOME="$sandbox/home" "$REPO_ROOT/script/setup-git-config" > /dev/null
+
+    local signers="$sandbox/home/.config/local/git/allowed_signers"
+    [ -f "$signers" ] || { echo "allowed_signers not rendered"; exit 1; }
+    [ "$(cat "$signers")" = "test@example.com $TEST_SSH_KEY" ] \
+	|| { echo "allowed_signers entry incorrect"; exit 1; }
+}
+
+# A host still signing with a GPG key ID has nothing valid to put in an
+# allowed_signers entry, so the file renders empty rather than malformed.
+test_git_config_allowed_signers_skips_gpg_key() {
+    local sandbox=$1
+    set -e
+    write_test_identity "$sandbox/home" "test@example.com" "ABCD1234DEADBEEF"
+
+    HOME="$sandbox/home" "$REPO_ROOT/script/setup-git-config" > /dev/null
+
+    local signers="$sandbox/home/.config/local/git/allowed_signers"
+    [ -f "$signers" ] || { echo "allowed_signers not rendered"; exit 1; }
+    [ ! -s "$signers" ] \
+	|| { echo "a GPG key ID should not produce an entry"; exit 1; }
+}
+
+test_git_config_allowed_signers_extra() {
+    local sandbox=$1
+    set -e
+    write_test_identity "$sandbox/home" "test@example.com" "$TEST_SSH_KEY"
+    echo "teammate@example.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOTHER" \
+	> "$sandbox/home/.config/local/git/allowed_signers.extra"
+
+    HOME="$sandbox/home" "$REPO_ROOT/script/setup-git-config" > /dev/null
+
+    local signers="$sandbox/home/.config/local/git/allowed_signers"
+    grep -q '^test@example.com ' "$signers" \
+	|| { echo "own identity missing from allowed_signers"; exit 1; }
+    grep -q '^teammate@example.com ' "$signers" \
+	|| { echo "extra signers not appended"; exit 1; }
+}
+
+test_git_config_allowed_signers_codespaces() {
+    local sandbox=$1
+    set -e
+    mkdir -p "$sandbox/home"
+
+    CODESPACES=1 HOME="$sandbox/home" "$REPO_ROOT/script/setup-git-config" > /dev/null
+
+    [ ! -e "$sandbox/home/.config/local/git/allowed_signers" ] \
+	|| { echo "Codespaces should not render allowed_signers"; exit 1; }
+}
+
+test_git_config_check_detects_signers_drift() {
+    local sandbox=$1
+    set -e
+    write_test_identity "$sandbox/home" "test@example.com" "$TEST_SSH_KEY"
+    HOME="$sandbox/home" "$REPO_ROOT/script/setup-git-config" > /dev/null
+    HOME="$sandbox/home" "$REPO_ROOT/script/setup-git-config" --check
+
+    echo "stranger@example.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAISTRANGER" \
+	>> "$sandbox/home/.config/local/git/allowed_signers"
+    if HOME="$sandbox/home" "$REPO_ROOT/script/setup-git-config" --check; then
+	echo "expected allowed_signers drift to fail the check"
+        exit 1
+    fi
+}
+
 # ------- install-mise -------
 
 make_mise_test_path() {
@@ -660,6 +732,11 @@ run_test "missing signing key errors"       test_git_config_missing_signingkey
 run_test "legacy identity migration"        test_git_config_legacy_identity_migration
 run_test "prior Git identity migration"     test_git_config_prior_git_identity_migration
 run_test "drift check"                      test_git_config_check_detects_drift
+run_test "allowed_signers render"           test_git_config_allowed_signers_render
+run_test "allowed_signers skips gpg key"    test_git_config_allowed_signers_skips_gpg_key
+run_test "allowed_signers extra appended"   test_git_config_allowed_signers_extra
+run_test "allowed_signers skipped in cs"    test_git_config_allowed_signers_codespaces
+run_test "allowed_signers drift check"      test_git_config_check_detects_signers_drift
 
 echo
 echo "=== install-mise ==="

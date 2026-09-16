@@ -5,8 +5,24 @@
 # Linux devcontainers, which is correct — osxkeychain doesn't exist
 # there and GPG signing is handled differently.
 
-[credential]
-	helper = osxkeychain
-
 [gpg]
-	program = /usr/local/bin/gpg
+  format = ssh
+
+[gpg "ssh"]
+  program = "/Applications/1Password.app/Contents/MacOS/op-ssh-sign"
+  # Verification half of SSH signing. Generated per-host by
+  # script/setup-git-config from identity.gitconfig, because it maps an email
+  # to a signing key and both are per-host values kept out of the repo.
+  # Without this, git signs fine but `git log --show-signature` and %G? report
+  # "N" on your own commits.
+  allowedSignersFile = ~/.config/local/git/allowed_signers
+
+# Restored from a hand-edit that lived only in the generated ~/.config/git/config
+# and was lost on the next render. Tracked here so it survives regen. gh's
+# credential helper is preferred over osxkeychain because the token it hands out
+# is the one `gh auth login` already manages.
+[credential "https://github.com"]
+  helper = !/opt/homebrew/bin/gh auth git-credential
+
+[credential "https://gist.github.com"]
+  helper = !/opt/homebrew/bin/gh auth git-credential

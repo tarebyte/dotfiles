@@ -8,6 +8,10 @@
 # Git itself reads and writes those values and injects them into a temporary
 # copy of the template. The completed file is moved into place atomically.
 #
+# Also renders ~/.config/local/git/allowed_signers from that same identity.
+# config.darwin points gpg.ssh.allowedSignersFile at it; without it Git signs
+# normally but cannot verify its own commits.
+#
 # Codespaces use the same renderer without a local identity: the injected
 # ~/.gitconfig supplies identity and credentials, signing is disabled, and the
 # macOS-only include is removed.
@@ -19,6 +23,8 @@ GIT_TEMPLATE="$REPO_ROOT/templates/git-config.tmpl"
 GIT_CONFIG="$HOME/.config/git/config"
 IDENTITY_DIR="$HOME/.config/local/git"
 IDENTITY_FILE="$IDENTITY_DIR/identity.gitconfig"
+ALLOWED_SIGNERS="$IDENTITY_DIR/allowed_signers"
+EXTRA_SIGNERS="$IDENTITY_DIR/allowed_signers.extra"
 LEGACY_IDENTITY_DIR="$HOME/.config/dotfiles"
 LEGACY_GIT_IDENTITY_FILE="$LEGACY_IDENTITY_DIR/identity.gitconfig"
 LEGACY_ENV_IDENTITY_FILE="$LEGACY_IDENTITY_DIR/identity.env"
@@ -128,6 +134,34 @@ render_config() {
 	git config --file "$output" user.signingkey "$key"
 }
 
+# Render the allowed_signers file that gpg.ssh.allowedSignersFile points at.
+# Signing and verifying are separate halves of SSH signing; config.darwin turns
+# on the second one, and this supplies its data. Identity is per-host, so this
+# is generated next to identity.gitconfig rather than stowed from the repo.
+render_allowed_signers() {
+	local output=$1 email key
+	email=$(git config --file "$IDENTITY_FILE" --get user.email) \
+		|| { echo "identity.gitconfig missing user.email" >&2; return 1; }
+	key=$(git config --file "$IDENTITY_FILE" --get user.signingkey) \
+		|| { echo "identity.gitconfig missing user.signingkey" >&2; return 1; }
+
+	: > "$output"
+	# A host signing with a GPG key ID has nothing to put here; an entry built
+	# from one would be malformed rather than merely unused.
+	case "$key" in
+	ssh-* | sk-ssh-* | sk-ecdsa-* | ecdsa-*)
+		printf '%s %s\n' "$email" "$key" >> "$output"
+		;;
+	esac
+
+	# Other people's keys go in allowed_signers.extra, which is untracked and
+	# never rewritten — this file is regenerated on every render, so hand-added
+	# entries here would be silently dropped on the next `make regen-git-config`.
+	if [ -f "$EXTRA_SIGNERS" ]; then
+		cat "$EXTRA_SIGNERS" >> "$output"
+	fi
+}
+
 if [ "$MODE" = check ]; then
 	[ -f "$GIT_CONFIG" ] || exit 1
 	if [ -z "${CODESPACES:-}" ] && [ ! -f "$IDENTITY_FILE" ]; then
@@ -135,8 +169,17 @@ if [ "$MODE" = check ]; then
 	fi
 	tmp=$(mktemp "${TMPDIR:-/tmp}/dotfiles-git-config.XXXXXX")
 	render_config "$tmp"
-	cmp -s "$tmp" "$GIT_CONFIG"
-	exit
+	cmp -s "$tmp" "$GIT_CONFIG" || exit 1
+	rm -f "$tmp"
+	tmp=""
+
+	if [ -z "${CODESPACES:-}" ]; then
+		[ -f "$ALLOWED_SIGNERS" ] || exit 1
+		tmp=$(mktemp "${TMPDIR:-/tmp}/dotfiles-allowed-signers.XXXXXX")
+		render_allowed_signers "$tmp"
+		cmp -s "$tmp" "$ALLOWED_SIGNERS" || exit 1
+	fi
+	exit 0
 fi
 
 mkdir -p "$HOME/.config/git"
@@ -160,6 +203,14 @@ tmp=$(mktemp "$GIT_CONFIG.XXXXXX")
 render_config "$tmp"
 mv "$tmp" "$GIT_CONFIG"
 tmp=""
+
+if [ -z "${CODESPACES:-}" ]; then
+	tmp=$(mktemp "$ALLOWED_SIGNERS.XXXXXX")
+	render_allowed_signers "$tmp"
+	chmod 600 "$tmp"
+	mv "$tmp" "$ALLOWED_SIGNERS"
+	tmp=""
+fi
 
 if [ -n "${CODESPACES:-}" ]; then
 	echo "Wrote $GIT_CONFIG (Codespaces mode — identity from ~/.gitconfig)"
