@@ -77,6 +77,8 @@ echo "Language servers:"
 check_cmd lua-language-server
 check_cmd harper-ls
 check_cmd bash-language-server
+check_cmd ruby-lsp
+check_cmd gopls
 echo
 
 # -------------------------
