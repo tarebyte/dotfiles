@@ -10,6 +10,7 @@ return {
         "fish",
         "latex",
         "ruby",
+        "rbs",
         "scss",
         "sql",
       },
