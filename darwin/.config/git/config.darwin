@@ -22,7 +22,9 @@
 # credential helper is preferred over osxkeychain because the token it hands out
 # is the one `gh auth login` already manages.
 [credential "https://github.com"]
+  helper =
   helper = !/opt/homebrew/bin/gh auth git-credential
 
 [credential "https://gist.github.com"]
+  helper =
   helper = !/opt/homebrew/bin/gh auth git-credential
