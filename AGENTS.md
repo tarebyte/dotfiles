@@ -135,7 +135,7 @@ The tradeoff is the one "generated file with a source of truth elsewhere" in the
 ### Multi-package split
 
 - **`common/`** — shared on every host: fish, nvim, mise, starship, tmux, ctags, dircolors, gemrc, pryrc, rubocop, terminfo, `git/ignore` (global gitignore), `.claude/CLAUDE.md` and `.claude/output-styles/` (personal Claude Code instructions and output style).
-- **`darwin/`** — any macOS host: `.Brewfile`, macOS-only scripts (`pb-pem`, `ssh-copy-id`, `touchid-enable-pam-sudo`), `git/config.darwin` (gh credential helper + SSH signing through `op-ssh-sign`), `.ssh/config` (1Password SSH agent), and the keyboard-remapping LaunchAgent. The install flow also sets the bottom-right hot corner to Lock Screen.
+- **`darwin/`** — any macOS host: `.Brewfile`, macOS-only scripts (`pb-pem`, `ssh-copy-id`, `touchid-enable-pam-sudo`), `git/config.darwin` (gh credential helper + SSH signing through `op-ssh-sign`), `.ssh/config` (1Password SSH agent), `.claude/settings.json` + `.claude/statusline.sh` (Claude Code settings; the hooks call iTerm2's `cc-status` and the status line reads the macOS appearance), and the keyboard-remapping LaunchAgent. The install flow also sets the bottom-right hot corner to Lock Screen.
 - **`codespaces/`** — Codespaces only: `.bash_aliases`, `.oh-my-zsh/`, Linux-only scripts (`gh-prepare`).
 
 Git config isn't in any stow package — it's rendered from `templates/git-config.tmpl` + `~/.config/local/git/identity.gitconfig` at `make install` time. See the "Git identity layout" section above.
