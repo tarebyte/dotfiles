@@ -54,6 +54,17 @@ write_identity() {
 	chmod 600 "$output"
 }
 
+validate_signing_key() {
+	case "$1" in
+		ssh-* | sk-ssh-* | sk-ecdsa-* | ecdsa-*) return 0 ;;
+		*)
+			echo "identity.gitconfig user.signingkey must be an SSH public key" >&2
+			echo "  expected a value such as ssh-ed25519 AAAA..." >&2
+			return 1
+			;;
+	esac
+}
+
 migrate_git_identity() {
 	local email key
 	email=$(git config --file "$LEGACY_GIT_IDENTITY_FILE" --get user.email) \
@@ -103,9 +114,10 @@ create_identity() {
 	printf "Email: "
 	IFS= read -r email
 	[ -n "$email" ] || { echo "email is required" >&2; return 1; }
-	printf "GPG signing key ID: "
+	printf "SSH signing public key: "
 	IFS= read -r key
 	[ -n "$key" ] || { echo "signing key is required" >&2; return 1; }
+	validate_signing_key "$key"
 
 	tmp=$(mktemp "$IDENTITY_FILE.XXXXXX")
 	write_identity "$tmp" "$email" "$key"
@@ -129,6 +141,7 @@ render_config() {
 		|| { echo "identity.gitconfig missing user.email" >&2; return 1; }
 	key=$(git config --file "$IDENTITY_FILE" --get user.signingkey) \
 		|| { echo "identity.gitconfig missing user.signingkey" >&2; return 1; }
+	validate_signing_key "$key"
 
 	git config --file "$output" user.email "$email"
 	git config --file "$output" user.signingkey "$key"
@@ -145,14 +158,8 @@ render_allowed_signers() {
 	key=$(git config --file "$IDENTITY_FILE" --get user.signingkey) \
 		|| { echo "identity.gitconfig missing user.signingkey" >&2; return 1; }
 
-	: > "$output"
-	# A host signing with a GPG key ID has nothing to put here; an entry built
-	# from one would be malformed rather than merely unused.
-	case "$key" in
-	ssh-* | sk-ssh-* | sk-ecdsa-* | ecdsa-*)
-		printf '%s %s\n' "$email" "$key" >> "$output"
-		;;
-	esac
+	# render_config has already rejected keys that are not SSH public keys.
+	printf '%s %s\n' "$email" "$key" > "$output"
 
 	# Other people's keys go in allowed_signers.extra, which is untracked and
 	# never rewritten — this file is regenerated on every render, so hand-added

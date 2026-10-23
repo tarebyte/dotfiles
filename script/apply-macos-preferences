@@ -1,0 +1,41 @@
+#!/bin/bash
+#
+# script/apply-macos-preferences
+#
+# Apply macOS preferences and reload the LaunchAgents that keep transient
+# settings active across logins.
+
+set -euo pipefail
+
+if [ "$(uname -s)" != "Darwin" ]; then
+    echo "not macOS; skipping preferences"
+    exit 0
+fi
+
+LABEL="com.tarebyte.keyboard-remapping"
+PLIST="$HOME/Library/LaunchAgents/$LABEL.plist"
+DOMAIN="gui/$(id -u)"
+DOCK_SERVICE="$DOMAIN/com.apple.Dock.agent"
+DOCK_DOMAIN="com.apple.dock"
+LOCK_SCREEN_ACTION=13
+NO_MODIFIER=0
+
+if [ ! -f "$PLIST" ]; then
+    echo "keyboard remapping LaunchAgent not found: $PLIST" >&2
+    exit 1
+fi
+
+defaults write "$DOCK_DOMAIN" wvous-br-corner -int "$LOCK_SCREEN_ACTION"
+defaults write "$DOCK_DOMAIN" wvous-br-modifier -int "$NO_MODIFIER"
+
+# Reload the definition so edits take effect immediately. RunAtLoad applies
+# the mapping now; launchd applies it again after each login.
+if launchctl print "$DOMAIN/$LABEL" >/dev/null 2>&1; then
+    launchctl bootout "$DOMAIN/$LABEL"
+fi
+launchctl bootstrap "$DOMAIN" "$PLIST"
+
+# Dock reads hot-corner preferences at launch.
+launchctl kickstart -k "$DOCK_SERVICE"
+
+echo "macOS preferences applied"

@@ -18,6 +18,7 @@ stylua = "v2.5.2"
 "npm:@tailwindcss/language-server" = "latest"
 "npm:bash-language-server" = "latest"
 "npm:markdown-toc" = "latest"
+aspire = "latest"
 
 [settings.ruby]
 compile = false

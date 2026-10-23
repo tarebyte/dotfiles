@@ -15,7 +15,7 @@ STOW := stow --no-folding
 # and this Makefile is just a dispatcher. If you add a new target,
 # list it in .PHONY below.
 .PHONY: install install-darwin install-codespaces sync-codespace-plugins stow-common
-.PHONY: setup-git-config regen-git-config
+.PHONY: setup-git-config regen-git-config macos-preferences
 .PHONY: brew fisher mise doctor test clean
 
 # Dispatcher is explicitly serial. Parallel `make -j` on overlapping stow
@@ -48,6 +48,11 @@ stow-common:
 # workflow — the script is idempotent.
 install-darwin:
 	./script/install-darwin
+
+# Apply macOS defaults and reload preference-related LaunchAgents. This is
+# also run by install-darwin after the darwin package has been stowed.
+macos-preferences:
+	./script/apply-macos-preferences
 
 # Assumes setup-git-config has already run. Stows the codespaces
 # package, provisions the CLI tools, then syncs editor + terminal plugins.

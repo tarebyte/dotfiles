@@ -3,8 +3,8 @@
 # script/install-darwin
 #
 # macOS-side install steps: ensure Homebrew is installed and on PATH,
-# stow the `darwin` package, run brew bundle + fisher, register fish
-# in /etc/shells, and chsh to fish if needed.
+# stow the `darwin` package, apply macOS preferences, run brew bundle +
+# fisher, register fish in /etc/shells, and chsh to fish if needed.
 #
 # Invoked by `make install-darwin`.
 
@@ -33,6 +33,7 @@ if ! command -v brew >/dev/null 2>&1; then
 fi
 
 ./script/stow-package darwin
+./script/apply-macos-preferences
 
 make brew fisher
 

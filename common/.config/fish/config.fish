@@ -39,6 +39,10 @@ set -gx FZF_TMUX 1
 set -gx ITERM_ENABLE_SHELL_INTEGRATION_WITH_TMUX YES
 set -gx OBJC_DISABLE_INITIALIZE_FORK_SAFETY YES
 
+if test (uname -s) = Darwin
+    set -gx SSH_AUTH_SOCK "$HOME/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
+end
+
 set -gx PROJECTS $HOME/src
 
 set -gx GOPATH $HOME/src/go
@@ -59,6 +63,10 @@ test -f "$HOME/.config/fish/local_env.fish"; and source $HOME/.config/fish/local
 
 if test -d $HOME/.bin
     fish_add_path -aP $HOME/.bin
+end
+
+if test -d $HOME/.docker/bin
+    fish_add_path -aP $HOME/.docker/bin
 end
 
 if test -d $HOME/.local/bin
@@ -97,5 +105,6 @@ end
 
 test -x "$HOME/.local/bin/mise"; and "$HOME/.local/bin/mise" activate fish | source
 
+command -q ngrok; and ngrok completion fish | source
 type -q zoxide; and zoxide init fish | source
 type -q starship; and starship init fish | source

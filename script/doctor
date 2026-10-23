@@ -118,10 +118,16 @@ else
     missing "git user.email not set"
 fi
 
-if [[ "$(git config commit.gpgsign)" == "true" ]]; then
-    ok "GPG signing enabled"
+if [[ "$(git config commit.gpgsign)" == "true" ]] \
+    && [[ "$(git config gpg.format)" == "ssh" ]]; then
+    signing_program=$(git config gpg.ssh.program)
+    if [[ -x "$signing_program" ]]; then
+        ok "SSH commit signing enabled via 1Password"
+    else
+        warn "SSH signing program unavailable ($signing_program)"
+    fi
 else
-    warn "GPG signing not enabled"
+    warn "SSH commit signing not enabled"
 fi
 
 # Drift check: setup-git-config owns rendering and can compare its expected

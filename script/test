@@ -5,8 +5,10 @@
 # Functional tests for the scripts that have non-trivial logic:
 # stow-package (conflict parsing + backup moves), setup-git-config
 # (Git-native rendering, migration, and drift detection), and install-mise
-# (platform-aware mainline installation). Each test runs inside its own mktemp
-# sandbox with a stubbed $HOME; nothing touches the real system.
+# (platform-aware mainline installation), and apply-macos-preferences
+# (platform gating, Dock defaults, and LaunchAgent reloads). Each test runs
+# inside its own mktemp sandbox with a stubbed $HOME; nothing touches the real
+# system.
 #
 # The runner does NOT use `set -e` globally so that a failing assertion
 # in one test reports and continues instead of aborting the whole suite.
@@ -309,7 +311,8 @@ write_test_identity() {
 test_git_config_basic_render() {
     local sandbox=$1
     set -e
-    write_test_identity "$sandbox/home" "test@example.com" "ABCD1234DEADBEEF"
+    local key='ssh-ed25519 AAAATESTBASICKEY'
+    write_test_identity "$sandbox/home" "test@example.com" "$key"
 
     HOME="$sandbox/home" "$REPO_ROOT/script/setup-git-config" > /dev/null
 
@@ -317,7 +320,7 @@ test_git_config_basic_render() {
     [ -f "$config" ] || { echo "config not rendered"; exit 1; }
     [ "$(git config --file "$config" --get user.email)" = "test@example.com" ] \
 	|| { echo "email not injected"; exit 1; }
-    [ "$(git config --file "$config" --get user.signingkey)" = "ABCD1234DEADBEEF" ] \
+    [ "$(git config --file "$config" --get user.signingkey)" = "$key" ] \
 	|| { echo "signing key not injected"; exit 1; }
 }
 
@@ -325,7 +328,7 @@ test_git_config_special_values() {
     local sandbox=$1
     set -e
     local email='weird&chars|here\test@example.com'
-    local key='KEY&BAD|ID\WITHBACKSLASH'
+    local key='ssh-ed25519 AAAATESTKEY weird&chars|comment\withbackslash'
     write_test_identity "$sandbox/home" "$email" "$key"
 
     HOME="$sandbox/home" "$REPO_ROOT/script/setup-git-config" > /dev/null
@@ -363,7 +366,8 @@ test_git_config_missing_email() {
     local sandbox=$1
     set -e
     mkdir -p "$sandbox/home/.config/local/git"
-    git config --file "$sandbox/home/.config/local/git/identity.gitconfig" user.signingkey xxx
+    git config --file "$sandbox/home/.config/local/git/identity.gitconfig" \
+	user.signingkey "ssh-ed25519 AAAATESTKEY"
     if HOME="$sandbox/home" "$REPO_ROOT/script/setup-git-config" 2>/dev/null; then
 	echo "expected nonzero exit when user.email missing"
         exit 1
@@ -381,13 +385,23 @@ test_git_config_missing_signingkey() {
     fi
 }
 
+test_git_config_rejects_non_ssh_signingkey() {
+    local sandbox=$1
+    set -e
+    write_test_identity "$sandbox/home" "test@example.com" "ABCD1234DEADBEEF"
+    if HOME="$sandbox/home" "$REPO_ROOT/script/setup-git-config" 2>/dev/null; then
+	echo "expected nonzero exit for a non-SSH signing key"
+	exit 1
+    fi
+}
+
 test_git_config_legacy_identity_migration() {
     local sandbox=$1
     set -e
     mkdir -p "$sandbox/home/.config/dotfiles"
     cat > "$sandbox/home/.config/dotfiles/identity.env" <<'EOF'
 EMAIL=legacy@example.com
-SIGNINGKEY=LEGACY1234
+SIGNINGKEY=ssh-ed25519 AAAALEGACYKEY
 EOF
 
     HOME="$sandbox/home" "$REPO_ROOT/script/setup-git-config" > /dev/null
@@ -396,7 +410,7 @@ EOF
     [ -f "$identity" ] || { echo "legacy identity was not migrated"; exit 1; }
     [ "$(git config --file "$identity" --get user.email)" = "legacy@example.com" ] \
 	|| { echo "migrated email is incorrect"; exit 1; }
-    [ "$(git config --file "$identity" --get user.signingkey)" = "LEGACY1234" ] \
+    [ "$(git config --file "$identity" --get user.signingkey)" = "ssh-ed25519 AAAALEGACYKEY" ] \
 	|| { echo "migrated signing key is incorrect"; exit 1; }
     [ -f "$sandbox/home/.config/local/git/identity.env.migrated" ] \
 	|| { echo "legacy identity should be archived"; exit 1; }
@@ -410,14 +424,14 @@ test_git_config_prior_git_identity_migration() {
     local old_identity="$sandbox/home/.config/dotfiles/identity.gitconfig"
     mkdir -p "$(dirname "$old_identity")"
     git config --file "$old_identity" user.email prior@example.com
-    git config --file "$old_identity" user.signingkey PRIOR1234
+    git config --file "$old_identity" user.signingkey "ssh-ed25519 AAAAPRIORKEY"
 
     HOME="$sandbox/home" "$REPO_ROOT/script/setup-git-config" > /dev/null
 
     local identity="$sandbox/home/.config/local/git/identity.gitconfig"
     [ "$(git config --file "$identity" --get user.email)" = "prior@example.com" ] \
 	|| { echo "prior Git identity email is incorrect"; exit 1; }
-    [ "$(git config --file "$identity" --get user.signingkey)" = "PRIOR1234" ] \
+    [ "$(git config --file "$identity" --get user.signingkey)" = "ssh-ed25519 AAAAPRIORKEY" ] \
 	|| { echo "prior Git identity signing key is incorrect"; exit 1; }
     [ ! -e "$old_identity" ] || { echo "prior Git identity should be moved"; exit 1; }
 }
@@ -425,7 +439,7 @@ test_git_config_prior_git_identity_migration() {
 test_git_config_check_detects_drift() {
     local sandbox=$1
     set -e
-    write_test_identity "$sandbox/home" "test@example.com" "ABCD1234"
+    write_test_identity "$sandbox/home" "test@example.com" "ssh-ed25519 AAAATESTKEY"
     HOME="$sandbox/home" "$REPO_ROOT/script/setup-git-config" > /dev/null
     HOME="$sandbox/home" "$REPO_ROOT/script/setup-git-config" --check
 
@@ -449,21 +463,6 @@ test_git_config_allowed_signers_render() {
     [ -f "$signers" ] || { echo "allowed_signers not rendered"; exit 1; }
     [ "$(cat "$signers")" = "test@example.com $TEST_SSH_KEY" ] \
 	|| { echo "allowed_signers entry incorrect"; exit 1; }
-}
-
-# A host still signing with a GPG key ID has nothing valid to put in an
-# allowed_signers entry, so the file renders empty rather than malformed.
-test_git_config_allowed_signers_skips_gpg_key() {
-    local sandbox=$1
-    set -e
-    write_test_identity "$sandbox/home" "test@example.com" "ABCD1234DEADBEEF"
-
-    HOME="$sandbox/home" "$REPO_ROOT/script/setup-git-config" > /dev/null
-
-    local signers="$sandbox/home/.config/local/git/allowed_signers"
-    [ -f "$signers" ] || { echo "allowed_signers not rendered"; exit 1; }
-    [ ! -s "$signers" ] \
-	|| { echo "a GPG key ID should not produce an entry"; exit 1; }
 }
 
 test_git_config_allowed_signers_extra() {
@@ -617,6 +616,121 @@ EOF
 	|| { echo "missing skip message"; exit 1; }
 }
 
+# ------- apply-macos-preferences -------
+
+make_macos_preferences_test_path() {
+    local sandbox=$1 os=$2 print_status=$3
+    mkdir -p "$sandbox/bin"
+    cat > "$sandbox/bin/uname" <<EOF
+#!/bin/sh
+printf '%s\n' '$os'
+EOF
+    cat > "$sandbox/bin/id" <<'EOF'
+#!/bin/sh
+printf '%s\n' 501
+EOF
+    cat > "$sandbox/bin/launchctl" <<EOF
+#!/bin/sh
+if [ "\$1" = print ]; then
+    exit $print_status
+fi
+printf '%s\n' "\$*" >> '$sandbox/launchctl.log'
+EOF
+    cat > "$sandbox/bin/defaults" <<EOF
+#!/bin/sh
+printf '%s\n' "\$*" >> '$sandbox/defaults.log'
+EOF
+    chmod +x "$sandbox/bin/uname" "$sandbox/bin/id" \
+	"$sandbox/bin/launchctl" "$sandbox/bin/defaults"
+    printf '%s:%s' "$sandbox/bin" "$PATH"
+}
+
+make_keyboard_launch_agent() {
+    local home=$1
+    mkdir -p "$home/Library/LaunchAgents"
+    touch "$home/Library/LaunchAgents/com.tarebyte.keyboard-remapping.plist"
+}
+
+assert_locking_hot_corner_applied() {
+    local sandbox=$1 expected
+    expected=$(printf '%s\n%s' \
+	"write com.apple.dock wvous-br-corner -int 13" \
+	"write com.apple.dock wvous-br-modifier -int 0")
+    [ "$(cat "$sandbox/defaults.log")" = "$expected" ] \
+	|| { echo "bottom-right Lock Screen hot corner was not configured"; exit 1; }
+}
+
+test_macos_preferences_bootstraps_agent() {
+    local sandbox=$1
+    set -e
+    local path
+    path=$(make_macos_preferences_test_path "$sandbox" Darwin 1)
+    make_keyboard_launch_agent "$sandbox/home"
+
+    HOME="$sandbox/home" PATH="$path" "$REPO_ROOT/script/apply-macos-preferences" > /dev/null
+
+    local expected
+    expected=$(printf '%s\n%s' \
+	"bootstrap gui/501 $sandbox/home/Library/LaunchAgents/com.tarebyte.keyboard-remapping.plist" \
+	"kickstart -k gui/501/com.apple.Dock.agent")
+    [ "$(cat "$sandbox/launchctl.log")" = "$expected" ] \
+	|| { echo "LaunchAgent was not bootstrapped"; exit 1; }
+    assert_locking_hot_corner_applied "$sandbox"
+}
+
+test_macos_preferences_reloads_agent() {
+    local sandbox=$1
+    set -e
+    local path
+    path=$(make_macos_preferences_test_path "$sandbox" Darwin 0)
+    make_keyboard_launch_agent "$sandbox/home"
+
+    HOME="$sandbox/home" PATH="$path" "$REPO_ROOT/script/apply-macos-preferences" > /dev/null
+
+    local expected
+    expected=$(printf '%s\n%s\n%s' \
+	"bootout gui/501/com.tarebyte.keyboard-remapping" \
+	"bootstrap gui/501 $sandbox/home/Library/LaunchAgents/com.tarebyte.keyboard-remapping.plist" \
+	"kickstart -k gui/501/com.apple.Dock.agent")
+    [ "$(cat "$sandbox/launchctl.log")" = "$expected" ] \
+	|| { echo "loaded LaunchAgent was not reloaded"; exit 1; }
+    assert_locking_hot_corner_applied "$sandbox"
+}
+
+test_macos_preferences_requires_agent() {
+    local sandbox=$1
+    set -e
+    local path
+    path=$(make_macos_preferences_test_path "$sandbox" Darwin 1)
+
+    if HOME="$sandbox/home" PATH="$path" \
+	"$REPO_ROOT/script/apply-macos-preferences" 2>/dev/null; then
+	echo "expected failure when LaunchAgent is missing"
+	exit 1
+    fi
+    [ ! -e "$sandbox/defaults.log" ] \
+	|| { echo "hot corner should not change without the LaunchAgent"; exit 1; }
+    [ ! -e "$sandbox/launchctl.log" ] \
+	|| { echo "launchctl should not run without the LaunchAgent"; exit 1; }
+}
+
+test_macos_preferences_skips_linux() {
+    local sandbox=$1
+    set -e
+    local path
+    path=$(make_macos_preferences_test_path "$sandbox" Linux 1)
+
+    HOME="$sandbox/home" PATH="$path" \
+	"$REPO_ROOT/script/apply-macos-preferences" > "$sandbox/output"
+
+    [ ! -e "$sandbox/launchctl.log" ] \
+	|| { echo "launchctl should not run on Linux"; exit 1; }
+    [ ! -e "$sandbox/defaults.log" ] \
+	|| { echo "defaults should not run on Linux"; exit 1; }
+    grep -q "not macOS; skipping preferences" "$sandbox/output" \
+	|| { echo "missing non-macOS skip message"; exit 1; }
+}
+
 # ------- tool_ready -------
 #
 # tool_ready lives in install-codespace-tools. With a version-flag probe it
@@ -729,11 +843,11 @@ run_test "special values round trip"        test_git_config_special_values
 run_test "codespaces render"                test_git_config_codespaces_skip
 run_test "missing user.email errors"        test_git_config_missing_email
 run_test "missing signing key errors"       test_git_config_missing_signingkey
+run_test "non-SSH signing key errors"       test_git_config_rejects_non_ssh_signingkey
 run_test "legacy identity migration"        test_git_config_legacy_identity_migration
 run_test "prior Git identity migration"     test_git_config_prior_git_identity_migration
 run_test "drift check"                      test_git_config_check_detects_drift
 run_test "allowed_signers render"           test_git_config_allowed_signers_render
-run_test "allowed_signers skips gpg key"    test_git_config_allowed_signers_skips_gpg_key
 run_test "allowed_signers extra appended"   test_git_config_allowed_signers_extra
 run_test "allowed_signers skipped in cs"    test_git_config_allowed_signers_codespaces
 run_test "allowed_signers drift check"      test_git_config_check_detects_signers_drift
@@ -744,6 +858,13 @@ run_test "installs mainline on Darwin"       test_mise_installs_mainline_on_darw
 run_test "skips existing mainline binary"   test_mise_skips_installer_when_mainline_exists
 run_test "errors without installed binary"  test_mise_errors_when_installer_produces_no_binary
 run_test "does not install on Linux"         test_mise_does_not_install_on_linux
+
+echo
+echo "=== apply-macos-preferences ==="
+run_test "applies preferences and agent"      test_macos_preferences_bootstraps_agent
+run_test "applies preferences and reloads"    test_macos_preferences_reloads_agent
+run_test "requires stowed keyboard agent"    test_macos_preferences_requires_agent
+run_test "does not apply on Linux"           test_macos_preferences_skips_linux
 
 echo
 echo "=== tool_ready ==="
