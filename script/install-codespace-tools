@@ -225,6 +225,13 @@ install_tool() {
 
 echo "==> Installing tools (arch: $ARCH)..."
 
+# Dotfiles run after the codespace's own lifecycle commands, so once Claude
+# Code is in place the codespace is ready for the codespace-dev skill. Mark it
+# here, before the slow tools (the tree-sitter cargo build), which keep
+# installing after `up` returns.
+install_tool "Claude Code"   claude        --version via_claude
+touch "$HOME/.local/state/dotfiles/ready"
+
 install_tool "Neovim"        nvim          --version via_nvim
 install_tool "tree-sitter"   tree-sitter   --version install_tree_sitter
 install_tool "tmux"          tmux          -V        via_apt         tmux
@@ -233,7 +240,6 @@ install_tool "bat"           bat           --version via_deb         sharkdp/bat
 install_tool "fzf"           fzf           --version via_tarball_bin junegunn/fzf           "fzf-*-linux_${ARCH_GO}.tar.gz"      fzf
 install_tool "lazygit"       lazygit       --version via_tarball_bin jesseduffield/lazygit  "lazygit_*_linux_${ARCH_ALT}.tar.gz" lazygit
 install_tool "diff-so-fancy" diff-so-fancy none      via_raw_bin     so-fancy/diff-so-fancy diff-so-fancy                        diff-so-fancy
-install_tool "Claude Code"   claude        --version via_claude
 
 echo ""
 echo "==> Tools installed! Plugin sync runs next (sync-codespace-plugins)."
