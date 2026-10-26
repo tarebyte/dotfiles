@@ -213,6 +213,10 @@ install_tool() {
   local start=$SECONDS
   echo "  Installing $display..."
   if "$installer" "$@"; then
+    # The readiness probe above cached the old path (e.g. the base image's
+    # broken /usr/local/bin/tree-sitter); forget it so the version check
+    # runs the binary just installed.
+    hash -r
     echo "  ✓ $display installed$(version_paren "$cmd" "$probe" "$((SECONDS - start))s")"
   else
     echo "  ⚠ $display skipped"
