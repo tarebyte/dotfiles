@@ -47,3 +47,10 @@ if ! command -v stow >/dev/null 2>&1; then
 fi
 
 make install
+
+# In Codespaces this script is the last step of creation (it runs after
+# postStartCommand), so the marker tells the codespace-dev skill the codespace is ready.
+if [ -n "${CODESPACES:-}" ]; then
+	mkdir -p "$HOME/.local/state/dotfiles"
+	touch "$HOME/.local/state/dotfiles/installed"
+fi
