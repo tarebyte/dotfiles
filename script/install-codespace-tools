@@ -1,7 +1,8 @@
 #!/bin/bash
 #
 # Install CLI tools GitHub Codespaces doesn't ship by default:
-# neovim, ripgrep, bat, fzf, lazygit, diff-so-fancy, tree-sitter, tmux.
+# neovim, ripgrep, bat, fzf, lazygit, diff-so-fancy, tree-sitter, tmux,
+# claude.
 # This is the "provision" phase — it only installs binaries. Populating
 # app plugin state (Neovim + tmux) is a separate lifecycle phase handled by
 # sync-codespace-plugins. Invoked by `make install-codespaces`. Safe to
@@ -121,6 +122,18 @@ via_apt() {
   sudo apt-get install -yq "$1" >/dev/null 2>&1
 }
 
+# Claude Code: the official native installer drops the binary in ~/.local/bin.
+# Run it from a file with stdin closed so its `claude install` step can never
+# wait on input (piping into bash would hand it the script as stdin instead).
+via_claude() {
+  local tmp=/tmp/claude-install.sh
+  curl -fsSL --output "$tmp" https://claude.ai/install.sh || return 1
+  local rc=0
+  bash "$tmp" </dev/null || rc=$?
+  rm -f "$tmp"
+  return "$rc"
+}
+
 # Build tree-sitter-cli from source. Used when the prebuilt release binary
 # can't run here — typically because it's linked against a newer glibc than
 # the system provides. Prints a reason and returns nonzero if the Rust
@@ -213,6 +226,7 @@ install_tool "bat"           bat           --version via_deb         sharkdp/bat
 install_tool "fzf"           fzf           --version via_tarball_bin junegunn/fzf           "fzf-*-linux_${ARCH_GO}.tar.gz"      fzf
 install_tool "lazygit"       lazygit       --version via_tarball_bin jesseduffield/lazygit  "lazygit_*_linux_${ARCH_ALT}.tar.gz" lazygit
 install_tool "diff-so-fancy" diff-so-fancy none      via_raw_bin     so-fancy/diff-so-fancy diff-so-fancy                        diff-so-fancy
+install_tool "Claude Code"   claude        --version via_claude
 
 echo ""
 echo "==> Tools installed! Plugin sync runs next (sync-codespace-plugins)."
