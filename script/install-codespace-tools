@@ -30,6 +30,9 @@ esac
 
 LOCAL_BIN="$HOME/.local/bin"
 mkdir -p "$LOCAL_BIN"
+# Setup runs before any shell profile has added ~/.local/bin, so put it on PATH
+# here; otherwise the readiness and version probes can't see tools installed there.
+export PATH="$LOCAL_BIN:$PATH"
 
 # Print the first line of a tool's version output, or "unknown" if it can't
 # be read. `flag` defaults to --version; tools that use a different flag
