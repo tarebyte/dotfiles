@@ -49,7 +49,7 @@ fi
 make install
 
 # In Codespaces, mark the whole setup finished (Neovim, tree-sitter, plugins).
-# The codespace-dev skill's `up` watches for this and sends a notification.
+# gh csd (github.com/tarebyte/gh-csd) watches for this and sends a notification.
 if [ -n "${CODESPACES:-}" ]; then
 	mkdir -p "$HOME/.local/state/dotfiles"
 	touch "$HOME/.local/state/dotfiles/setup-complete"

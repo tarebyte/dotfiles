@@ -226,7 +226,7 @@ install_tool() {
 echo "==> Installing tools (arch: $ARCH)..."
 
 # Dotfiles run after the codespace's own lifecycle commands, so once Claude
-# Code is in place the codespace is ready for the codespace-dev skill. Mark it
+# Code is in place the codespace is ready for gh csd. Mark it
 # here, before the slow tools (the tree-sitter cargo build), which keep
 # installing after `up` returns.
 install_tool "Claude Code"   claude        --version via_claude

@@ -4,11 +4,16 @@
 # Reads Claude Code session JSON on stdin.
 if defaults read -g AppleInterfaceStyle >/dev/null 2>&1; then dark=true; else dark=false; fi
 input=$(cat)
-# Codespace bound to this worktree by the codespace-dev skill, if any.
+# Codespace bound to this worktree by gh csd, if any, and what gh csd is
+# doing with it (creating…, setting up…, dotfiles…) while that runs.
 cwd=$(printf '%s' "$input" | jq -r '.workspace.current_dir // .cwd // empty')
 cs=""
-gitdir=$(git -C "${cwd:-.}" rev-parse --absolute-git-dir 2>/dev/null) && cs=$(cat "$gitdir/cs-dev-codespace" 2>/dev/null)
-printf '%s' "$input" | exec jq -r --argjson dark "$dark" --arg cs "$cs" '
+phase=""
+if gitdir=$(git -C "${cwd:-.}" rev-parse --absolute-git-dir 2>/dev/null); then
+	cs=$(cat "$gitdir/cs-dev-codespace" 2>/dev/null)
+	phase=$(cat "$gitdir/cs-dev-status" 2>/dev/null)
+fi
+printf '%s' "$input" | exec jq -r --argjson dark "$dark" --arg cs "$cs" --arg phase "$phase" '
   def hex(h): h | [.[0:2], .[2:4], .[4:6]] | map(explode | map(if . > 96 then . - 87 else . - 48 end) | .[0] * 16 + .[1]) | "\u001b[38;2;\(.[0]);\(.[1]);\(.[2])m";
   def bghex(h): hex(h) | sub("38;2"; "48;2");
   def tokens: if . >= 1000000 then (. / 100000 | floor) as $t | "\($t / 10 | floor).\($t % 10)M"
@@ -66,7 +71,13 @@ printf '%s' "$input" | exec jq -r --argjson dark "$dark" --arg cs "$cs" '
   # Context on the left, everything else pushed to the right edge. Claude Code sets COLUMNS to the terminal width.
   # ponytail: 4-column margin for the row padding of Claude Code; raise it if the line wraps.
   | def visible: gsub("\u001b\\[[0-9;]*m"; "") | length;
-  ([(if $cs != "" then "\($c.teal)☁\($r) \($c.text)\($cs)\($r)" else empty end), $stats, $repo] | join($section)) as $right
+  # Codespace: its name, then the gh csd phase in yellow while gh csd works.
+  (if $cs == "" and $phase == "" then ""
+   else "\($c.teal)☁\($r)"
+     + (if $cs != "" then " \($c.text)\($cs)\($r)" else "" end)
+     + (if $phase != "" then (if $cs != "" then " \($c.sep)·\($r)" else "" end) + " \($c.yellow)\($phase)\($r)" else "" end)
+   end) as $codespace
+  | ([$codespace, $stats, $repo] | map(select(. != "")) | join($section)) as $right
   | (($ENV.COLUMNS // "0" | tonumber) - ($context | visible) - ($right | visible) - 4) as $gap
   | if $gap >= 2 then $context + " " * $gap + $right else [$context, $right] | join($section) end
 '
