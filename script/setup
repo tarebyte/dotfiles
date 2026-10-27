@@ -52,5 +52,5 @@ make install
 # The codespace-dev skill's `up` watches for this and sends a notification.
 if [ -n "${CODESPACES:-}" ]; then
 	mkdir -p "$HOME/.local/state/dotfiles"
-	touch "$HOME/.local/state/dotfiles/done"
+	touch "$HOME/.local/state/dotfiles/setup-complete"
 fi
