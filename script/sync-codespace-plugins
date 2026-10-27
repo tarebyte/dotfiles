@@ -17,6 +17,10 @@ mkdir -p "$HOME/.local/state/dotfiles"
 exec > >(tee -ia "$HOME/.local/state/dotfiles/bootstrap.log")
 exec 2>&1
 
+# Setup runs before any shell profile has added ~/.local/bin. nvim-treesitter
+# needs the tree-sitter CLI built there, not the base image's broken one.
+export PATH="$HOME/.local/bin:$PATH"
+
 echo "==> Syncing Codespaces plugins..."
 
 # Return 0 (true) only if a tool is installed AND actually usable. `probe`
@@ -67,8 +71,10 @@ setup_neovim() {
   # nvim-treesitter's main branch has no :TSUpdateSync, and its install() is
   # async, so block on it with wait() as its README says to for scripts.
   # LazyVim.opts() returns ensure_installed merged with LazyVim's defaults.
-  # Exit non-zero on any error, since `nvim +qa` would otherwise exit 0.
-  nvim_headless "+lua if not pcall(function() require('nvim-treesitter').install(LazyVim.opts('nvim-treesitter').ensure_installed):wait(300000) end) then vim.cmd('cquit 1') end" \
+  # install() reports failed parsers without raising, so check that every
+  # wanted parser is installed, and exit non-zero otherwise, since `nvim +qa`
+  # would exit 0.
+  nvim_headless "+lua local ok, missing = pcall(function() local ts = require('nvim-treesitter'); local want = LazyVim.opts('nvim-treesitter').ensure_installed; ts.install(want):wait(300000); local have = {}; for _, l in ipairs(ts.get_installed()) do have[l] = true end; return vim.tbl_filter(function(l) return not have[l] end, want) end); if not ok or #missing > 0 then io.stderr:write('missing parsers: ' .. vim.inspect(missing) .. '\n'); vim.cmd('cquit 1') end" \
     || echo "    ⚠ tree-sitter parser install reported errors (continuing)"
   echo "  ✓ Neovim ready ($((SECONDS - start))s)"
 }
