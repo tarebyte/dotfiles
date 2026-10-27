@@ -47,3 +47,10 @@ if ! command -v stow >/dev/null 2>&1; then
 fi
 
 make install
+
+# In Codespaces, mark the whole setup finished (Neovim, tree-sitter, plugins).
+# The codespace-dev skill's `up` watches for this and sends a notification.
+if [ -n "${CODESPACES:-}" ]; then
+	mkdir -p "$HOME/.local/state/dotfiles"
+	touch "$HOME/.local/state/dotfiles/done"
+fi
