@@ -135,8 +135,9 @@ test_stow_foreign_directory_symlink_conflict() {
 
     HOME="$sandbox/home" "$sandbox/repo/script/stow-package" pkg > /dev/null
 
-    [ -d "$sandbox/home/.config" ] && [ ! -L "$sandbox/home/.config" ] \
-	|| { echo "foreign directory symlink was not replaced"; exit 1; }
+    if ! { [ -d "$sandbox/home/.config" ] && [ ! -L "$sandbox/home/.config" ]; }; then
+	echo "foreign directory symlink was not replaced"; exit 1
+    fi
     [ -L "$sandbox/home/.config/demo/foo.conf" ] \
 	|| { echo "package file was not stowed"; exit 1; }
     [ -f "$sandbox/other/config/demo/foreign.conf" ] \
@@ -203,9 +204,9 @@ test_stow_restow_prunes_obsolete_link() {
     HOME="$sandbox/home" "$sandbox/repo/script/stow-package" pkg > /dev/null
 
     [ -L "$sandbox/home/.config/keep.conf" ] || { echo "current link missing"; exit 1; }
-    [ ! -e "$sandbox/home/.config/remove.conf" ] \
-	&& [ ! -L "$sandbox/home/.config/remove.conf" ] \
-	|| { echo "obsolete link was not pruned"; exit 1; }
+    if [ -e "$sandbox/home/.config/remove.conf" ] || [ -L "$sandbox/home/.config/remove.conf" ]; then
+	echo "obsolete link was not pruned"; exit 1
+    fi
 }
 
 test_stow_restow_unfolds_owned_directory() {
@@ -223,8 +224,9 @@ test_stow_restow_unfolds_owned_directory() {
 
     HOME="$sandbox/home" "$sandbox/repo/script/stow-package" pkg > /dev/null
 
-    [ -d "$sandbox/home/.config" ] && [ ! -L "$sandbox/home/.config" ] \
-	|| { echo "owned directory symlink was not unfolded"; exit 1; }
+    if ! { [ -d "$sandbox/home/.config" ] && [ ! -L "$sandbox/home/.config" ]; }; then
+	echo "owned directory symlink was not unfolded"; exit 1
+    fi
     [ -L "$sandbox/home/.config/demo/foo.conf" ] \
 	|| { echo "package file was not restowed"; exit 1; }
     [ ! -d "$sandbox/home/.dotfiles-backup" ] \
