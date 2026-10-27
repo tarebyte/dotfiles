@@ -6,13 +6,29 @@ if defaults read -g AppleInterfaceStyle >/dev/null 2>&1; then dark=true; else da
 input=$(cat)
 # Codespace bound to this worktree by gh csd, if any, and what gh csd is
 # doing with it (creating…, setting up…, dotfiles…) while that runs.
-cwd=$(printf '%s' "$input" | jq -r '.workspace.current_dir // .cwd // empty')
+# Shell built-ins only where possible: each process start costs 10-80ms.
+case $input in
+*'"current_dir"'*)
+	rest=${input#*\"current_dir\"}
+	rest=${rest#*\"}
+	cwd=${rest%%\"*}
+	;;
+*) cwd=$(printf '%s' "$input" | jq -r '.workspace.current_dir // .cwd // empty') ;;
+esac
+# A worktree's .git is a file naming its git dir; a checkout's is the dir.
+gitdir=""
+if [ -f "$cwd/.git" ]; then
+	IFS= read -r line <"$cwd/.git"
+	gitdir=${line#gitdir: }
+elif [ -d "$cwd/.git" ]; then
+	gitdir="$cwd/.git"
+else
+	gitdir=$(git -C "${cwd:-.}" rev-parse --absolute-git-dir 2>/dev/null)
+fi
 cs=""
 phase=""
-if gitdir=$(git -C "${cwd:-.}" rev-parse --absolute-git-dir 2>/dev/null); then
-	cs=$(cat "$gitdir/cs-dev-codespace" 2>/dev/null)
-	phase=$(cat "$gitdir/cs-dev-status" 2>/dev/null)
-fi
+[ -f "$gitdir/cs-dev-codespace" ] && IFS= read -r cs <"$gitdir/cs-dev-codespace"
+[ -f "$gitdir/cs-dev-status" ] && IFS= read -r phase <"$gitdir/cs-dev-status"
 printf '%s' "$input" | exec jq -r --argjson dark "$dark" --arg cs "$cs" --arg phase "$phase" '
   def hex(h): h | [.[0:2], .[2:4], .[4:6]] | map(explode | map(if . > 96 then . - 87 else . - 48 end) | .[0] * 16 + .[1]) | "\u001b[38;2;\(.[0]);\(.[1]);\(.[2])m";
   def bghex(h): hex(h) | sub("38;2"; "48;2");
