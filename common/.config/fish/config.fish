@@ -105,6 +105,5 @@ end
 
 test -x "$HOME/.local/bin/mise"; and "$HOME/.local/bin/mise" activate fish | source
 
-command -q ngrok; and ngrok completion fish | source
 type -q zoxide; and zoxide init fish | source
 type -q starship; and starship init fish | source
