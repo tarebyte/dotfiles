@@ -230,7 +230,8 @@ echo "==> Installing tools (arch: $ARCH)..."
 # here, before the slow tools (the tree-sitter cargo build), which keep
 # installing after `up` returns.
 install_tool "Claude Code"   claude        --version via_claude
-touch "$HOME/.local/state/dotfiles/setup-ready"
+mkdir -p "$HOME/.local/state/gh-csd"
+touch "$HOME/.local/state/gh-csd/setup-ready"
 
 install_tool "Neovim"        nvim          --version via_nvim
 install_tool "tree-sitter"   tree-sitter   --version install_tree_sitter
