@@ -134,7 +134,7 @@ The tradeoff is the one "generated file with a source of truth elsewhere" in the
 
 ### Multi-package split
 
-- **`common/`** — shared on every host: fish, nvim, mise, starship, tmux, ctags, dircolors, gemrc, pryrc, rubocop, terminfo, `git/ignore` (global gitignore), `.claude/CLAUDE.md` and `.claude/output-styles/` (personal Claude Code instructions and output style).
+- **`common/`** — shared on every host: fish, nvim, mise, starship, tmux, ctags, dircolors, gemrc, pryrc, rubocop, `git/ignore` (global gitignore), `.claude/CLAUDE.md` and `.claude/output-styles/` (personal Claude Code instructions and output style).
 - **`darwin/`** — any macOS host: `.Brewfile`, macOS-only scripts (`pb-pem`, `ssh-copy-id`, `touchid-enable-pam-sudo`), `git/config.darwin` (gh credential helper + SSH signing through `op-ssh-sign`), `.ssh/config` (1Password SSH agent), `.claude/settings.json` + `.claude/statusline.sh` (Claude Code settings; the hooks call iTerm2's `cc-status` and the status line reads the macOS appearance), and the keyboard-remapping LaunchAgent. The install flow also sets the bottom-right hot corner to Lock Screen.
 - **`codespaces/`** — Codespaces only: `.bash_aliases`, `.oh-my-zsh/`, Linux-only scripts (`gh-prepare`).
 
@@ -246,6 +246,34 @@ make install
 ```
 
 (Git config is the one exception — don't add it to a stow package. Edit `templates/git-config.tmpl` and run `make regen-git-config`.)
+
+## Removing a file
+
+**Unstow before you delete, or you strand the symlink.** `stow -R` works out what to
+remove by walking the *package*, so a file already deleted from `common/` is invisible
+to it — the link in `$HOME` survives as a dangling pointer and every later `make
+install` leaves it alone. Order matters:
+
+```sh
+make clean                       # unstow while the file still exists
+git rm -r common/.some-thing
+make install
+```
+
+If you deleted first, the links are already orphaned and no stow command will find
+them. Clean up by hand, checking each one points where you think before removing it:
+
+```sh
+for l in $(find ~/.some-thing -type l); do [ -e "$l" ] || echo "DANGLING $l -> $(readlink "$l")"; done
+```
+
+**Don't shadow system terminfo.** `~/.terminfo` replaces a system entry whole; it does
+not merge with it. A copied entry loses every capability added to the system one later.
+Diff before adding one:
+
+```sh
+infocmp -x -1 -A ~/.terminfo -B /usr/share/terminfo -d xterm-256color xterm-256color
+```
 
 ## Dev focus
 
