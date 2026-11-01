@@ -7,7 +7,9 @@
     "lazyvim.plugins.extras.editor.navic",
     "lazyvim.plugins.extras.lang.git",
     "lazyvim.plugins.extras.lang.go",
+    "lazyvim.plugins.extras.lang.rust",
     "lazyvim.plugins.extras.lang.tailwind",
+    "lazyvim.plugins.extras.lang.toml",
     "lazyvim.plugins.extras.ui.treesitter-context",
     "lazyvim.plugins.extras.util.mini-hipatterns",
     "lazyvim.plugins.extras.util.startuptime"
