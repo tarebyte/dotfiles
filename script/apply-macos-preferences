@@ -28,6 +28,10 @@ fi
 defaults write "$DOCK_DOMAIN" wvous-br-corner -int "$LOCK_SCREEN_ACTION"
 defaults write "$DOCK_DOMAIN" wvous-br-modifier -int "$NO_MODIFIER"
 
+mkdir -p "$HOME/Pictures/Screenshots"
+defaults write com.apple.screencapture location -string "$HOME/Pictures/Screenshots"
+defaults write com.apple.screencapture location-screenshot -string "$HOME/Pictures/Screenshots"
+
 # Reload the definition so edits take effect immediately. RunAtLoad applies
 # the mapping now; launchd applies it again after each login.
 if launchctl print "$DOMAIN/$LABEL" >/dev/null 2>&1; then
@@ -37,5 +41,11 @@ launchctl bootstrap "$DOMAIN" "$PLIST"
 
 # Dock reads hot-corner preferences at launch.
 launchctl kickstart -k "$DOCK_SERVICE"
+
+# SystemUIServer caches screenshot preferences; kickstart is blocked by SIP.
+SYSTEM_UI_PID=$(launchctl list | awk '$3 == "com.apple.SystemUIServer.agent" && $1 ~ /^[0-9]+$/ { print $1 }')
+if [ -n "$SYSTEM_UI_PID" ]; then
+    kill "$SYSTEM_UI_PID"
+fi
 
 echo "macOS preferences applied"

@@ -20,7 +20,7 @@ Re-run `make install` at any time to apply changes or repair the installation.
 - Language runtimes and editor tooling through mise
 - Homebrew applications and command-line tools
 - macOS preferences, including Caps Lock mapped to Control and a bottom-right
-  hot corner that locks the screen
+  hot corner that locks the screen, with screenshots saved to `~/Pictures/Screenshots`
 - Bash/Zsh configuration and bootstrap tooling for [GitHub Codespaces](https://docs.github.com/en/codespaces/customizing-your-codespace/personalizing-codespaces-for-your-account#dotfiles)
 
 ## Commands

@@ -6,7 +6,7 @@
 # stow-package (conflict parsing + backup moves), setup-git-config
 # (Git-native rendering, migration, and drift detection), and install-mise
 # (platform-aware mainline installation), and apply-macos-preferences
-# (platform gating, Dock defaults, and LaunchAgent reloads). Each test runs
+# (platform gating, Dock/screenshot defaults, and LaunchAgent reloads). Each test runs
 # inside its own mktemp sandbox with a stubbed $HOME; nothing touches the real
 # system.
 #
@@ -636,6 +636,10 @@ EOF
 if [ "\$1" = print ]; then
     exit $print_status
 fi
+if [ "\$1" = list ]; then
+    printf '%s\t0\tcom.apple.SystemUIServer.agent\n' "\${SYSTEM_UI_TEST_PID:--}"
+    exit 0
+fi
 printf '%s\n' "\$*" >> '$sandbox/launchctl.log'
 EOF
     cat > "$sandbox/bin/defaults" <<EOF
@@ -653,13 +657,17 @@ make_keyboard_launch_agent() {
     touch "$home/Library/LaunchAgents/com.tarebyte.keyboard-remapping.plist"
 }
 
-assert_locking_hot_corner_applied() {
+assert_macos_preferences_applied() {
     local sandbox=$1 expected
-    expected=$(printf '%s\n%s' \
+    expected=$(printf '%s\n%s\n%s\n%s' \
 	"write com.apple.dock wvous-br-corner -int 13" \
-	"write com.apple.dock wvous-br-modifier -int 0")
+	"write com.apple.dock wvous-br-modifier -int 0" \
+	"write com.apple.screencapture location -string $sandbox/home/Pictures/Screenshots" \
+	"write com.apple.screencapture location-screenshot -string $sandbox/home/Pictures/Screenshots")
     [ "$(cat "$sandbox/defaults.log")" = "$expected" ] \
-	|| { echo "bottom-right Lock Screen hot corner was not configured"; exit 1; }
+	|| { echo "hot corner and screenshot preferences were not configured"; exit 1; }
+    [ -d "$sandbox/home/Pictures/Screenshots" ] \
+	|| { echo "screenshot directory was not created"; exit 1; }
 }
 
 test_macos_preferences_bootstraps_agent() {
@@ -677,7 +685,7 @@ test_macos_preferences_bootstraps_agent() {
 	"kickstart -k gui/501/com.apple.Dock.agent")
     [ "$(cat "$sandbox/launchctl.log")" = "$expected" ] \
 	|| { echo "LaunchAgent was not bootstrapped"; exit 1; }
-    assert_locking_hot_corner_applied "$sandbox"
+    assert_macos_preferences_applied "$sandbox"
 }
 
 test_macos_preferences_reloads_agent() {
@@ -696,7 +704,7 @@ test_macos_preferences_reloads_agent() {
 	"kickstart -k gui/501/com.apple.Dock.agent")
     [ "$(cat "$sandbox/launchctl.log")" = "$expected" ] \
 	|| { echo "loaded LaunchAgent was not reloaded"; exit 1; }
-    assert_locking_hot_corner_applied "$sandbox"
+    assert_macos_preferences_applied "$sandbox"
 }
 
 test_macos_preferences_requires_agent() {
@@ -716,6 +724,42 @@ test_macos_preferences_requires_agent() {
 	|| { echo "launchctl should not run without the LaunchAgent"; exit 1; }
 }
 
+test_macos_preferences_preserves_screenshots() {
+    local sandbox=$1
+    set -e
+    local path
+    path=$(make_macos_preferences_test_path "$sandbox" Darwin 0)
+    make_keyboard_launch_agent "$sandbox/home"
+    mkdir -p "$sandbox/home/Pictures/Screenshots"
+    printf '%s\n' existing > "$sandbox/home/Pictures/Screenshots/example.png"
+
+    HOME="$sandbox/home" PATH="$path" "$REPO_ROOT/script/apply-macos-preferences" > /dev/null
+    HOME="$sandbox/home" PATH="$path" "$REPO_ROOT/script/apply-macos-preferences" > /dev/null
+
+    [ "$(cat "$sandbox/home/Pictures/Screenshots/example.png")" = existing ] \
+	|| { echo "existing screenshot was changed"; exit 1; }
+}
+
+test_macos_preferences_refreshes_screenshots() {
+    local sandbox=$1
+    set -e
+    local path pid
+    path=$(make_macos_preferences_test_path "$sandbox" Darwin 0)
+    make_keyboard_launch_agent "$sandbox/home"
+    sleep 30 &
+    pid=$!
+    trap 'kill "$pid" 2>/dev/null || true' EXIT
+
+    SYSTEM_UI_TEST_PID="$pid" HOME="$sandbox/home" PATH="$path" \
+	"$REPO_ROOT/script/apply-macos-preferences" > /dev/null
+
+    if wait "$pid" 2>/dev/null; then
+	echo "screenshot preference process was not restarted"
+	exit 1
+    fi
+    trap - EXIT
+}
+
 test_macos_preferences_skips_linux() {
     local sandbox=$1
     set -e
@@ -729,6 +773,8 @@ test_macos_preferences_skips_linux() {
 	|| { echo "launchctl should not run on Linux"; exit 1; }
     [ ! -e "$sandbox/defaults.log" ] \
 	|| { echo "defaults should not run on Linux"; exit 1; }
+    [ ! -e "$sandbox/home/Pictures/Screenshots" ] \
+	|| { echo "screenshot directory should not be created on Linux"; exit 1; }
     grep -q "not macOS; skipping preferences" "$sandbox/output" \
 	|| { echo "missing non-macOS skip message"; exit 1; }
 }
@@ -866,6 +912,8 @@ echo "=== apply-macos-preferences ==="
 run_test "applies preferences and agent"      test_macos_preferences_bootstraps_agent
 run_test "applies preferences and reloads"    test_macos_preferences_reloads_agent
 run_test "requires stowed keyboard agent"    test_macos_preferences_requires_agent
+run_test "preserves screenshots on reruns"   test_macos_preferences_preserves_screenshots
+run_test "refreshes screenshot preferences"  test_macos_preferences_refreshes_screenshots
 run_test "does not apply on Linux"           test_macos_preferences_skips_linux
 
 echo
