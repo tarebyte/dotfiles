@@ -19,6 +19,8 @@ stylua = "v2.5.2"
 "npm:bash-language-server" = "latest"
 "npm:markdown-toc" = "latest"
 aspire = "latest"
+"npm:cf" = "1.0.0-beta.26"
+uv = "latest"
 
 [settings.ruby]
 compile = false
