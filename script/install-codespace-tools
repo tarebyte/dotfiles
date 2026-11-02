@@ -1,8 +1,8 @@
 #!/bin/bash
 #
 # Install CLI tools GitHub Codespaces doesn't ship by default:
-# neovim, ripgrep, bat, fzf, lazygit, diff-so-fancy, tree-sitter, tmux,
-# claude.
+# herdr-core, neovim, ripgrep, bat, fzf, lazygit, diff-so-fancy,
+# tree-sitter, tmux, claude.
 # This is the "provision" phase — it only installs binaries. Populating
 # app plugin state (Neovim + tmux) is a separate lifecycle phase handled by
 # sync-codespace-plugins. Invoked by `make install-codespaces`. Safe to
@@ -137,6 +137,18 @@ via_claude() {
   return "$rc"
 }
 
+# herdr-core (hc): its official installer picks the Linux build, checks its
+# sha256 and fails if the binary won't run here. Same file-and-closed-stdin
+# pattern as via_claude.
+via_herdr_core() {
+  local tmp=/tmp/herdr-core-install.sh
+  curl -fsSL --output "$tmp" https://releases.herdr.dev/core/install.sh || return 1
+  local rc=0
+  sh "$tmp" </dev/null || rc=$?
+  rm -f "$tmp"
+  return "$rc"
+}
+
 # Build tree-sitter-cli from source. Used when the prebuilt release binary
 # can't run here — typically because it's linked against a newer glibc than
 # the system provides. Prints a reason and returns nonzero if the Rust
@@ -226,9 +238,11 @@ install_tool() {
 echo "==> Installing tools (arch: $ARCH)..."
 
 # Dotfiles run after the codespace's own lifecycle commands, so once Claude
-# Code is in place the codespace is ready for gh csd. Mark it
+# Code is in place the codespace is ready for gh csd. herdr-core goes first
+# so herdr can add the codespace as a machine as soon as `up` returns. Mark it
 # here, before the slow tools (the tree-sitter cargo build), which keep
 # installing after `up` returns.
+install_tool "herdr-core"    herdr-core    --version via_herdr_core
 install_tool "Claude Code"   claude        --version via_claude
 mkdir -p "$HOME/.local/state/gh-csd"
 touch "$HOME/.local/state/gh-csd/setup-ready"
