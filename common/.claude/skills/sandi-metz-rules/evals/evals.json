@@ -1,0 +1,30 @@
+{
+  "skill_name": "sandi-metz-rules",
+  "evals": [
+    {
+      "id": 0,
+      "name": "order-report",
+      "prompt": "write me a ruby class OrderReport in lib/order_report.rb. it takes a path to a CSV of orders (columns: customer_id, tier, sku, quantity, unit_price, created_at) and an optional date range, and returns per-customer totals. gold tier customers get 10% off orders over $100, silver get 5% off orders over $250, everyone else nothing. skip rows with quantity 0 or bad prices and collect them as warnings. add a minitest test file too.",
+      "expected_output": "New class and test that follow all rules: short methods with clear names, <=4 params, class <=100 lines, discount logic extracted. Summary ends with exception report line.",
+      "files": []
+    },
+    {
+      "id": 1,
+      "name": "rails-dashboard",
+      "prompt": "Add a show action to DashboardsController (app/controllers/dashboards_controller.rb) for the logged-in user. The page should list their 5 most recently pushed repositories, show their unread notification count, and list the open pull requests they have been asked to review. Update app/views/dashboards/show.html.erb too. Models are in app/models.",
+      "expected_output": "show action exposes one object (facade/presenter) to the view; view sends messages only to that object.",
+      "files": [
+        "inputs/rails-dashboard"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "legacy-invoice",
+      "prompt": "lib/invoice_processor.rb needs to support partial refunds. If invoice.refund_amount is present and positive, subtract it from the subtotal after the coupon (never below zero) before tax is calculated, and record a ledger entry with kind: :refund for the refunded amount. No tests needed for this one.",
+      "expected_output": "Refund logic lives in new short private method(s); existing process method is not rewritten wholesale and not grown much; no unrelated refactors.",
+      "files": [
+        "inputs/legacy-invoice"
+      ]
+    }
+  ]
+}
