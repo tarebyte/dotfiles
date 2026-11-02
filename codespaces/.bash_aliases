@@ -20,6 +20,9 @@ DOTFILES=$(dirname "$(dirname "$_aliases_real")")
 export DOTFILES
 unset _aliases_real
 
+# Private per-user shell setup, from a Codespaces user secret.
+[[ -n "${CODESPACE_SHELL_INIT:-}" ]] && eval "$CODESPACE_SHELL_INIT"
+
 export FZF_DEFAULT_COMMAND="rg --files --hidden --follow --no-messages --glob '!.git/*'"
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 
