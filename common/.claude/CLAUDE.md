@@ -12,6 +12,8 @@ wrote it, not an agent.
   can post it as me. Post it word for word. Do not edit or add to it.
 - You can help me draft and edit this prose in a local file when I ask.
 - You can write commit messages.
+- You can write and edit files whose readers are agents (for example
+  AGENTS.md, CLAUDE.md, RECIPE.md, and skill files). These are instructions, not my prose.
 - Data is not prose. When I ask, you can add data aids (for example, tables
   of metrics or query results) to my PRs and issues. Do not write or change
   my prose around them, and keep any notes to factual labels for the data.
