@@ -146,7 +146,6 @@ jobs:
               failed=1
             fi
           }
-          verify herdr-core --version
           verify nvim --version
           verify tree-sitter --version
           verify tmux -V

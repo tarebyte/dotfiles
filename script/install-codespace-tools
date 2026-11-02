@@ -1,8 +1,8 @@
 #!/bin/bash
 #
 # Install CLI tools GitHub Codespaces doesn't ship by default:
-# herdr-core, neovim, ripgrep, bat, fzf, lazygit, diff-so-fancy,
-# tree-sitter, tmux, claude.
+# neovim, ripgrep, bat, fzf, lazygit, diff-so-fancy, tree-sitter, tmux,
+# claude.
 # This is the "provision" phase — it only installs binaries. Populating
 # app plugin state (Neovim + tmux) is a separate lifecycle phase handled by
 # sync-codespace-plugins. Invoked by `make install-codespaces`. Safe to
@@ -137,37 +137,6 @@ via_claude() {
   return "$rc"
 }
 
-# herdr-core (hc): its official installer picks the Linux build, checks its
-# sha256 and fails if the binary won't run here. Same file-and-closed-stdin
-# pattern as via_claude.
-via_herdr_core() {
-  local tmp=/tmp/herdr-core-install.sh
-  curl -fsSL --output "$tmp" https://releases.herdr.dev/core/install.sh || return 1
-  local rc=0
-  sh "$tmp" </dev/null || rc=$?
-  rm -f "$tmp"
-  return "$rc"
-}
-
-# Claude Code's first-run answers, so a new codespace starts it with no
-# prompts: the theme, onboarding done, and trust for each /workspaces checkout.
-# Claude does not apply a parent folder's trust to its subfolders, so each
-# checkout gets its own entry. Settings already in the files are kept.
-seed_claude_config() {
-  command -v jq >/dev/null 2>&1 || { echo "    jq not found"; return 1; }
-  local settings="$HOME/.claude/settings.json" state="$HOME/.claude.json" dirs
-  mkdir -p "$HOME/.claude"
-  [ -s "$settings" ] || echo '{}' >"$settings"
-  [ -s "$state" ] || echo '{}' >"$state"
-  dirs=$(find /workspaces -mindepth 1 -maxdepth 1 -type d ! -name '.*' -print0 2>/dev/null |
-    jq -Rs 'split("\u0000") | map(select(. != ""))')
-  jq '.theme //= "dark-ansi"' "$settings" >"$settings.tmp" && mv "$settings.tmp" "$settings"
-  jq --argjson dirs "$dirs" \
-    '.hasCompletedOnboarding = true | reduce $dirs[] as $d (.; .projects[$d].hasTrustDialogAccepted = true)' \
-    "$state" >"$state.tmp" && mv "$state.tmp" "$state"
-  chmod 600 "$state"
-}
-
 # Build tree-sitter-cli from source. Used when the prebuilt release binary
 # can't run here — typically because it's linked against a newer glibc than
 # the system provides. Prints a reason and returns nonzero if the Rust
@@ -257,17 +226,10 @@ install_tool() {
 echo "==> Installing tools (arch: $ARCH)..."
 
 # Dotfiles run after the codespace's own lifecycle commands, so once Claude
-# Code is in place the codespace is ready for gh csd. herdr-core goes first
-# so herdr can add the codespace as a machine as soon as `up` returns. Mark it
+# Code is in place the codespace is ready for gh csd. Mark it
 # here, before the slow tools (the tree-sitter cargo build), which keep
 # installing after `up` returns.
-install_tool "herdr-core"    herdr-core    --version via_herdr_core
 install_tool "Claude Code"   claude        --version via_claude
-if seed_claude_config; then
-  echo "  ✓ Claude Code first-run settings written"
-else
-  echo "  ⚠ Claude Code first-run settings skipped"
-fi
 mkdir -p "$HOME/.local/state/gh-csd"
 touch "$HOME/.local/state/gh-csd/setup-ready"
 
