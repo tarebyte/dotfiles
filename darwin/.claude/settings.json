@@ -135,5 +135,15 @@
   },
   "promptSuggestionEnabled": false,
   "awaySummaryEnabled": false,
-  "theme": "dark-ansi"
+  "theme": "dark-ansi",
+  "skillOverrides": {
+    "adversarial-review": "off",
+    "decision-guide": "off",
+    "instrumentation": "off",
+    "jargon-translation": "off",
+    "log-sampling-detection": "off",
+    "remove-feature-flag": "off",
+    "semantic-conventions": "off",
+    "tomdoc": "off"
+  }
 }
