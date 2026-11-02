@@ -50,14 +50,42 @@ return {
           end,
         },
         vscode_sorbet = {
-          cmd = { ".vscode/run-sorbet", "--lsp" },
+          -- On macOS, .vscode/run-sorbet fails (no bin/bundle locally, no nproc), so run
+          -- the Gemfile.lock's sorbet-static binary directly. Stdout is the LSP stream.
+          cmd = vim.fn.has("mac") == 1
+              and {
+                "mise",
+                "exec",
+                "--",
+                "sh",
+                "-c",
+                [[
+v=$(sed -n 's/^    sorbet-static (\([0-9.]*\).*/\1/p' Gemfile.lock | head -1)
+gem list -i sorbet-static -v "$v" >/dev/null || gem install sorbet-static -v "$v" --platform universal-darwin --no-document >&2
+mkdir -p tmp/sorbet
+exec "$(gem contents sorbet-static -v "$v" | grep 'libexec/sorbet$')" --lsp --cache-dir tmp/sorbet --max-threads $(( $(sysctl -n hw.ncpu) / 2 )) $(command -v watchman >/dev/null || echo --disable-watchman)
+]],
+              }
+            or { ".vscode/run-sorbet", "--lsp" },
           filetypes = { "ruby" },
-          root_markers = { ".vscode/run-sorbet" },
+          -- A root_marker with a slash roots at .vscode/, not the repo, so go up one level.
+          root_dir = function(bufnr, on_dir)
+            local root = vim.fs.root(bufnr, ".vscode/run-sorbet")
+            if root then
+              on_dir(vim.fs.dirname(root))
+            end
+          end,
         },
         vscode_sorbet_rubocop = {
           cmd = { "bin/rubocop", "--lsp" },
           filetypes = { "ruby" },
-          root_markers = { ".vscode/run-sorbet" },
+          -- A root_marker with a slash roots at .vscode/, not the repo, so go up one level.
+          root_dir = function(bufnr, on_dir)
+            local root = vim.fs.root(bufnr, ".vscode/run-sorbet")
+            if root then
+              on_dir(vim.fs.dirname(root))
+            end
+          end,
         },
         -- Prose/grammar checking for prose documents only.
         --
