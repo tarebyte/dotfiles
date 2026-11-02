@@ -77,13 +77,19 @@ exec "$(gem contents sorbet-static -v "$v" | grep 'libexec/sorbet$')" --lsp --ca
           end,
         },
         vscode_sorbet_rubocop = {
-          cmd = { "bin/rubocop", "--lsp" },
+          -- A function cmd skips Neovim's executable check, which resolves bin/rubocop
+          -- against Neovim's cwd and logs an error in every repo that has no bin/rubocop.
+          cmd = function(dispatchers, config)
+            return vim.lsp.rpc.start({ "bin/rubocop", "--lsp" }, dispatchers, { cwd = config.root_dir })
+          end,
           filetypes = { "ruby" },
           -- A root_marker with a slash roots at .vscode/, not the repo, so go up one level.
+          -- Skip repos that were not bootstrapped and so have no bin/rubocop.
           root_dir = function(bufnr, on_dir)
             local root = vim.fs.root(bufnr, ".vscode/run-sorbet")
-            if root then
-              on_dir(vim.fs.dirname(root))
+            root = root and vim.fs.dirname(root)
+            if root and vim.fn.executable(root .. "/bin/rubocop") == 1 then
+              on_dir(root)
             end
           end,
         },
