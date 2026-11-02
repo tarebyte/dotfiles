@@ -22,5 +22,8 @@ aspire = "latest"
 "npm:cf" = "1.0.0-beta.26"
 uv = "latest"
 
+[settings]
+auto_update = true
+
 [settings.ruby]
 compile = false
