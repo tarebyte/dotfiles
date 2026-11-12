@@ -29,5 +29,6 @@ so that I can act on those lines, and so that each sentence has one meaning.
 - Do not put more than three nouns in a row. Keep articles ("the", "a").
 - Apply these rules to prose only. Do not change code, identifiers,
   commands, paths, or quoted errors.
-- Do not apply these rules to prose that I draft for other people. Keep my
-  voice there.
+- Do not apply these rules to prose for other people (see CLAUDE.md). Keep
+  my voice in text I write. In drafts you write for me, follow the
+  repository template and use plain, neutral wording.
