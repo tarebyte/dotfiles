@@ -33,6 +33,17 @@ if ! command -v brew >/dev/null 2>&1; then
 fi
 
 ./script/stow-package darwin
+
+# Claude Code settings belong to each Mac, so copy the starter once instead
+# of stowing it. A symlink (left by the old stowed copy) is replaced too.
+# shortcut: shared keys don't sync after the first copy; add a jq merge if they change often.
+CLAUDE_SETTINGS="$HOME/.claude/settings.json"
+if [ -L "$CLAUDE_SETTINGS" ] || [ ! -e "$CLAUDE_SETTINGS" ]; then
+    mkdir -p "$HOME/.claude"
+    rm -f "$CLAUDE_SETTINGS"
+    cp templates/claude-settings.json "$CLAUDE_SETTINGS"
+fi
+
 ./script/apply-macos-preferences
 
 make brew fisher
