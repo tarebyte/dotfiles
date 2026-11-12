@@ -3,15 +3,15 @@
 bun = "latest"
 go = "latest"
 gofumpt = "latest"
-golangci-lint = "v2.13.2"
+golangci-lint = "v2.15.0"
 harper-ls = "latest"
 lua = "latest"
 node = "latest"
 # postinstall, not the `gem` backend: the backend's isolated GEM_HOME can't see
 # ruby-lsp-rails, so lsp.lua's addonSettings would configure an unloadable addon.
-ruby = { version = "4.0.6", postinstall = "gem install ruby-lsp" }
+ruby = { version = "4.0.9", postinstall = "gem install ruby-lsp" }
 rust = "latest"
-stylua = "v2.5.2"
+stylua = "v2.6.0"
 "aqua:LuaLS/lua-language-server" = "latest"
 "go:golang.org/x/tools/cmd/goimports" = "latest"
 "go:golang.org/x/tools/gopls" = "latest"
