@@ -70,6 +70,10 @@ exec "$(gem contents sorbet-static -v "$v" | grep 'libexec/sorbet$')" --lsp --ca
 ]],
                 }
               or { ".vscode/run-sorbet", "--lsp" }
+            -- Sorbet exits without watchman, which codespaces do not install.
+            if vim.fn.has("mac") == 0 and vim.fn.executable("watchman") == 0 then
+              table.insert(argv, "--disable-watchman")
+            end
             return vim.lsp.rpc.start(argv, dispatchers, { cwd = config.root_dir })
           end,
           filetypes = { "ruby" },
@@ -85,19 +89,9 @@ exec "$(gem contents sorbet-static -v "$v" | grep 'libexec/sorbet$')" --lsp --ca
           -- A function cmd skips Neovim's executable check, which resolves bin/rubocop
           -- against Neovim's cwd and logs an error in every repo that has no bin/rubocop.
           cmd = function(dispatchers, config)
-            local argv = { "bin/rubocop", "--lsp" }
-            -- VS Code skips this cop with --except, which --lsp ignores, so disable it in an
-            -- override config. Gated on VS Code's settings, since an unknown cop is a config error.
-            local cop = "GitHub/RailsControllerRenderPathsExist"
-            local path = config.root_dir .. "/.vscode/settings.json"
-            local settings = vim.fn.filereadable(path) == 1 and table.concat(vim.fn.readfile(path), "\n") or ""
-            if settings:find(cop, 1, true) then
-              local override = config.root_dir .. "/tmp/.rubocop_lsp.yml" -- tmp/ is gitignored
-              vim.fn.mkdir(vim.fs.dirname(override), "p")
-              vim.fn.writefile({ "inherit_from: ../.rubocop.yml", cop .. ":", "  Enabled: false" }, override)
-              vim.list_extend(argv, { "-c", override })
-            end
-            return vim.lsp.rpc.start(argv, dispatchers, { cwd = config.root_dir })
+            -- No -c override for VS Code's --except: RuboCop resolves cop paths from the
+            -- config's directory, so one outside the repo root silences path-based cops.
+            return vim.lsp.rpc.start({ "bin/rubocop", "--lsp" }, dispatchers, { cwd = config.root_dir })
           end,
           filetypes = { "ruby" },
           -- A root_marker with a slash roots at .vscode/, not the repo, so go up one level.
