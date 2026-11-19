@@ -7,4 +7,8 @@
 # 	IdentityFile ~/.ssh/devbox.pub
 # 	IdentitiesOnly yes
 
+# OrbStack (work Mac only): put this line in ~/.ssh/config.d/orbstack.
+#
+# Include ~/.orbstack/ssh/config
+
 # vim: ft=sshconfig

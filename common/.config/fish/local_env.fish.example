@@ -25,3 +25,4 @@
 
 # PATH entries that belong to this machine only.
 # fish_add_path -aP $HOME/.company/bin
+# fish_add_path -aP $HOME/.orbstack/bin
