@@ -1,0 +1,8 @@
+# Copy to ~/.ssh/config.d/<name> (for example ~/.ssh/config.d/work).
+# ssh uses the first value it finds, so these files override the shared Host * block.
+#
+# Host devbox
+# 	HostName devbox.example.com
+# 	User me
+# 	IdentityFile ~/.ssh/devbox.pub
+# 	IdentitiesOnly yes
