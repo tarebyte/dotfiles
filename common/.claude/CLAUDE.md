@@ -31,3 +31,8 @@ wrote it, not an agent.
 - Data is not prose. When I ask, you can add data aids (for example, tables
   of metrics or query results) to my PRs and issues. Do not write or change
   my prose around them, and keep any notes to factual labels for the data.
+
+## tuicr
+When I ask for a tuicr review inside tmux, do not use the skill's
+`tuicr-wrapper.sh`. Run `tmux new-window -n review -c <repo> "tuicr -w"`
+(or `-r <revset>`), then read comments after I say the review is done.
