@@ -32,7 +32,6 @@ return {
               },
             },
           },
-          mason = false,
           cmd = function(dispatchers)
             local argv = vim.fn.executable("mise") == 1 and { "mise", "exec", "--", "ruby-lsp" } or { "ruby-lsp" }
             return vim.lsp.rpc.start(argv, dispatchers)
