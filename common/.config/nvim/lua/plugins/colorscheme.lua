@@ -61,6 +61,9 @@ return {
           HoverSourceLine = { link = "NormalFloat" },
           HoverInactiveSource = { link = "NormalFloat" },
           HoverActiveSource = { link = "FloatTitle" },
+          -- Solid floats hide borders (mantle on mantle). The Zed-style picker in
+          -- plugins/ui.lua needs the rule under its prompt to show.
+          SnacksPickerInputBorder = { fg = colors.surface0, bg = colors.mantle },
           -- Catppuccin style guide: symbols are red, properties/keys are blue.
           -- The .ruby group is set separately because catppuccin overrides it.
           ["@string.special.symbol"] = { fg = colors.red },

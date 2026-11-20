@@ -288,7 +288,23 @@ return {
         right = { "sign", "git" },
       },
       picker = {
-        layout = { preset = "vscode" },
+        -- Zed-style palette: one padded box, untitled prompt, a rule under it, no preview.
+        layout = {
+          hidden = { "preview" },
+          layout = {
+            backdrop = false,
+            row = 1,
+            width = 0.4,
+            min_width = 80,
+            height = 0.4,
+            border = "solid",
+            box = "vertical",
+            { win = "input", height = 1, border = "bottom" },
+            { win = "list", border = "none" },
+            { win = "preview", title = "{preview}", border = true },
+          },
+        },
+        formatters = { file = { filename_first = true } },
         ui_select = true,
         sources = {
           files = { hidden = true, exclude = { "vendor" } },
