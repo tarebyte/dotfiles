@@ -76,7 +76,7 @@ Older identity locations and formats are migrated automatically on the next rend
 ### Packages
 
 - **`common/`** — every host: fish, nvim, mise, starship, tmux, fzf, htop, ctags, dircolors, gemrc, pryrc, rubocop, `git/ignore`, and `.claude/` (`CLAUDE.md`, output styles, skills).
-- **`darwin/`** — macOS: `.Brewfile`, scripts in `.bin/`, `git/config.darwin`, `.ssh/config`, `.claude/statusline.sh`, herdr settings and Catppuccin themes, and the keyboard-remapping LaunchAgent.
+- **`darwin/`** — macOS: `.Brewfile`, scripts in `.bin/`, `git/config.darwin`, `.ssh/config`, `.claude/statusline.sh`, and the keyboard-remapping LaunchAgent.
 - **`codespaces/`** — `.bash_aliases`, `.oh-my-zsh/`, `.bin/gh-prepare`.
 
 `~/.claude/settings.json` is not stowed. `script/install-darwin` copies `templates/claude-settings.json` there once and never again, because Claude Code writes machine-specific settings to it. Change shared keys (hooks, `statusLine`, `attribution`) in the template and by hand on each Mac. Work-only instructions go in untracked `~/.claude/rules/`.
