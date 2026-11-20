@@ -1,7 +1,30 @@
 return {
   { "tpope/vim-surround", event = "VeryLazy" },
   { "tpope/vim-repeat", event = "VeryLazy" },
-  { "tpope/vim-eunuch", cmd = { "Delete", "Mkdir", "Move", "Rename", "Unlink", "Wall" } },
+  -- LazyFile: the shebang chmod +x marks buffers on BufNewFile/BufReadPost, and lazy.nvim
+  -- replays that event for the first buffer. cmd: file commands from the dashboard.
+  {
+    "tpope/vim-eunuch",
+    event = "LazyFile",
+    cmd = {
+      "Chmod",
+      "Copy",
+      "Delete",
+      "Duplicate",
+      "Mkdir",
+      "Move",
+      "Remove",
+      "Rename",
+      "SudoEdit",
+      "SudoWrite",
+      "Unlink",
+      "Wall",
+      "Cfind",
+      "Lfind",
+      "Clocate",
+      "Llocate",
+    },
+  },
 
   {
     "tpope/vim-projectionist",
