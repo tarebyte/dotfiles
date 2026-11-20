@@ -86,13 +86,20 @@ return {
         -- huge files feel slow.
         get_symbols = function(buf, win, cursor)
           local ok, parser = pcall(vim.treesitter.get_parser, buf)
-          local query = ok and parser and vim.treesitter.query.get(parser:lang(), "outline")
+          if not ok or not parser then
+            return {}
+          end
+          local query = vim.treesitter.query.get(parser:lang(), "outline")
           if not query then
+            return {}
+          end
+          local tree = (parser:parse() or {})[1]
+          if not tree then
             return {}
           end
           -- Collect one entry per @item node, with its @name and @context nodes.
           local items, seen = {}, {}
-          for _, match in query:iter_matches(parser:parse()[1]:root(), buf, 0, -1) do
+          for _, match in query:iter_matches(tree:root(), buf, 0, -1) do
             local item, parts = nil, {}
             for id, nodes in pairs(match) do
               local cap = query.captures[id]
@@ -117,7 +124,7 @@ return {
           end)
           local top, stack = { children = {} }, {}
           for _, it in ipairs(items) do
-            local s, e = byte_range(it.node)
+            local _, e = byte_range(it.node)
             while #stack > 0 and select(2, byte_range(stack[#stack].node)) < e do
               table.remove(stack)
             end
@@ -165,7 +172,11 @@ return {
                   return utils.bar.hl((seg[1]:gsub("%%", "%%%%")), seg[2])
                 end, segments))
                 if self.on_click and self.bar_idx then
-                  local fn = ("v:lua.dropbar.callbacks.buf%s.win%s.fn%s"):format(self.bar.buf, self.bar.win, self.callback_idx)
+                  local fn = ("v:lua.dropbar.callbacks.buf%s.win%s.fn%s"):format(
+                    self.bar.buf,
+                    self.bar.win,
+                    self.callback_idx
+                  )
                   out = utils.bar.make_clickable(out, fn)
                 end
                 return out
@@ -236,8 +247,7 @@ return {
         for _, name in ipairs(vim.fn.getcompletion("DropBar", "highlight")) do
           if not name:match("^DropBarMenu") and not name:match("^DropBarPreview") and not name:match("^DropBarFzf") then
             local hl = vim.api.nvim_get_hl(0, { name = name, link = false })
-            hl.underline, hl.sp = winbar.underline, winbar.sp
-            vim.api.nvim_set_hl(0, name, hl)
+            vim.api.nvim_set_hl(0, name, vim.tbl_extend("force", hl, { underline = winbar.underline, sp = winbar.sp }))
           end
         end
       end
