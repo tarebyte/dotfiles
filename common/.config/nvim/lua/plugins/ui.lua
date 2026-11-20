@@ -18,12 +18,14 @@ return {
         { "branch", icon = "" },
       }
 
-      -- The path and symbols live in the winbar (dropbar.nvim below), not the statusline.
-      table.remove(opts.sections.lualine_c) -- trouble symbols
-      table.remove(opts.sections.lualine_c) -- pretty path
-      table.remove(opts.sections.lualine_c) -- filetype
-      -- skip diagnostics
-      table.remove(opts.sections.lualine_c, 1) -- root_dir
+      -- Only diagnostics: the path and symbols live in the winbar (dropbar.nvim below).
+      local icons = LazyVim.config.icons.diagnostics
+      opts.sections.lualine_c = {
+        {
+          "diagnostics",
+          symbols = { error = icons.Error, warn = icons.Warn, info = icons.Info, hint = icons.Hint },
+        },
+      }
 
       opts.sections.lualine_y = { "progress" }
       opts.sections.lualine_z = { "location" }

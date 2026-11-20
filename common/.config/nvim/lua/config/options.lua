@@ -13,3 +13,7 @@ opt.relativenumber = false
 opt.pumblend = 0
 
 vim.o.mousemoveevent = true
+
+-- Breadcrumbs live in the dropbar winbar (plugins/ui.lua), so skip LazyVim's Trouble symbols
+-- in the statusline.
+vim.g.trouble_lualine = false
