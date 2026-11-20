@@ -155,3 +155,35 @@ jobs:
           verify lazygit --version
           verify diff-so-fancy none
           exit "$failed"
+  # Reproduces the Codespaces create race: another process holds the dpkg
+  # lock (unattended-upgrades on first boot) while script/setup installs
+  # stow. Without DPkg::Lock::Timeout, apt-get fails at once with
+  # "Could not get lock /var/lib/dpkg/lock-frontend".
+  apt-lock:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    container:
+      image: ubuntu:24.04
+    env:
+      DEBIAN_FRONTEND: noninteractive
+    steps:
+      - name: Install base dependencies
+        run: |
+          apt-get update
+          apt-get install -y sudo git make python3
+      - uses: actions/checkout@v6
+      # setup-git-config needs an identity and has no TTY to prompt on.
+      - name: Write git identity
+        run: |
+          mkdir -p ~/.config/local/git
+          git config --file ~/.config/local/git/identity.gitconfig user.email ci@example.com
+          git config --file ~/.config/local/git/identity.gitconfig user.signingkey "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIci"
+      # apt takes fcntl locks, so flock(1) would not block it; lockf does.
+      # One step, so the background holder lives while script/setup runs.
+      - name: script/setup while dpkg lock is held
+        run: |
+          python3 -c 'import fcntl, time; f = open("/var/lib/dpkg/lock-frontend", "w"); fcntl.lockf(f, fcntl.LOCK_EX); open("/tmp/locked", "w"); time.sleep(30)' &
+          until [ -f /tmp/locked ]; do sleep 0.1; done
+          script/setup
+          command -v stow

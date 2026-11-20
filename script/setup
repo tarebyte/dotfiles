@@ -33,7 +33,7 @@ if ! command -v stow >/dev/null 2>&1; then
 			;;
 		Linux)
 			if command -v apt-get >/dev/null 2>&1; then
-				sudo apt-get update && sudo apt-get install -y stow
+				sudo apt-get -o DPkg::Lock::Timeout=300 update && sudo apt-get -o DPkg::Lock::Timeout=300 install -y stow
 			else
 				echo "stow is required; please install it for your distro" >&2
 				exit 1

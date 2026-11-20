@@ -122,7 +122,7 @@ via_raw_bin() {
 # Install a package via apt (sudo). Args: package
 via_apt() {
   echo "    sudo: installing via apt-get..."
-  sudo apt-get install -yq "$1" >/dev/null 2>&1
+  sudo apt-get -o DPkg::Lock::Timeout=300 install -yq "$1" >/dev/null 2>&1
 }
 
 # Claude Code: the official native installer drops the binary in ~/.local/bin.
@@ -148,7 +148,7 @@ install_tree_sitter_cargo() {
   fi
   if ! dpkg -s libclang-dev >/dev/null 2>&1; then
     echo "    sudo: installing libclang-dev (needed by bindgen)..."
-    sudo apt-get install -yq libclang-dev >/dev/null 2>&1
+    sudo apt-get -o DPkg::Lock::Timeout=300 install -yq libclang-dev >/dev/null 2>&1
   fi
   cargo install tree-sitter-cli --root "$HOME/.local"
 }
