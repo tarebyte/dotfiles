@@ -10,6 +10,7 @@ return {
     "catppuccin/nvim",
     opts = {
       dim_inactive = { enabled = true },
+      float = { solid = true },
       integrations = {
         blink_cmp = { style = "bordered" },
         lualine = {
@@ -53,18 +54,29 @@ return {
         },
       },
       custom_highlights = function(colors)
-        -- Blend hover.nvim's source-tab strip into the window bg: it uses TabLine*
-        -- groups by default, which catppuccin renders darker than NormalFloat.
-        vim.api.nvim_set_hl(0, "HoverSourceLine", { link = "NormalFloat" })
-        vim.api.nvim_set_hl(0, "HoverInactiveSource", { link = "NormalFloat" })
-        vim.api.nvim_set_hl(0, "HoverActiveSource", { link = "NormalFloat" })
-
         return {
-          NormalFloat = { bg = colors.base },
-          FloatBorder = { fg = colors.lavender, bg = "NONE" },
+          -- hover.nvim's source-tab row uses TabLine* by default, a darker strip than the
+          -- float. Blend it in and show the active source like other float titles.
+          HoverSourceLine = { link = "NormalFloat" },
+          HoverInactiveSource = { link = "NormalFloat" },
+          HoverActiveSource = { link = "FloatTitle" },
+          -- Catppuccin style guide: symbols are red, properties/keys are blue.
+          -- The .ruby group is set separately because catppuccin overrides it.
+          ["@string.special.symbol"] = { fg = colors.red },
+          ["@string.special.symbol.ruby"] = { fg = colors.red },
+          -- Ruby hash keys and keyword args (captured in after/queries/ruby/highlights.scm).
+          ["@property.ruby"] = { fg = colors.blue },
           WinBar = { bg = colors.mantle },
           WinBarNC = { bg = colors.mantle },
-          ["@string.special.symbol.ruby"] = { fg = colors.maroon },
+          -- More style guide rows where catppuccin-nvim differs.
+          LineNr = { fg = colors.overlay1 },
+          DiagnosticInfo = { fg = colors.teal },
+          DiagnosticSignInfo = { fg = colors.teal },
+          DiagnosticFloatingInfo = { fg = colors.teal },
+          DiagnosticUnderlineInfo = { sp = colors.teal },
+          diffLine = { fg = colors.peach },
+          ["@function.macro"] = { fg = colors.rosewater },
+          ["@constant.macro"] = { fg = colors.rosewater },
         }
       end,
     },
