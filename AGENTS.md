@@ -1,283 +1,156 @@
 # AGENTS.md
 
-Personal dotfiles. **GNU stow**-managed — source tree is organized into packages (`common/`, `darwin/`, `codespaces/`) that mirror `$HOME`. Files live at their real names (no `dot_` prefix); stow creates symlinks from `$HOME` into the repo. Repo-management files (`README.md`, `AGENTS.md`, `LICENSE`, `script/`, `Makefile`, `templates/`) sit at the source root, outside every package, so stow never touches them. Per-OS gating is handled by which packages you stow.
+Personal dotfiles, managed with **GNU stow**. The packages `common/`, `darwin/`, and `codespaces/` mirror `$HOME`; files use their real names (no `dot_` prefix). Repo-management files (`README.md`, `AGENTS.md`, `LICENSE`, `script/`, `Makefile`, `templates/`) sit outside every package, so stow never touches them. Per-OS gating is handled by which packages you stow.
 
 ## Commands
 
-`make test` is the repo's test target — runs `shellcheck -x` on every script plus the functional suite in `script/test`. Run it after any script edit. `script/doctor` is a separate health check for the installed environment on the current host, not for the repo itself.
+Run `make test` after any script edit. `script/doctor` checks the installed environment on this host, not the repo.
 
 | Command | Purpose |
 |---------|---------|
-| `script/setup` | First-time entry point. Installs `stow` via Homebrew/apt if missing, then runs `make install`. Auto-run by Codespaces. |
-| `script/doctor` | Health check — core tools, shell, git, mise, Neovim, tmux/TPM. Also checks that `~/.config/git/config` matches the template (warns on drift). |
-| `make test` | Run `shellcheck -x` on every script under `script/` and then execute `script/test` (functional tests for `stow-package`, `setup-git-config`, and `install-mise`, plus unit tests for `tool_ready`). |
-| `make install` | Generate `~/.config/git/config` from the template (prompting for identity on first run), stow `common`. On macOS also stow `darwin`, install the brew bundle and official mise release, update fisher, chsh to fish, and install mise-managed tools. |
-| `make regen-git-config` | Re-render `~/.config/git/config` from `templates/git-config.tmpl` + `~/.config/local/git/identity.gitconfig`. Run this after editing either source. |
-| `make brew` | Re-run `brew bundle --global` after editing `darwin/.Brewfile`. |
-| `make fisher` | Bootstrap fisher if needed and run `fisher update` after editing `common/.config/fish/fish_plugins`. |
-| `make macos-preferences` | Reapply macOS preferences and reload their LaunchAgents. Maps Caps Lock to Control through `hidutil`, sets the bottom-right hot corner to Lock Screen, and saves screenshots to `~/Pictures/Screenshots`; the LaunchAgent reapplies the transient keyboard mapping at login. |
-| `make mise` | Install the official mise release on macOS if needed, then run `mise trust && mise install`. |
-| `make clean` | `stow -D` the active packages — always `common`, plus `darwin` on macOS and `codespaces` when `$CODESPACES` is set. Does NOT delete `~/.config/git/config` or the per-host identity file. |
-| `:Lazy sync` | Update/install Neovim plugins via lazy.nvim. `lazy-lock.json` is intentionally gitignored — see the Neovim section. |
+| `script/setup` | First-time entry point. Installs `stow` if missing, then runs `make install`. Auto-run by Codespaces. |
+| `make install` | Render `~/.config/git/config` (prompts for identity on first run), stow `common`, then the platform extras (`install-darwin` on macOS, `install-codespaces` when `$CODESPACES` is set), then `mise`. Safe to re-run; it is also the recovery command. |
+| `make test` | `shellcheck -x` on every script under `script/` (found via `git ls-files`), then `script/test`. |
+| `make regen-git-config` | Re-render `~/.config/git/config` after editing the template or the identity file. |
+| `make brew` | `brew bundle --global` after editing `darwin/.Brewfile`. |
+| `make fisher` | Bootstrap fisher and run `fisher update` after editing `common/.config/fish/fish_plugins`. |
+| `make macos-preferences` | Reapply macOS preferences (Caps Lock → Control LaunchAgent, Lock Screen hot corner, `~/Pictures/Screenshots`). |
+| `make mise` | Install mise on macOS if needed, then `mise trust && mise install`. |
+| `make sync-codespace-plugins` | Re-sync Neovim and tmux plugins in a Codespace. |
+| `make clean` | `stow -D` the active packages. Leaves the generated git config and identity file. |
 
-`make install` is also the recovery incantation — re-running it after a broken state is safe because `script/stow-package` handles pre-existing files by moving them aside, and every other step is idempotent.
+Editing `~/.config/fish/config.fish` edits `common/.config/fish/config.fish` through its symlink, so `git diff` shows the change at once. After adding a *new* file to a package, run `make install` to create its symlink.
 
-Stow symlinks files from the package into `$HOME`, so editing `~/.config/fish/config.fish` edits `common/.config/fish/config.fish` transparently. `git diff` in the repo shows your change immediately — no `apply`, no `re-add`, no drift. When you add a *new* tracked file inside a package, run `make install` so stow creates its symlink in `$HOME`.
-
-If you ever need to invoke `stow` manually (e.g. for dry-run debugging), always include `--no-folding` — see the paragraph below for why. Dry-run example: `stow -n -v --no-folding -t $HOME common`.
-
-**Why `--no-folding`:** every `stow` invocation in this repo passes `--no-folding` (see the `STOW` variable in the Makefile). With folding enabled, stow creates a single directory-level symlink when a package subtree is new in `$HOME` — e.g. `~/.config/fish` would become a symlink pointing at `common/.config/fish`. That's minimal-symlink-count, but it means any runtime write a tool does inside `~/.config/fish/` (fish writing `fish_variables`, fisher writing `conf.d/` and `completions/`) silently propagates *through the symlink into the repo source*, polluting the stow package with untracked files. `--no-folding` makes every directory in `$HOME` a real directory containing individual per-file symlinks, so:
-
-- Edits to *tracked* files (`config.fish`, `init.lua`, etc.) still go through their per-file symlinks into the repo source, exactly as before.
-- *New* files written at runtime (`fish_variables`, `conf.d/foo.fish`, `completions/bar.fish`, whatever) land in real `$HOME` paths and never enter the repo. They're the same as any other per-machine file.
-- Adding a new tracked file is deliberate: create it in the package, run `stow -R` (or `make install`), and the per-file symlink appears in `$HOME`.
-
-Defense-in-depth: `common/.stow-local-ignore` prevents Stow from linking known runtime-state paths even if they appear inside the package, while the root `.gitignore` prevents those paths from being committed.
-
-**The one exception is git config**, which is generated at install time rather than stow-symlinked. See "Git identity layout" below.
+**Always pass `--no-folding` to stow** (the Makefile's `STOW` variable does). Without it, stow links whole directories, and runtime writes such as `fish_variables` or fisher's `conf.d/` land inside the repo. Dry run: `stow -n -v --no-folding -t $HOME common`. Known runtime-state paths are listed in both `common/.stow-local-ignore` and `.gitignore`; keep the two in sync.
 
 ### Scripts
 
-The `Makefile` is a thin dispatcher; real logic lives in `script/` so each piece is independently testable and shellcheck-clean:
+The `Makefile` only dispatches; the logic lives in `script/`, and each script documents its own internals. Non-obvious points:
 
-| Script | Purpose |
-|---|---|
-| `script/setup` | Bootstrap — installs `stow` if missing, then runs `make install`. `#!/bin/sh` (POSIX). |
-| `script/install-mise` | Installs the official mise release to `~/.local/bin/mise` on macOS when absent, then trusts the stowed global config and installs its tools. Other platforms use an existing mise binary or guard-skip when unavailable. Bash. |
-| `script/setup-git-config` | Copies `templates/git-config.tmpl` to a temporary file and uses `git config --file` to inject values from `~/.config/local/git/identity.gitconfig` before an atomic move to `~/.config/git/config`. Prompts on first run (TTY-guarded), migrates prior identity formats, and provides `--check` for drift detection. Bash. |
-| `script/stow-package` | `stow --restow --no-folding` wrapper. Walks the package to find target paths in `$HOME` that are already occupied, moves those files to `~/.dotfiles-backup/<timestamp>/<relative-path>/`, then restows. Conflicts are detected by inspecting the filesystem rather than parsing stow's diagnostics, whose wording differs between stow 2.3.x and 2.4+ and isn't a stable interface. Existing links owned by the package are not conflicts; restowing also prunes obsolete links and unfolds old directory-level links. User files are never deleted, while obsolete package-owned symlinks are removed. Used by `make stow-common`, `make install-codespaces`, and `script/install-darwin` so first-time migrations off a prior dotfile manager don't abort on pre-existing files. Bash. |
-| `script/install-darwin` | macOS bootstrap: installs Homebrew if missing + sources `brew shellenv`, stows `darwin` (via `script/stow-package`), applies macOS preferences, runs `make brew fisher`, registers fish in `/etc/shells` (line-exact match), chsh to fish. Bash. |
-| `script/apply-macos-preferences` | Applies macOS preferences after the Darwin package is stowed. Sets the bottom-right hot corner to Lock Screen with no modifier and refreshes Dock through launchd, reloads `com.tarebyte.keyboard-remapping`, whose `hidutil` mapping changes Caps Lock to Control at login, and creates `~/Pictures/Screenshots` as the screenshot destination. Restarts SystemUIServer by PID to refresh screenshot preferences because SIP blocks its `launchctl kickstart`. Bash. |
-| `script/install-codespace-tools` | Codespaces bootstrap **provision phase**: downloads nvim/rg/bat/fzf/lazygit/diff-so-fancy/tree-sitter via `gh release download`, plus tmux via apt and Claude Code via its official `claude.ai/install.sh` installer. Data-driven: a flat list of `install_tool` calls at the bottom names each tool, its version-flag probe, and an installer function (`via_deb`, `via_tarball_bin`, `via_raw_bin`, `via_nvim`, `via_apt`, `via_claude`, or `install_tree_sitter`); the `install_tool` driver centralizes the skip/reinstall/time/log boilerplate. Readiness uses `tool_ready` (on PATH **and** the probe flag runs), so a binary broken by a glibc mismatch is detected and reinstalled instead of skipped — tree-sitter additionally falls back to a cargo build whenever the prebuilt binary can't run here: the freshly-installed binary is run once and the build kicks in if it fails. There is deliberately no glibc version check; the prebuilt binary's floor keeps rising (GLIBC_2.39 as of tree-sitter 0.26), so any hardcoded threshold goes stale, whereas "try it and see if it runs" stays correct. tree-sitter is non-negotiable, not a nicety: nvim-treesitter shells out to `tree-sitter build` for every parser it installs and its health check hard-errors without it. diff-so-fancy has no version flag, so it uses the `none` probe (presence only). Installs binaries only — plugin state is `sync-codespace-plugins`' job. Bash, `set -euo pipefail`. |
-| `script/sync-codespace-plugins` | Codespaces bootstrap **sync phase**: reconciles editor + terminal plugin state. `setup_neovim` runs headless `+Lazy! sync` + `+TSUpdateSync` (bounded by `nvim_headless`'s `timeout`); `setup_tmux` clones TPM and runs `install_plugins` from `~/.tmux.conf`. Both guard-skip when the tool or its stowed config is missing, are non-fatal, and are idempotent. Split from tool provisioning because populating plugin state is a different lifecycle phase — re-run it alone via `make sync-codespace-plugins` whenever the declared plugin set changes. Since `stow-common` runs before this script, `~/.config/nvim` and `~/.tmux.conf` are already symlinked. Bash, `set -euo pipefail`. |
-| `script/doctor` | Health check. Uses `setup-git-config --check` to compare the expected Git config with the live file and warns on drift. Bash. |
-| `script/test` | Functional test suite for the scripts with non-trivial logic (`stow-package` conflict detection, restowing, and backup moves; `setup-git-config` rendering, migration, and drift detection; `install-mise` platform and installation behavior) plus unit tests for the `tool_ready` helper extracted from `install-codespace-tools`. Each test runs inside its own `mktemp` sandbox with a stubbed `$HOME`; nothing touches the real system. Bash. |
-
-All pass `shellcheck -x` and are exercised by `make test`, which runs both the linter and `script/test`:
-```sh
-make test
-# equivalent to:
-git ls-files -z 'script/*' | xargs -0 -r shellcheck -x
-./script/test
-```
-
-Script discovery goes through `git ls-files`, same as the CI linting jobs — adding a script to `script/` can't silently go unlinted. `shellcheck` comes from Homebrew (`darwin/.Brewfile`); see "Tool provisioning" below.
+- `script/stow-package` moves files that block a stow to `~/.dotfiles-backup/<timestamp>/` and never deletes user files. It finds conflicts by inspecting the filesystem, not by parsing stow's messages, which change between versions.
+- `script/setup` waits up to 300s for the dpkg lock, because unattended-upgrades can hold it while a Codespace is created. In Codespaces it then touches `~/.local/state/gh-csd/setup-complete`, which the `gh csd` extension watches.
+- `script/install-codespace-tools` installs binaries from a flat list of `install_tool` calls at the bottom of the file. `tool_ready` requires each tool to be on PATH **and** to run, so a binary broken by a glibc mismatch is reinstalled. tree-sitter falls back to a cargo build when the prebuilt binary won't run. There is deliberately no glibc version check, because the prebuilt floor keeps rising. nvim-treesitter needs the `tree-sitter` CLI to build parsers.
+- `script/sync-codespace-plugins` syncs plugin state (headless `Lazy! sync` + `TSUpdateSync`, and TPM). It is separate from tool installation so it can be re-run alone.
+- `script/test` runs each test in its own `mktemp` sandbox with a stubbed `$HOME`; nothing touches the real system.
 
 ### CI
 
-`.github/workflows/ci.yml` has four jobs:
+`.github/workflows/ci.yml`:
 
-- **`test`** (`ubuntu-latest`) — installs `stow` via apt, then runs `make test`. `shellcheck` needs no install step: the runner image ships it preinstalled. That version trails Homebrew's, so CI is the more permissive of the two linters — a check added in a newer shellcheck release can fire on your Mac without failing CI.
-- **`fish`** (`ubuntu-latest`) — `git ls-files -z '*.fish' | xargs -0 -r -n1 fish -n`. `-n1` so a syntax error in any single file propagates through xargs as a nonzero exit (without it, xargs batches all files into one `fish -n` call and you only see the last file's status).
-- **`lua`** (`ubuntu-latest`) — discovers the directory containing `stylua.toml` via `git ls-files`, installs `stylua` from the tracked mise config, and runs `--check` against that directory. stylua walks upward from each target file to find its own config, so no `-f` path is hardcoded.
-- **`codespace-tools`** — matrix over `ubuntu:22.04`/`ubuntu:24.04` containers, chosen as glibc representatives (2.35/2.39) sitting either side of the prebuilt tree-sitter binary's floor (GLIBC_2.39), so one image exercises the cargo fallback and the other the prebuilt path. `ubuntu:22.04` doubles as the oldest release this repo supports: Ubuntu 20.04 (glibc 2.31) can't run the prebuilt Neovim, which requires `GLIBC_2.33`, and `via_nvim` has no source-build fallback the way tree-sitter does — so that job failed on `nvim`, not on anything the matrix is meant to exercise. `debian:12` (glibc 2.36) was dropped for the different, milder reason that it drives the same cargo fallback as 22.04 and only adds build time. Each job installs the `gh` CLI, installs the Rust toolchain on every image except 24.04 (glibc `< 2.39` needs the tree-sitter cargo fallback), runs `script/install-codespace-tools`, then verifies all 8 tools (`nvim`, `tree-sitter`, `tmux`, `rg`, `bat`, `fzf`, `lazygit`, `diff-so-fancy`) are on PATH **and** actually run (each tool's own version-flag exit status is checked, unpiped, so a present-but-broken binary fails the job). This is the end-to-end guard for the glibc-aware provisioning logic.
+- **`test`** — `make test`. The runner's preinstalled shellcheck is older than Homebrew's, so a local `make test` is the stricter check.
+- **`fish`** — `fish -n` on every tracked `.fish` file (`xargs -n1`, so one bad file fails the job).
+- **`lua`** — `stylua --check`, with the version taken from `common/.config/mise/config.toml` via `MISE_GLOBAL_CONFIG_FILE`. Moving that file requires updating CI. A new stylua major version may reformat files; run it locally and commit the reflow in the same change.
+- **`codespace-tools`** — runs `install-codespace-tools` on `ubuntu:22.04` (cargo fallback for tree-sitter) and `ubuntu:24.04` (prebuilt), then checks that every tool runs.
+- **`apt-lock`** — holds the dpkg lock while `script/setup` runs, to prove apt waits for it.
 
-**Design constraint: every file-linting job (`test`, `fish`, `lua`) discovers the files it validates via `git ls-files`, never via hardcoded paths.** If you add a new validator, follow the same pattern. The `lua` job does hardcode `common/.config/mise/config.toml` as `MISE_GLOBAL_CONFIG_FILE` so it can install the tracked `stylua` version rather than duplicating a pin in the workflow; moving that mise config requires updating CI. (`shellcheck` is not mise-managed and so is not pinned anywhere: CI uses the runner's preinstalled copy, macOS uses Homebrew's.) Bumping the `stylua` pin may require reformatting the tracked `.lua` files, because stylua is not backwards-compatible on formatting across major versions — run `mise exec stylua@<new-version> -- stylua common/.config/nvim` locally first and commit the reflow in the same change.
+Linting jobs find their files with `git ls-files`, never hardcoded paths. Follow that pattern for new validators.
 
-`.github/workflows/license-year.yml` is a separate scheduled workflow that bumps the copyright year in `LICENSE` each January and opens a PR via `peter-evans/create-pull-request`. Unrelated to the test pipeline.
+`license-year.yml` is a separate scheduled workflow that bumps the year in `LICENSE`.
 
 ## Git identity layout
 
-Git config is the one dotfile that **isn't** stow-symlinked. Instead, it's rendered from a template at install time, because VS Code Dev Containers copies `~/.config/git/config` **verbatim** but does NOT follow `[include]` directives ([vscode-remote-release#3331](https://github.com/microsoft/vscode-remote-release/issues/3331)). To give devcontainers a working Git config with aliases, colors, filters, AND identity in one file, `script/setup-git-config` copies the static template and injects per-host values with `git config --file`.
+Git config is the one dotfile that **isn't** stow-symlinked. VS Code Dev Containers copy `~/.config/git/config` verbatim and don't follow `[include]` ([vscode-remote-release#3331](https://github.com/microsoft/vscode-remote-release/issues/3331)). So `script/setup-git-config` copies the static template and injects per-host values with `git config --file`, giving one flat file with aliases, colors, filters, and identity.
 
 ### Files
 
-- `templates/git-config.tmpl` — committed, valid Git config containing all static settings plus hardcoded `[user] name = Mark Tareshawty`, `[commit] gpgsign = true`, and `[github] user = tarebyte`. Its `[user]` section deliberately omits email and signing key. It ends with `[include] path = ~/.config/git/config.darwin`.
-- `~/.config/local/git/identity.gitconfig` — **per-host, not in the repo**. Standard Git config containing `user.email` and the SSH public key in `user.signingkey`. Created on first `make install` by prompts with mode 600; read and written exclusively through `git config --file`.
-- `~/.config/git/config` — **generated at install time**, real file (NOT a symlink). Built by copying the template and injecting the two per-host values with `git config --file`. This is the file devcontainers copy.
-- `darwin/.config/git/config.darwin` — macOS-only credential helper, `gpg.ssh.program` path, and `gpg.ssh.allowedSignersFile`. The helper is `gh auth git-credential` (for `github.com` and `gist.github.com`), **not** `osxkeychain`: the token Git uses is then the one `gh auth login` already manages, so there's one credential to rotate instead of two that drift apart. Still stow-symlinked from the `darwin` package, `[include]`d from the generated `~/.config/git/config`. Inside Linux devcontainers the include silently no-ops (correct — it hardcodes `/opt/homebrew/bin/gh` and 1Password's `op-ssh-sign`, neither of which exists there).
-- `~/.config/local/git/allowed_signers` — **per-host, not in the repo**, generated alongside the main config from `identity.gitconfig`. Supplies the verification half of SSH signing: `config.darwin` sets `gpg.ssh.allowedSignersFile`, and without the file Git signs commits normally but reports `N` for `%G?` on its own commits, since signing and verifying are configured separately. It is rewritten on every render, so other people's keys belong in the untracked `~/.config/local/git/allowed_signers.extra`, which is appended verbatim. `setup-git-config` rejects a `user.signingkey` that is not an SSH public key.
-- `darwin/.ssh/config` — shared macOS OpenSSH config pointing `IdentityAgent` at the 1Password agent socket. It runs `Include ~/.ssh/config.d/*` before `Host *`, so per-host SSH config lives in untracked files there and overrides the shared block (ssh uses the first value it finds).
-- `templates/ssh-config.example` — starter for a per-host `~/.ssh/config.d/<name>` file. Never put host-specific SSH config in a Stow package.
-- `~/.config/1Password/ssh/agent.toml` — **per-host, not in the repo**. Optional 1Password agent key selection, needed when a key is outside a default Personal, Private, or Employee vault or when a host should expose only specific keys.
-- `templates/1password-ssh-agent.toml.example` — starter for the per-host agent config. Copy it to `~/.config/1Password/ssh/agent.toml` and set that machine's item and vault; never put a host-specific selection in a Stow package.
-- `common/.config/git/ignore` — global gitignore, regular stow symlink.
+- `templates/git-config.tmpl` — committed static config. Its `[user]` section omits email and signing key. It ends with `[include] path = ~/.config/git/config.darwin`.
+- `~/.config/local/git/identity.gitconfig` — per-host, untracked, mode 600. Holds `user.email` and an SSH public key in `user.signingkey`. Created by prompts on the first `make install`. Different hosts can use different emails and keys.
+- `~/.config/git/config` — generated real file. Don't edit it; `make regen-git-config` overwrites it, and `script/doctor` warns on drift.
+- `~/.config/local/git/allowed_signers` — generated with the config so Git can verify its own SSH signatures. Put other people's keys in the untracked `allowed_signers.extra`, which is appended.
+- `darwin/.config/git/config.darwin` — stowed and `[include]`d. Sets the `gh auth git-credential` helper (one credential to rotate, not a second one in the keychain) and 1Password's `op-ssh-sign`. The include silently does nothing in Linux containers, which is correct because these paths exist only on the Mac.
+- `darwin/.ssh/config` — points `IdentityAgent` at 1Password. It includes `~/.ssh/config.d/*` before `Host *`; put per-host SSH config there (starter: `templates/ssh-config.example`), never in a package.
+- `~/.config/1Password/ssh/agent.toml` — optional per-host key selection (starter: `templates/1password-ssh-agent.toml.example`).
 
-Older hosts using `~/.config/dotfiles/identity.gitconfig` have that file moved automatically on the next render. The original `identity.env` format is converted and archived as `~/.config/local/git/identity.env.migrated`.
+Older identity locations and formats are migrated automatically on the next render.
 
-### Codespaces
-
-`script/setup-git-config` takes a second path when `$CODESPACES` is set, because Codespaces injects its own `~/.gitconfig` carrying identity and a credential helper. Rather than prompt for an identity the environment already has, it copies the template, makes three edits with `git config --file`, and skips `identity.gitconfig` entirely:
-
-- the `[user]` block is stripped — name and email come from the injected `~/.gitconfig`;
-- `commit.gpgsign` is flipped to `false`, since the 1Password signer isn't available in the container;
-- the trailing `[include]` of `config.darwin` is dropped.
-
-Everything else — aliases, colors, filters — renders as usual, which is the point: the container still gets the full config rather than bare identity. This path never checks or prompts for a local identity, so an unattended Codespaces bootstrap can't hang. `script/setup-git-config --check` and `script/doctor` use the same Codespaces rendering path for drift detection.
+**Codespaces:** Codespaces injects its own `~/.gitconfig` with identity and a credential helper. `setup-git-config` then skips `identity.gitconfig`, strips `[user]`, sets `commit.gpgsign = false`, and drops the `config.darwin` include. It never prompts, so an unattended bootstrap can't hang.
 
 ### Edit flow
 
-- **Add an alias / change a color / edit a filter:** edit `templates/git-config.tmpl`, run `make regen-git-config` to propagate to `~/.config/git/config` on this host. To propagate to another host, pull and run `make regen-git-config` there.
-- **Rotate a signing key or change email:** edit `~/.config/local/git/identity.gitconfig` with `git config --file`, then run `make regen-git-config`. The template is unchanged; only the generated output picks up the new values — including `allowed_signers`, so a rotated SSH key keeps verifying without a second edit.
-- **Choose a different 1Password key on each Mac:** configure the local `~/.config/1Password/ssh/agent.toml` from `templates/1password-ssh-agent.toml.example`, then put that key's public half in the local `identity.gitconfig`. Each public key must also be registered as a signing key with the corresponding Git host account.
-- **First-time install on a fresh host:** `make install` sees the missing `identity.gitconfig`, prompts once for email and SSH signing public key, writes it with mode 600, renders the config, and continues with stow + brew bundle. Subsequent runs are silent because the identity file already exists.
-- **Inspect live config:** `cat ~/.config/git/config` or `git config --list --show-origin`. The file is regular and readable — just don't edit it directly, or your edits will be clobbered by the next `make regen-git-config`. `script/doctor` catches this through `setup-git-config --check`.
-
-### Why not stow-symlink it?
-
-Because email and signing key vary by host but must appear directly in the top-level config copied by Dev Containers. A static Stow symlink cannot provide both per-host values and a flattened config, so the install step copies the valid static template and injects those values with Git itself.
-
-### Why inline everything instead of using `[include]` for the static parts?
-
-Because devcontainers don't follow `[include]`. If static content lived in a separate file referenced via `[include]`, the container would only see identity — no aliases, no colors, no filters. Inlining the static content into the generated file means devcontainers get the full experience.
-
-The one exception is `darwin/.config/git/config.darwin` which IS `[include]`d, and that's intentional: the `[include]` silently fails inside Linux containers, which is correct because everything it configures is macOS-local — `/opt/homebrew/bin/gh` and 1Password's `op-ssh-sign` are absolute paths that exist only on the Mac.
-
-### Why is identity not committed to the repo?
-
-It could be — name, email, SSH public key, and GitHub username are all already public via `git log` and `git log --show-signature` on github.com, so committing them leaks nothing new. But keeping email and signing key in a per-host `identity.gitconfig` outside the repo means:
-1. Different hosts can use different values (work mac with work SSH key + work email, personal mac with personal values) without committing both to the repo.
-2. Those values stay out of the repository while the shared config remains readable and directly editable.
-
-The tradeoff is the one "generated file with a source of truth elsewhere" in the setup. Everything else is stow-symlinked and edit-in-place.
+- **Alias, color, or filter:** edit `templates/git-config.tmpl`, then `make regen-git-config` on each host.
+- **Email or signing key:** edit `identity.gitconfig` with `git config --file`, then `make regen-git-config`.
+- **Different 1Password key per Mac:** set it in that Mac's `agent.toml` and `identity.gitconfig`, and register the key with the Git host.
 
 ## Architecture
 
-### Multi-package split
+### Packages
 
-- **`common/`** — shared on every host: fish, nvim, mise, starship, tmux, ctags, dircolors, gemrc, pryrc, rubocop, `git/ignore` (global gitignore), `.claude/CLAUDE.md` and `.claude/output-styles/` (personal Claude Code instructions and output style).
-- **`darwin/`** — any macOS host: `.Brewfile`, macOS-only scripts (`pb-pem`, `ssh-copy-id`, `touchid-enable-pam-sudo`), `git/config.darwin` (gh credential helper + SSH signing through `op-ssh-sign`), `.ssh/config` (1Password SSH agent), `.claude/statusline.sh` (Claude Code status line; it reads the macOS appearance), `.config/herdr-app/settings.json` + `themes/catppuccin-{mocha,latte}.json` (herdr follows the macOS appearance and derives its panel colors from each theme; add a `colors` block to a theme to pin one), and the keyboard-remapping LaunchAgent. The install flow also sets the bottom-right hot corner to Lock Screen.
-- **`codespaces/`** — Codespaces only: `.bash_aliases`, `.oh-my-zsh/`, Linux-only scripts (`gh-prepare`).
+- **`common/`** — every host: fish, nvim, mise, starship, tmux, fzf, htop, ctags, dircolors, gemrc, pryrc, rubocop, `git/ignore`, and `.claude/` (`CLAUDE.md`, output styles, skills).
+- **`darwin/`** — macOS: `.Brewfile`, scripts in `.bin/`, `git/config.darwin`, `.ssh/config`, `.claude/statusline.sh`, herdr settings and Catppuccin themes, and the keyboard-remapping LaunchAgent.
+- **`codespaces/`** — `.bash_aliases`, `.oh-my-zsh/`, `.bin/gh-prepare`.
 
-Claude Code's `~/.claude/settings.json` isn't in any stow package either. `script/install-darwin` copies `templates/claude-settings.json` there once, when the file is missing or is a symlink, and never touches it again. The file belongs to the machine: `/model`, `/config`, and `/plugin install` write to it, so work-only plugins and `skillOverrides` stay out of the repo. A change to a shared key (hooks, `statusLine`, `attribution`) must go in the template and be made by hand on each Mac. Work-only instructions go in untracked files under `~/.claude/rules/`; the shared `CLAUDE.md` stays stowed from `common/`.
+`~/.claude/settings.json` is not stowed. `script/install-darwin` copies `templates/claude-settings.json` there once and never again, because Claude Code writes machine-specific settings to it. Change shared keys (hooks, `statusLine`, `attribution`) in the template and by hand on each Mac. Work-only instructions go in untracked `~/.claude/rules/`.
 
-Git config isn't in any stow package — it's rendered from `templates/git-config.tmpl` + `~/.config/local/git/identity.gitconfig` at `make install` time. See the "Git identity layout" section above.
+### Platforms
 
-`make install` picks the right packages based on `uname -s` (darwin gates `install-darwin`) and `$CODESPACES` (gates `install-codespaces`). No `CONTEXT` env var — each host's identity file is what makes it "personal" or "work".
+- **macOS** — fish + Starship + Homebrew + mise.
+- **Codespaces** — bash, no Homebrew, no mise. `install-codespace-tools` provides a smaller tool set and no language servers, so `lsp.lua` attaches fewer servers there. **Supported floor: Ubuntu 22.04**; 20.04's glibc can't run the prebuilt Neovim, and `via_nvim` has no fallback.
 
-### Two-platform feature split
-
-- **macOS** → Fish (`common/.config/fish/config.fish`) + Starship + Homebrew (`darwin/.Brewfile`). `make install-darwin` installs Homebrew, stows `darwin`, applies macOS preferences, runs `brew bundle`, bootstraps fisher, adds fish to `/etc/shells`, and `chsh`s to fish.
-- **Codespaces** → `codespaces/.bash_aliases` (no Fish, no Starship). `make install-codespaces` runs two lifecycle phases: `script/install-codespace-tools` provisions binaries (nvim/rg/bat/fzf/lazygit/diff-so-fancy/tree-sitter via `gh release download`, tmux via apt, and Claude Code via its official installer, arch-aware amd64/arm64, through a data-driven `install_tool` driver that verifies each tool actually runs so a glibc-broken binary gets rebuilt rather than skipped), then `script/sync-codespace-plugins` reconciles plugin state (headless Neovim `+Lazy! sync`/`+TSUpdateSync` and tmux TPM). The sync phase is also a standalone `make sync-codespace-plugins` target. No Homebrew, no mise. Stays on bash.
-
-  **Supported floor: Ubuntu 22.04 (glibc 2.35).** The prebuilt Neovim requires `GLIBC_2.33`, so 20.04 is out — and because `via_nvim` installs a release tarball with no source-build fallback, it fails outright rather than degrading. If a 20.04 image ever matters again, that's the code to change, plus restoring the CI matrix entry.
-
-Shared: `common/.config/mise/config.toml`, `EDITOR=nvim`, core shortcuts (`lg` and `gp` are fish abbreviations, `vi`/`vim` are aliases). Shell-level features usually need both `config.fish` and `codespaces/.bash_aliases`.
-
-Machine-local secrets on Codespaces come from user-defined Codespaces secrets. On Darwin, put per-host values in `~/.config/fish/local_env.fish`, which `config.fish` sources when present — copy `common/.config/fish/local_env.fish.example` to create one. The real file is gitignored; only the `.example` template is tracked.
+Shell-level features usually need both `config.fish` and `codespaces/.bash_aliases`. Per-host values go in Codespaces secrets, or on macOS in `~/.config/fish/local_env.fish` (copy the tracked `.example`).
 
 ### Neovim — LazyVim base + manual LSP
 
-Built on **LazyVim** (`lazy.nvim` under the hood). Mason is disabled — LSP servers are installed by mise/system and configured inline in `lua/plugins/lsp.lua` via `opts.servers`. No Mason, no `ensure_installed` for language servers.
+Config lives in `common/.config/nvim/`. **Mason is disabled.** Language servers and formatters come from mise and are configured in `lua/plugins/lsp.lua` under `opts.servers`. The `ensure_installed` lists inside LazyVim extras do nothing, so declare any tool they want in mise.
 
-Layout under `common/.config/nvim/`:
-- `init.lua` — tiny stub: sets `mapleader`/`maplocalleader`, then `require("config.lazy")`.
-- `lua/config/lazy.lua` — bootstraps lazy.nvim and imports `lazyvim.plugins` + local `plugins/`. The enabled LazyVim extras live in `lazyvim.json` (managed by `:LazyExtras`), not in this file.
-- `lazyvim.json` — tracks the enabled extras and news-read state. Commit changes after toggling extras.
-- `lua/config/options.lua` — reasserts the comma leader after LazyVim loads and sets the remaining deltas from its defaults (`gdefault`, `cmdheight=0`, `listchars`, `updatetime`, `relativenumber=false`, `pumblend=0`, `mousemoveevent=true`).
-- `lua/config/keymaps.lua` — only our custom keymaps on top of LazyVim's.
-- `lua/config/autocmds.lua` — currently an empty placeholder for custom autocmds.
-- `lua/plugins/colorscheme.lua` — LazyVim `colorscheme` opt, catppuccin highlights, lualine palette integration. No `flavour` is set: mocha is catppuccin's default, which is why the theme matches tmux without an explicit pin. Set one only if that default ever changes.
-- `lua/plugins/ui.lua` — lualine sections, snacks dashboard + picker/notifier/statuscolumn/explorer, and hover.nvim providers.
-- `lua/plugins/disabled.lua` — single place for LazyVim plugins we turn off: `bufferline.nvim`, `mason.nvim`, `mason-lspconfig.nvim`, `neo-tree.nvim`.
-- `lua/plugins/coding.lua` — blink.cmp Tab/S-Tab cycling + sources.
-- `lua/plugins/gitsigns.lua` — gitsigns `numhl` only (no current-line blame).
-- `lua/plugins/lsp.lua` — registers the Ruby servers (`ruby_lsp`, `vscode_sorbet`, `vscode_sorbet_rubocop`) and `harper_ls` (prose/grammar) via `opts.servers`, and sets `opts.diagnostics` plus `inlay_hints = { enabled = false }`. Mason itself is disabled in `disabled.lua`.
-- `lua/plugins/editing.lua` — vim-surround, vim-repeat, vim-eunuch, vim-projectionist, vim-rails, vim-better-whitespace, vim-dirvish + dirvish-git.
-- `lua/plugins/treesitter.lua` — parser list additions and endwise. Treesitter context is enabled through the `lazyvim.plugins.extras.ui.treesitter-context` entry in `lazyvim.json`; textobjects are not configured locally in this file.
-- `ftplugin/`, `ftdetect/`, `after/` — standard.
-- `lazy-lock.json` — **gitignored and Stow-ignored on purpose.** lazy.nvim writes a host-local `~/.config/nvim/lazy-lock.json`, so plugin versions are deliberately not pinned across machines. To make versions reproducible, remove its entries from `.gitignore` and `common/.stow-local-ignore`, move or copy the host lockfile into `common/.config/nvim/`, add it to git, and run `make install`.
+- Extras are toggled with `:LazyExtras` and saved in `lazyvim.json`; commit that file.
+- `lazy-lock.json` is gitignored and Stow-ignored on purpose, so plugin versions are not pinned across machines.
+- Breadcrumbs in the winbar come from `dropbar.nvim` (`lua/plugins/ui.lua`), using a custom source that runs `queries/<lang>/outline.scm` (copied from Zed). Add an outline query to give a language breadcrumbs.
 
 Conventions (intentional — don't "fix"):
-- Leader: `,` (not space — set in `init.lua` before `require("config.lazy")`).
-- `gdefault = true`, absolute line numbers, `cmdheight = 0`, `clipboard = unnamedplus`.
-- Mouse movement events are enabled for hover.nvim's `<MouseMove>` mapping.
-- Theme: Catppuccin Mocha (matches tmux).
-- File explorer: vim-dirvish (neo-tree disabled).
-- Surround: vim-surround is explicitly installed; there is no local mini.surround override.
-- Prose: `harper_ls` and `setlocal spell` (in `ftplugin/markdown.vim`) share one word list — `spell/en.utf-8.add`, wired into harper via `userDictPath`. Add words in one place, not two.
-
-Adding a plugin: create/edit a spec file under `lua/plugins/` returning a lazy.nvim spec table. Run `:Lazy sync`.
-
-Adding an LSP: add `<name> = { ... }` to `opts.servers` in `lua/plugins/lsp.lua` with the full `vim.lsp.Config` table inline.
-
-Formatting: LazyVim's default `conform.nvim` wiring, untouched. Format-on-save runs through `LazyVim.format`, Lua uses `stylua`, Go uses `goimports` + `gofumpt`, everything else falls back to the LSP formatter.
+- Leader is `,`, set in `lua/config/options.lua` because LazyVim's options would override an earlier value.
+- Absolute line numbers, `cmdheight = 0`.
+- Theme: Catppuccin Mocha, matching tmux.
+- File explorer: vim-dirvish; neo-tree, bufferline, and friendly-snippets are disabled in `lua/plugins/disabled.lua`.
+- Surround: vim-surround, not mini.surround.
+- `harper_ls` and `setlocal spell` share `spell/en.utf-8.add`. Add words in one place.
+- Formatting is LazyVim's default `conform.nvim` setup.
 
 ### Fish
 
-`common/.config/fish/` = `config.fish`, `fish_plugins` (Fisher), and `functions/` (one fn per file, filename must match function name). Nothing under `conf.d/` is tracked — it's ignored in `.gitignore` because fisher and fish itself write there at runtime. Non-obvious helpers: `gloan` (clones into `~/src/{owner}/{repo}`), `github_token` / `set_github_token` / `refresh_github_token` (gh keyring, cached).
+`common/.config/fish/`: `config.fish`, `fish_plugins`, and `functions/` (one function per file, named after it). `conf.d/` is not tracked; fish and fisher write it.
 
-**GitHub token helpers.** `refresh_github_token` reads the token from the `gh` keyring and caches it at `~/.cache/gh-token` (mode 600); `github_token` prints it, preferring `$GITHUB_TOKEN`, then a cache newer than 7 days, then a refresh; `set_github_token` exports it. The refresh path calls `env -u GH_TOKEN -u GITHUB_TOKEN gh auth token` — tools like the Copilot app inject a narrowly-scoped `GH_TOKEN` that `gh auth token` would otherwise echo back, masking the keyring credential that actually carries `read:packages`. Run `refresh_github_token` by hand after `gh auth login`/`gh auth refresh`. Exporting `GITHUB_TOKEN` at startup is opt-in per host via `~/.config/fish/local_env.fish` (untracked — copy `local_env.fish.example` to start), since it puts a live token in every shell's environment.
-
-**Don't replace the inlined Homebrew env block in `config.fish` with `eval (brew shellenv)`.** The top of `config.fish` sets `HOMEBREW_PREFIX` (via a `uname -m` switch) plus `HOMEBREW_CELLAR`, `HOMEBREW_REPOSITORY`, and the PATH/MANPATH/INFOPATH entries by hand. This is deliberate: `brew shellenv` shells out to a Bash/Ruby subprocess on every shell startup, and inlining the values avoids that latency. Keep the block hand-written and update it only if Homebrew's env layout changes.
+- `refresh_github_token` calls `env -u GH_TOKEN -u GITHUB_TOKEN gh auth token`. Some tools inject a narrow `GH_TOKEN` that would otherwise hide the keyring token, which has `read:packages`.
+- **Don't replace the hand-written Homebrew env block in `config.fish` with `eval (brew shellenv)`.** It avoids a subprocess on every shell start.
 
 ### Tool provisioning (mise vs Homebrew)
 
-`common/.config/mise/config.toml` is the source of truth for **language runtimes and everything Neovim needs** — language servers, and the formatters `conform.nvim` invokes. Because Mason is disabled in the Neovim config, nothing else installs them: if a tool isn't declared in `[tools]`, the LSP simply never attaches. `script/install-mise` installs mise's official release to `~/.local/bin/mise` on macOS. `darwin/.Brewfile` owns the rest — GUI apps, casks, shell/terminal infrastructure (fish, tmux, git, gh, starship, zoxide), and CLI tools invoked by this repo's own scripts rather than by the editor.
+The rule is **"does Neovim invoke it?"** If yes, declare it in `common/.config/mise/config.toml`; otherwise Homebrew is fine. Without Mason, a server missing from mise never attaches. Example: `harper-ls` is in mise only; `shellcheck`, used only by `make test`, is in Homebrew only.
 
-The dividing question is **"does Neovim invoke it?"** If yes, it goes in mise — Codespaces has no Homebrew, and CI can't reproduce a brew-pinned version. If it's only ever run by a script or by you at a prompt, Homebrew is fine. `shellcheck` is the worked example of the second case: `make test` is its only consumer, and every platform ships its own copy (Homebrew on macOS, preinstalled on the CI runner), so routing it through mise bought nothing but a second declaration to keep in sync. `harper-ls` is the worked example of the first: it backs the `harper_ls` LSP, so it's declared in mise and deliberately *not* in the Brewfile.
+- **`ruby-lsp`** is installed by a `postinstall` hook on `ruby`, not the `gem` backend, whose isolated `GEM_HOME` can't see `ruby-lsp-rails`. The hook runs only when ruby is installed, and `--force` reinstalling ruby discards hand-installed gems.
+- **`tree-sitter` breaks the rule.** On macOS it comes from the Brewfile (`tree-sitter`, `tree-sitter-cli`). If you move it to mise, delete both Brewfile lines in the same change, or the brew copy wins on PATH.
+- `config.fish` activates `~/.local/bin/mise` by its exact path. Homebrew's bin is still ahead on PATH, so a brew copy of a mise tool shadows it.
 
-`gopls` uses the `go` backend. `ruby-lsp` uses a `postinstall` hook on `ruby` (`gem install ruby-lsp`) — mise's documented option for gems that belong in every Ruby version, and the one that works here: the `gem` backend's isolated `GEM_HOME` can't see `ruby-lsp-rails`, so `lsp.lua`'s `["Ruby LSP Rails"]` `addonSettings` would configure an addon that never loads. Don't use `~/.default-gems`; default-package files are [deprecated](https://mise.jdx.dev/lang/ruby.html#default-gems).
+Wrong tool version? Compare `mise which <tool>` with `type -a <tool>`. mise's `rust` puts `~/.cargo/bin` first, so a `cargo install`ed binary can shadow a mise pin, even through `mise exec`.
 
-The hook only fires when ruby itself is installed, so editing it changes nothing until the runtime is reinstalled — and `--force` on a runtime with hand-installed gems discards them.
+### Git / Tmux
 
-**Two tools still break the rule — know them before you trust the list.**
-
-- **`tree-sitter` is an unreconciled exception.** nvim-treesitter shells out to `tree-sitter build`, so by the rule the CLI belongs in mise — but on macOS it comes from `darwin/.Brewfile` (`tree-sitter` + `tree-sitter-cli`) and isn't in mise at all. Nothing is broken, because Codespaces gets it from `script/install-codespace-tools`; the rule just doesn't describe macOS here. If you do move it to mise, delete both Brewfile lines in the same change — `/opt/homebrew/bin` sits ahead of mise's shims on PATH, so a leftover brew copy silently wins and you end up debugging a version you didn't install.
-- **`bash-language-server` is a pin with no consumer.** It's in `[tools]` and `script/doctor` checks for it, but there's no `opts.servers` entry in `lsp.lua` and no `lang.sh` extra in `lazyvim.json`, so it never attaches to a buffer. Either wire it up or drop both declarations — a green `doctor` line for a server that never runs is worse than no line.
-
-`mise` is the last prerequisite of the `install` target, so under `.NOTPARALLEL` it runs after the common config and macOS package have been stowed. On macOS it installs the official release when `~/.local/bin/mise` is absent, then invokes that exact binary to trust the config and install tools. On other hosts it uses an existing `mise` from `PATH` or guard-skips when unavailable. CI installs individual tools from this same tracked file by setting `MISE_GLOBAL_CONFIG_FILE` — pins live in one place, never duplicated into a workflow input.
-
-**This is macOS-only in practice.** Codespaces has no mise; `script/install-codespace-tools` provisions its own (smaller) binary set and none of the language servers, so the stowed `lsp.lua` degrades there. If that starts to matter, the fix is to provision `mise` in the Codespaces path and let `make mise` cover both, not to duplicate the tool list in shell.
-
-**mise activation is explicit.** `config.fish` adds `~/.local/bin` to `PATH` and sources `~/.local/bin/mise activate fish` when the mainline binary is executable. Calling the exact path prevents an obsolete package-manager copy from shadowing the bootstrap-managed binary.
-
-Homebrew's bin directory remains ahead of `~/.local/bin`, but the explicit activation path ensures the correct mise executable initializes the shell. A Homebrew-installed copy of a mise-managed tool can still shadow mise's installed version, so the ownership split above remains important.
-
-If you see the wrong version of a tool, compare `mise which <tool>` (what mise resolves) against `type -a <tool>` (what the shell will actually run) — a stray `brew install` or `cargo install` copy is the usual cause. Note that mise's `rust` tool puts `~/.cargo/bin` on PATH ahead of other tools' install dirs, so a `cargo install`ed binary can shadow a mise-pinned one even through `mise exec`.
-
-### Git / Tmux / Terminal
-
-- **Git**: see the "Git identity layout" section above for the template-based setup. All static config (aliases: `co` plain checkout, `cor` fzf-picker checkout, `cs` signed commit, `up` pull --rebase, plus `br`/`cp`/`st`; commit signing on; diff-so-fancy pager; `pull.rebase`; default branch `main`) lives in `templates/git-config.tmpl`. macOS credential helper and SSH signing config in `darwin/.config/git/config.darwin`.
-- **Tmux**: prefix `Ctrl-f`, base index 1, vim copy-mode, Catppuccin Mocha, plugins via TPM (`prefix + I` on macOS; on Codespaces `sync-codespace-plugins` clones TPM and installs plugins headlessly).
-- **iTerm2**: not tracked — changes too often. Don't edit here.
+- **Git** aliases: `co` checkout, `cor` fzf checkout, `cs` signed commit, `up` pull --rebase, plus `br`/`cp`/`st`. All in `templates/git-config.tmpl`.
+- **Tmux**: prefix `Ctrl-f`, base index 1, vim copy-mode, Catppuccin Mocha, TPM plugins (`prefix + I`).
 
 ## Adding a file
 
-1. Put it in the right package:
-   - Cross-platform → `common/`
-   - macOS-only → `darwin/`
-   - Codespaces-only → `codespaces/`
-2. Use real filenames (no `dot_` prefix). Ensure executables are `chmod +x` in git (`git update-index --chmod=+x path`).
-3. Run `make install` to create the symlink in `$HOME`. (Because `--no-folding` is on, every file needs its own symlink — `make install` is idempotent and will create just the new one.)
+1. Put it in `common/` (cross-platform), `darwin/` (macOS), or `codespaces/`.
+2. Use the real filename. Mark executables with `git update-index --chmod=+x path`.
+3. Run `make install` to create its symlink.
 
-If a tool wrote a file into a config directory at runtime (e.g. `funced` created `~/.config/fish/functions/newfunc.fish` as a real file in `$HOME`, not through a symlink), and you decide you *do* want it tracked:
-
-```sh
-mv ~/.config/fish/functions/newfunc.fish common/.config/fish/functions/
-make install
-```
-
-(Git config is the one exception — don't add it to a stow package. Edit `templates/git-config.tmpl` and run `make regen-git-config`.)
+To track a file a tool wrote at runtime, move it into the package and run `make install`. Git config is the exception: edit the template.
 
 ## Removing a file
 
-**Unstow before you delete, or you strand the symlink.** `stow -R` works out what to
-remove by walking the *package*, so a file already deleted from `common/` is invisible
-to it — the link in `$HOME` survives as a dangling pointer and every later `make
-install` leaves it alone. Order matters:
+**Unstow before you delete.** Stow finds links by walking the package, so a link to a file already deleted from the package is left dangling.
 
 ```sh
-make clean                       # unstow while the file still exists
+make clean
 git rm -r common/.some-thing
 make install
 ```
 
-If you deleted first, the links are already orphaned and no stow command will find
-them. Clean up by hand, checking each one points where you think before removing it:
+If you already deleted it, find the dangling links and check each before removing it:
 
 ```sh
 for l in $(find ~/.some-thing -type l); do [ -e "$l" ] || echo "DANGLING $l -> $(readlink "$l")"; done
 ```
 
-**Don't shadow system terminfo.** `~/.terminfo` replaces a system entry whole; it does
-not merge with it. A copied entry loses every capability added to the system one later.
-Diff before adding one:
-
-```sh
-infocmp -x -1 -A ~/.terminfo -B /usr/share/terminfo -d xterm-256color xterm-256color
-```
-
 ## Dev focus
 
-Ruby/Rails primary — Sorbet (`vscode_sorbet`, `vscode_sorbet_rubocop`), ruby-lsp, Rubocop (`common/.rubocop.yml`), vim-rails, `common/.pryrc`. Also Go (gopls + gofumpt + goimports via the `lang.go` LazyVim extra), Lua (lua_ls, stylua), Node, and Rust. All of those binaries come from mise. Because Mason is disabled, the `ensure_installed` entries inside LazyVim language extras are silent no-ops — any tool they want must be declared in `common/.config/mise/config.toml`. See "Tool provisioning" above.
+Ruby/Rails first (Sorbet, ruby-lsp, RuboCop, vim-rails, pry), then Go, Lua, Node, and Rust. All their tools come from mise.
