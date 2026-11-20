@@ -13,6 +13,7 @@ return {
       float = { solid = true },
       integrations = {
         blink_cmp = { style = "bordered" },
+        dropbar = { enabled = true, color_mode = true }, -- color breadcrumbs by symbol kind
         lualine = {
           all = function(colors)
             local function b()
@@ -66,8 +67,10 @@ return {
           ["@string.special.symbol.ruby"] = { fg = colors.red },
           -- Ruby hash keys and keyword args (captured in after/queries/ruby/highlights.scm).
           ["@property.ruby"] = { fg = colors.blue },
-          WinBar = { bg = colors.mantle },
-          WinBarNC = { bg = colors.mantle },
+          -- Zed-style breadcrumb bar: editor background with a thin surface0 line at the bottom,
+          -- drawn as a colored underline across the row (see the winbar in plugins/ui.lua).
+          WinBar = { fg = colors.text, style = { "underline" }, sp = colors.surface0 },
+          WinBarSeparator = { fg = colors.overlay2, style = { "underline" }, sp = colors.surface0 },
           -- More style guide rows where catppuccin-nvim differs.
           LineNr = { fg = colors.overlay1 },
           DiagnosticInfo = { fg = colors.teal },
