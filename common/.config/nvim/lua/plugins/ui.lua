@@ -302,11 +302,6 @@ return {
         "hover.providers.lsp",
         "hover.providers.dap",
       },
-      mouse_providers = {
-        "hover.providers.diagnostic",
-        "hover.providers.lsp",
-        "hover.providers.dap",
-      },
     },
   },
 }
