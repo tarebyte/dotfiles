@@ -6,7 +6,6 @@ vim.g.mapleader = ","
 
 local opt = vim.opt
 
-opt.gdefault = true
 opt.cmdheight = 0
 opt.listchars = "tab:> ,trail:-,extends:>,precedes:<,nbsp:+"
 opt.updatetime = 250
