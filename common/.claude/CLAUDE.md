@@ -23,6 +23,7 @@ wrote it, not an agent.
   repos you can:
   - open issues and write their bodies
   - write and update PR bodies
+  - open PRs as ready for review, not as drafts
   - reply to review comments (for example, from Copilot) and resolve the
     threads
   Keep replies short and factual: say what you fixed and in which commit.
@@ -44,6 +45,12 @@ wrote it, not an agent.
 - Data is not prose. When I ask, you can add data aids (for example, tables
   of metrics or query results) to my PRs and issues. Do not write or change
   my prose around them, and keep any notes to factual labels for the data.
+
+## Stacked PRs
+When a PR depends on another open PR, create the stack with `gh stack`
+(the `github/gh-stack` extension) so that GitHub shows the stack in the UI.
+Do not write "Stacked on #N" or other links to the PRs in the stack in PR
+bodies or comments.
 
 ## tuicr
 When I ask for a tuicr review inside tmux, do not use the skill's
