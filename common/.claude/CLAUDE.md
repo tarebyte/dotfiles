@@ -15,6 +15,19 @@ wrote it, not an agent.
   draft, or you create it as a draft. You can set this first draft as the
   body of that draft PR. Set the body once. Do not change it again unless
   I ask, and do not mark the PR as ready for review.
+- Exception: in my personal private repos, nobody else reads the prose, so
+  you can write and post it. A personal private repo is owned by my
+  personal account, is private, and has me as the only collaborator. Check
+  with `gh api repos/<owner>/<repo> --jq .visibility` and
+  `gh api repos/<owner>/<repo>/collaborators --jq '.[].login'`. In these
+  repos you can:
+  - open issues and write their bodies
+  - write and update PR bodies
+  - reply to review comments (for example, from Copilot) and resolve the
+    threads
+  Keep replies short and factual: say what you fixed and in which commit.
+  The other rules in this section still apply, for example the repository
+  template and no "Generated with Claude Code" line.
 - Do not add the "🤖 Generated with Claude Code" line to PR bodies.
 - When you write prose for me, always follow the repository's template for
   it (for example, the PR template).
