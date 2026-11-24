@@ -9,7 +9,7 @@ lua = "latest"
 node = "latest"
 # postinstall, not the `gem` backend: the backend's isolated GEM_HOME can't see
 # ruby-lsp-rails, so lsp.lua's addonSettings would configure an unloadable addon.
-ruby = { version = "4.0.9", postinstall = "gem install ruby-lsp" }
+ruby = { version = "4.0.10", postinstall = "gem install ruby-lsp" }
 rust = "latest"
 stylua = "v2.6.0"
 "aqua:LuaLS/lua-language-server" = "latest"
